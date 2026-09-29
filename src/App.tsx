@@ -1,4 +1,4 @@
-import {Button, Chip} from "@heroui/react";
+import {Button} from "@heroui/react";
 import {createColumnHelper} from "@tanstack/react-table";
 import React, {useCallback, useState} from "react";
 import {HeroUIThemeSwitch} from "./cmps/HeroUIThemeSwitch";
@@ -7,6 +7,7 @@ import TableEmpty from "./base/HeroUITable/TableEmpty/TableEmpty";
 import {FetchParams, HeroUiTable, PaginationOptions,} from "./base/HeroUITable/HeroUITable/HeroUiTable";
 import HeroUIIconButton from "./base/HeroUIIConButton/HeroUIIconButton";
 import HeroUIButton from "./base/HeroUIButton/HeroUIButton";
+import TableFilters from "./base/HeroUITable/TableFilters/TableFilters";
 
 interface User {
     id: number;
@@ -223,18 +224,58 @@ function App() {
                 isLoading={isLoading}
                 data={data}
                 paginationOptions={paginationOptions}
-                fetchData={fetchData}
                 pageSizeOptions={[5, 10, 25, 50, 100]}
-                ariaLabel="Team members"
+                fetchData={fetchData}
                 rowHeaderColumnId="name"
                 renderLoading={() => <TableLoader loading={true}/>}
                 renderEmpty={() => (
                     <TableEmpty
-                        icon="gravity-ui:tray"
+                        icon="fa6-solid:inbox"
                         title="No hay usuarios"
                         description="Cuando se registren usuarios aparecerán aquí."
                     />
                 )}
+                renderHeader={
+                    <TableFilters
+                        start={
+                            <h2 className="text-lg font-semibold">Team members</h2>
+                        }
+                        end={
+                            <>
+                                <HeroUIIconButton
+                                    appearance="row"
+                                    aria-label={''}
+                                    icon="fa6-solid:filter"
+                                    onPress={() => {
+                                        fetchData({
+                                            first: 0,
+                                            offset: 0,
+                                            currentPage: 0,
+                                            pageSize: paginationOptions.pageSize,
+                                            sorting: [],
+                                        });
+                                    }}
+                                />
+
+                                <HeroUIIconButton
+                                    appearance="row"
+                                    aria-label={''}
+                                    icon="fa6-solid:arrows-rotate"
+                                    onPress={() => {
+                                        fetchData({
+                                            first: 0,
+                                            offset: 0,
+                                            currentPage: 0,
+                                            pageSize: paginationOptions.pageSize,
+                                            sorting: [],
+                                        });
+                                    }}
+                                />
+
+                            </>
+                        }
+                    />
+                }
             />
 
 
@@ -264,7 +305,7 @@ function App() {
                 renderLoading={() => <TableLoader loading={true}/>}
                 renderEmpty={() => (
                     <TableEmpty
-                        icon="gravity-ui:tray"
+                        icon="fa6-solid:inbox"
                         title="No hay usuarios"
                         description="Cuando se registren usuarios aparecerán aquí."
                     />

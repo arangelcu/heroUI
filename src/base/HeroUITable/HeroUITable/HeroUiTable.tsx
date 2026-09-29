@@ -79,8 +79,10 @@ interface HeroUITanStackTableProps<TData extends RowData> {
     getRowId?: (row: TData) => string | number;
 
     // Resizable
-    /** Activa el resize de columnas con drag handle */
     enableColumnResizing?: boolean;
+
+    // 👇 Header personalizado (siempre visible si se pasa)
+    renderHeader?: React.ReactNode;
 }
 
 // --- Componente genérico --------------------------------------------------
@@ -99,6 +101,7 @@ export function HeroUiTable<TData extends RowData>({
                                                        onSelectionChange,
                                                        getRowId = (row: any) => row.id,
                                                        enableColumnResizing = false,
+                                                       renderHeader,
                                                    }: HeroUITanStackTableProps<TData>) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -243,7 +246,6 @@ export function HeroUiTable<TData extends RowData>({
             onSelectionChange={enableSelection ? handleSelectionChange : undefined}
         >
             <Table.Header className="bg-surface-secondary [&>tr]:border-b [&>tr]:border-border">
-                {/* 👇 Columna de checkbox: siempre 40px */}
                 {enableSelection && (
                     <Table.Column
                         className="pe-0 w-[40px]"
@@ -307,7 +309,6 @@ export function HeroUiTable<TData extends RowData>({
                         id={String(getRowId(row.original))}
                         className="border-b border-border hover:bg-surface-secondary-hover"
                     >
-                        {/* 👇 Celda de checkbox: siempre 40px */}
                         {enableSelection && (
                             <Table.Cell
                                 className="pe-0"
@@ -348,6 +349,7 @@ export function HeroUiTable<TData extends RowData>({
 
     return (
         <Table>
+            {renderHeader}
             {enableColumnResizing ? (
                 <Table.ResizableContainer>
                     {tableContent}
