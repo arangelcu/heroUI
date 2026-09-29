@@ -1,5 +1,5 @@
-import React, {useMemo, useState} from "react";
-import {EmptyState, SortDescriptor, Spinner, Table} from "@heroui/react";
+import React, {useEffect, useMemo, useState} from "react";
+import {Checkbox, EmptyState, Selection, SortDescriptor, Spinner, Table} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import type {ColumnDef, RowData, SortingState} from "@tanstack/react-table";
 import {
@@ -72,6 +72,15 @@ interface HeroUITanStackTableProps<TData extends RowData> {
     renderEmpty?: () => React.ReactNode;
     renderLoading?: () => React.ReactNode;
     isLoading?: boolean;
+
+    // Selección
+    enableSelection?: boolean;
+    onSelectionChange?: (selectedRows: TData[]) => void;
+    getRowId?: (row: TData) => string | number;
+
+    // Resizable
+    /** Activa el resize de columnas con drag handle */
+    enableColumnResizing?: boolean;
 }
 
 // --- Componente genérico --------------------------------------------------
@@ -86,8 +95,14 @@ export function HeroUiTable<TData extends RowData>({
                                                        renderEmpty,
                                                        renderLoading,
                                                        isLoading = false,
+                                                       enableSelection = false,
+                                                       onSelectionChange,
+                                                       getRowId = (row: any) => row.id,
+                                                       enableColumnResizing = false,
                                                    }: HeroUITanStackTableProps<TData>) {
     const [sorting, setSorting] = useState<SortingState>([]);
+
+    const [selectedRowsMap, setSelectedRowsMap] = useState<Map<string | number, TData>>(new Map());
 
     const pageIndex = paginationOptions.currentPage;
     const pageSize = paginationOptions.pageSize;
@@ -113,6 +128,54 @@ export function HeroUiTable<TData extends RowData>({
     const rows = table.getRowModel().rows;
     const hasRows = rows.length > 0;
 
+    // --- Selección ---------------------------------------------------------
+    useEffect(() => {
+        if (!enableSelection) return;
+        onSelectionChange?.(Array.from(selectedRowsMap.values()));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedRowsMap]);
+
+    const selectedKeys: Selection = useMemo(
+        () => new Set(Array.from(selectedRowsMap.keys()).map(String)),
+        [selectedRowsMap]
+    );
+
+    const handleSelectionChange = (keys: Selection) => {
+        const next = new Map(selectedRowsMap);
+
+        if (keys === "all") {
+            rows.forEach((r) => {
+                const id = getRowId(r.original);
+                if (!next.has(id)) next.set(id, r.original);
+            });
+            setSelectedRowsMap(next);
+            return;
+        }
+
+        const currentPageIds = new Set(rows.map((r) => String(getRowId(r.original))));
+
+        currentPageIds.forEach((idStr) => {
+            if (!(keys as Set<string>).has(idStr)) {
+                for (const key of next.keys()) {
+                    if (String(key) === idStr) {
+                        next.delete(key);
+                        break;
+                    }
+                }
+            }
+        });
+
+        rows.forEach((r) => {
+            const id = getRowId(r.original);
+            if ((keys as Set<string>).has(String(id)) && !next.has(id)) {
+                next.set(id, r.original);
+            }
+        });
+
+        setSelectedRowsMap(next);
+    };
+
+    // --- Empty / loading ---------------------------------------------------
     const renderEmptyState = () => {
         if (isLoading) {
             return renderLoading ? (
@@ -135,6 +198,7 @@ export function HeroUiTable<TData extends RowData>({
         );
     };
 
+    // --- Handlers paginado / sorting --------------------------------------
     const handlePageChange = (newPageIndex: number) => {
         fetchData({
             first: newPageIndex * pageSize,
@@ -167,69 +231,132 @@ export function HeroUiTable<TData extends RowData>({
         });
     };
 
-    return (
-        <Table>
-            <Table.ScrollContainer>
-                <Table.Content
-                    aria-label={ariaLabel}
-                    className="min-w-[600px]"
-                    sortDescriptor={sortDescriptor}
-                    onSortChange={handleSortChange}
-                >
-                    <Table.Header className="bg-surface-secondary [&>tr]:border-b [&>tr]:border-border">
-                        {table.getHeaderGroups()[0]?.headers.map((header) => (
-                            <Table.Column
-                                key={header.id}
-                                allowsSorting={
-                                    header.column.getCanSort() &&
-                                    "accessorFn" in header.column.columnDef &&
-                                    !!header.column.columnDef.accessorFn
-                                }
-                                id={header.id}
-                                isRowHeader={header.id === rowHeaderColumnId}
-                                className="px-4 py-3 text-left font-semibold text-default-foreground"
-                                style={
-                                    header.column.columnDef.size
-                                        ? {width: `${header.getSize()}px`}
-                                        : undefined
-                                }
-                            >
-                                {({sortDirection}) => (
+    // --- Contenido reutilizable (con o sin resize) -------------------------
+    const tableContent = (
+        <Table.Content
+            aria-label={ariaLabel}
+            className="min-w-[600px]"
+            sortDescriptor={sortDescriptor}
+            onSortChange={handleSortChange}
+            selectedKeys={enableSelection ? selectedKeys : undefined}
+            selectionMode={enableSelection ? "multiple" : "none"}
+            onSelectionChange={enableSelection ? handleSelectionChange : undefined}
+        >
+            <Table.Header className="bg-surface-secondary [&>tr]:border-b [&>tr]:border-border">
+                {/* 👇 Columna de checkbox: siempre 40px */}
+                {enableSelection && (
+                    <Table.Column
+                        className="pe-0 w-[40px]"
+                        id="__selection__"
+                        defaultWidth={enableColumnResizing ? 40 : undefined}
+                        minWidth={enableColumnResizing ? 40 : undefined}
+                    >
+                        <Checkbox aria-label="Select all" slot="selection">
+                            <Checkbox.Content>
+                                <Checkbox.Control>
+                                    <Checkbox.Indicator/>
+                                </Checkbox.Control>
+                            </Checkbox.Content>
+                        </Checkbox>
+                    </Table.Column>
+                )}
+
+                {table.getHeaderGroups()[0]?.headers.map((header) => {
+                    const canSort =
+                        header.column.getCanSort() &&
+                        "accessorFn" in header.column.columnDef &&
+                        !!header.column.columnDef.accessorFn;
+
+                    const colDef = header.column.columnDef as any;
+                    const isLast = table.getHeaderGroups()[0]?.headers.slice(-1)[0]?.id === header.id;
+
+                    return (
+                        <Table.Column
+                            key={header.id}
+                            allowsSorting={canSort}
+                            id={header.id}
+                            isRowHeader={header.id === rowHeaderColumnId}
+                            className="px-4 py-3 text-left font-semibold text-default-foreground"
+                            defaultWidth={colDef.defaultWidth}
+                            minWidth={colDef.minWidth}
+                            style={
+                                !enableColumnResizing && header.column.columnDef.size
+                                    ? {width: `${header.getSize()}px`}
+                                    : undefined
+                            }
+                        >
+                            {({sortDirection}) => (
+                                <>
                                     <Table.SortableColumnHeader sortDirection={sortDirection}>
                                         {flexRender(header.column.columnDef.header, header.getContext())}
                                     </Table.SortableColumnHeader>
-                                )}
-                            </Table.Column>
-                        ))}
-                    </Table.Header>
-                    <Table.Body
-                        items={isLoading || !hasRows ? [] : rows}
-                        renderEmptyState={renderEmptyState}
+                                    {enableColumnResizing && !isLast && <Table.ColumnResizer/>}
+                                </>
+                            )}
+                        </Table.Column>
+                    );
+                })}
+            </Table.Header>
+            <Table.Body
+                items={isLoading || !hasRows ? [] : rows}
+                renderEmptyState={renderEmptyState}
+            >
+                {(row) => (
+                    <Table.Row
+                        key={row.id}
+                        id={String(getRowId(row.original))}
+                        className="border-b border-border hover:bg-surface-secondary-hover"
                     >
-                        {(row) => (
-                            <Table.Row
-                                key={row.id}
-                                id={row.id}
-                                className="border-b border-border hover:bg-surface-secondary-hover"
+                        {/* 👇 Celda de checkbox: siempre 40px */}
+                        {enableSelection && (
+                            <Table.Cell
+                                className="pe-0"
+                                style={!enableColumnResizing ? {width: "40px"} : undefined}
                             >
-                                {row.getAllCells().map((cell) => (
-                                    <Table.Cell
-                                        key={cell.id}
-                                        className="px-4 py-3 text-muted"
-                                        style={
-                                            cell.column.columnDef.size
-                                                ? {width: `${cell.column.getSize()}px`}
-                                                : undefined
-                                        }
-                                    >
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </Table.Cell>
-                                ))}
-                            </Table.Row>
+                                <Checkbox
+                                    aria-label={`Select row ${row.id}`}
+                                    slot="selection"
+                                    variant="secondary"
+                                >
+                                    <Checkbox.Content>
+                                        <Checkbox.Control>
+                                            <Checkbox.Indicator/>
+                                        </Checkbox.Control>
+                                    </Checkbox.Content>
+                                </Checkbox>
+                            </Table.Cell>
                         )}
-                    </Table.Body>
-                </Table.Content>
-            </Table.ScrollContainer>
+
+                        {row.getAllCells().map((cell) => (
+                            <Table.Cell
+                                key={cell.id}
+                                className="px-4 py-3 text-muted"
+                                style={
+                                    !enableColumnResizing && cell.column.columnDef.size
+                                        ? {width: `${cell.column.getSize()}px`}
+                                        : undefined
+                                }
+                            >
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </Table.Cell>
+                        ))}
+                    </Table.Row>
+                )}
+            </Table.Body>
+        </Table.Content>
+    );
+
+    return (
+        <Table>
+            {enableColumnResizing ? (
+                <Table.ResizableContainer>
+                    {tableContent}
+                </Table.ResizableContainer>
+            ) : (
+                <Table.ScrollContainer>
+                    {tableContent}
+                </Table.ScrollContainer>
+            )}
 
             <Table.Footer>
                 {isLoading || !hasRows ? null : (

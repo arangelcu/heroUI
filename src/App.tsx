@@ -43,24 +43,24 @@ const columnHelper = createColumnHelper<any, User>();
 const userColumns = columnHelper.columns([
     columnHelper.accessor("name", {
         header: "Name",
-        size: 300,
-    }),
+        minWidth: 160,
+        defaultWidth: "1fr",
+    } as any),
     columnHelper.accessor("role", {
         header: "Role",
-        size: 150,
-    }),
+        minWidth: 150,
+        defaultWidth: "1fr",
+    } as any),
     columnHelper.accessor("status", {
         header: "Status",
-        size: 120,
-        cell: (info) => (
-            <Chip color={statusColorMap[info.getValue()]} size="sm" variant="soft">
-                {info.getValue()}
-            </Chip>
-        ),
-    }),
+        minWidth: 120,
+        defaultWidth: "1fr",
+    } as any),
     columnHelper.accessor("email", {
         header: "Email",
-    }),
+        minWidth: 200,
+        defaultWidth: "1fr",
+    } as any),
 
     // 👇 Columna de acciones
     columnHelper.display({
@@ -236,6 +236,42 @@ function App() {
                     />
                 )}
             />
+
+
+            <br/>
+            <HeroUiTable
+                columns={userColumns}
+                isLoading={isLoading}
+                data={data}
+                paginationOptions={paginationOptions}
+                fetchData={fetchData}
+                pageSizeOptions={[5, 10, 25, 50, 100]}
+
+                // 👇 Activar selección
+                enableSelection
+                getRowId={(user) => user.id}
+                onSelectionChange={(selectedUsers) => {
+                    console.log("Filas seleccionadas:", selectedUsers);
+                    // aquí puedes guardar, borrar, etc.
+                }}
+
+
+                // 👇 Activar el resize
+                enableColumnResizing
+
+                ariaLabel="Team members"
+                rowHeaderColumnId="name"
+                renderLoading={() => <TableLoader loading={true}/>}
+                renderEmpty={() => (
+                    <TableEmpty
+                        icon="gravity-ui:tray"
+                        title="No hay usuarios"
+                        description="Cuando se registren usuarios aparecerán aquí."
+                    />
+                )}
+            />
+
+
         </div>
     );
 }
