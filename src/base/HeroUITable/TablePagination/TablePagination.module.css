@@ -1,0 +1,57 @@
+/* Barra contenedora */
+.bar {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 1rem;
+    border-radius: 8px;
+    background-color: color-mix(in srgb, var(--surface-secondary) 40%, transparent);
+}
+
+/* Botones Previous / Next — fondo blanco como antes */
+.navButton {
+    min-width: 140px;
+    background-color: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 5px !important;
+    color: var(--default-foreground) !important;
+    box-shadow: none !important;
+    transition: background-color 0.15s ease;
+}
+
+/* Hover (cuando NO está disabled) */
+.navButton:hover:not(:disabled) {
+    background-color: var(--surface-secondary) !important;
+}
+
+/* Estado disabled: mismo fondo blanco pero texto atenuado */
+.navButton:disabled,
+.navButton[data-disabled="true"],
+.navButton[aria-disabled="true"] {
+    background-color: var(--surface) !important;
+    color: var(--muted) !important;
+    opacity: 0.6 !important;
+    cursor: not-allowed;
+}
+
+/* Bloque central "Page X of Y" */
+.pageInfo {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--muted, #6b7280);
+}
+
+/* Input de página */
+.pageInput {
+    width: 80px;
+    border-radius: 5px;
+}
+
+/* Select de rows per page */
+.pageSizeSelect {
+    width: 128px;
+}
