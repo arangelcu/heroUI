@@ -14,7 +14,7 @@ import {
     useTable,
 } from "@tanstack/react-table";
 import TablePagination from "../TablePagination/TablePagination";
-import {FilterValues} from "../TableFilters/TableFilters";
+import TableFilters, {FilterValues} from "../TableFilters/TableFilters";
 
 // --- Features globales -----------------------------------------------------
 const features = tableFeatures({
@@ -22,9 +22,7 @@ const features = tableFeatures({
     paginatedRowModel: createPaginatedRowModel(),
     rowPaginationFeature,
     rowSortingFeature,
-    sortFns: {
-        alphanumeric: sortFn_alphanumeric,
-    },
+    sortFns: {alphanumeric: sortFn_alphanumeric},
     sortedRowModel: createSortedRowModel(),
 });
 
@@ -32,10 +30,7 @@ const features = tableFeatures({
 function toSortDescriptor(sorting: SortingState): SortDescriptor | undefined {
     const first = sorting[0];
     if (!first) return undefined;
-    return {
-        column: first.id,
-        direction: first.desc ? "descending" : "ascending",
-    };
+    return {column: first.id, direction: first.desc ? "descending" : "ascending"};
 }
 
 function toSortingState(descriptor: SortDescriptor): SortingState {
@@ -59,7 +54,27 @@ export interface FetchParams {
     currentPage: number;
     pageSize: number;
     sorting: SortingState;
-    filters?: FilterValues;
+    filters: FilterValues;
+}
+
+/** Configuración de los filtros que HeroUiTable renderiza internamente */
+export interface TableFiltersConfig {
+    /** Contenido libre a la izquierda del header */
+    start?: React.ReactNode;
+    /** Contenido libre a la derecha del header */
+    end?: React.ReactNode;
+    /** Mostrar el botón de toggle de filtros */
+    enableFiltersBtn?: boolean;
+    /** Mostrar el botón de refresh */
+    enableRefreshBtn?: boolean;
+    /** Filtro por nombre */
+    enableFilterName?: boolean;
+    /** Filtro por rol */
+    enableFilterRole?: boolean;
+    /** Filtro por status */
+    enableFilterStatus?: boolean;
+    /** Placeholder del filtro de nombre */
+    namePlaceholder?: string;
 }
 
 // --- Props del componente -------------------------------------------------
@@ -75,16 +90,19 @@ interface HeroUITanStackTableProps<TData extends RowData> {
     renderLoading?: () => React.ReactNode;
     isLoading?: boolean;
 
-    // Selección
     enableSelection?: boolean;
     onSelectionChange?: (selectedRows: TData[]) => void;
     getRowId?: (row: TData) => string | number;
-
-    // Resizable
     enableColumnResizing?: boolean;
 
-    // 👇 Header personalizado (siempre visible si se pasa)
-    renderHeader?: React.ReactNode;
+    // 👇 Filtros internos
+    /**
+     * Si se pasa, HeroUiTable renderiza `TableFilters` automáticamente
+     * y dispara `fetchData` cada vez que cambia un filtro.
+     */
+    filtersConfig?: TableFiltersConfig;
+    /** Callback opcional cuando cambian los filtros (por si quieres saberlo) */
+    onFiltersChange?: (filters: FilterValues) => void;
 }
 
 // --- Componente genérico --------------------------------------------------
@@ -103,11 +121,14 @@ export function HeroUiTable<TData extends RowData>({
                                                        onSelectionChange,
                                                        getRowId = (row: any) => row.id,
                                                        enableColumnResizing = false,
-                                                       renderHeader,
+                                                       filtersConfig,
+                                                       onFiltersChange,
                                                    }: HeroUITanStackTableProps<TData>) {
     const [sorting, setSorting] = useState<SortingState>([]);
-
     const [selectedRowsMap, setSelectedRowsMap] = useState<Map<string | number, TData>>(new Map());
+
+    // 👇 Estado de filtros INTERNO
+    const [filters, setFilters] = useState<FilterValues>({});
 
     const pageIndex = paginationOptions.currentPage;
     const pageSize = paginationOptions.pageSize;
@@ -122,14 +143,10 @@ export function HeroUiTable<TData extends RowData>({
         manualSorting: true,
         rowCount: total,
         onSortingChange: setSorting,
-        state: {
-            sorting,
-            pagination: {pageIndex, pageSize},
-        },
+        state: {sorting, pagination: {pageIndex, pageSize}},
     });
 
     const sortDescriptor = useMemo(() => toSortDescriptor(sorting), [sorting]);
-
     const rows = table.getRowModel().rows;
     const hasRows = rows.length > 0;
 
@@ -147,7 +164,6 @@ export function HeroUiTable<TData extends RowData>({
 
     const handleSelectionChange = (keys: Selection) => {
         const next = new Map(selectedRowsMap);
-
         if (keys === "all") {
             rows.forEach((r) => {
                 const id = getRowId(r.original);
@@ -156,9 +172,7 @@ export function HeroUiTable<TData extends RowData>({
             setSelectedRowsMap(next);
             return;
         }
-
         const currentPageIds = new Set(rows.map((r) => String(getRowId(r.original))));
-
         currentPageIds.forEach((idStr) => {
             if (!(keys as Set<string>).has(idStr)) {
                 for (const key of next.keys()) {
@@ -169,33 +183,26 @@ export function HeroUiTable<TData extends RowData>({
                 }
             }
         });
-
         rows.forEach((r) => {
             const id = getRowId(r.original);
             if ((keys as Set<string>).has(String(id)) && !next.has(id)) {
                 next.set(id, r.original);
             }
         });
-
         setSelectedRowsMap(next);
     };
 
     // --- Empty / loading ---------------------------------------------------
     const renderEmptyState = () => {
         if (isLoading) {
-            return renderLoading ? (
-                renderLoading()
-            ) : (
+            return renderLoading ? renderLoading() : (
                 <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-3 py-8 text-center">
                     <Spinner className="size-8 text-accent"/>
                     <span className="text-sm text-muted">Cargando...</span>
                 </EmptyState>
             );
         }
-
-        return renderEmpty ? (
-            renderEmpty()
-        ) : (
+        return renderEmpty ? renderEmpty() : (
             <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-3 py-8 text-center">
                 <Icon className="size-8 text-muted" icon="gravity-ui:tray"/>
                 <span className="text-sm text-muted">No results found</span>
@@ -203,7 +210,7 @@ export function HeroUiTable<TData extends RowData>({
         );
     };
 
-    // --- Handlers paginado / sorting --------------------------------------
+    // --- Handlers paginado / sorting / filtros ----------------------------
     const handlePageChange = (newPageIndex: number) => {
         fetchData({
             first: newPageIndex * pageSize,
@@ -211,6 +218,7 @@ export function HeroUiTable<TData extends RowData>({
             currentPage: newPageIndex,
             pageSize,
             sorting,
+            filters,   // 👈 filtros actuales
         });
     };
 
@@ -221,6 +229,7 @@ export function HeroUiTable<TData extends RowData>({
             currentPage: 0,
             pageSize: newSize,
             sorting,
+            filters,   // 👈 filtros actuales
         });
     };
 
@@ -233,10 +242,39 @@ export function HeroUiTable<TData extends RowData>({
             currentPage: 0,
             pageSize,
             sorting: newSorting,
+            filters,   // 👈 filtros actuales
         });
     };
 
-    // --- Contenido reutilizable (con o sin resize) -------------------------
+    // 👇 Handler que se pasa a TableFilters
+    const handleFilterChange = (newFilters: FilterValues) => {
+        setFilters(newFilters);
+        onFiltersChange?.(newFilters);
+
+        // 👇 Recargamos con los nuevos filtros
+        fetchData({
+            first: 0,
+            offset: 0,
+            currentPage: 0,
+            pageSize,
+            sorting,
+            filters: newFilters,
+        });
+    };
+
+    // 👇 Handler del botón refresh (recarga con los filtros actuales)
+    const handleRefresh = () => {
+        fetchData({
+            first: 0,
+            offset: 0,
+            currentPage: 0,
+            pageSize,
+            sorting,
+            filters,
+        });
+    };
+
+    // --- Contenido reutilizable -------------------------------------------
     const tableContent = (
         <Table.Content
             aria-label={ariaLabel}
@@ -270,7 +308,6 @@ export function HeroUiTable<TData extends RowData>({
                         header.column.getCanSort() &&
                         "accessorFn" in header.column.columnDef &&
                         !!header.column.columnDef.accessorFn;
-
                     const colDef = header.column.columnDef as any;
                     const isLast = table.getHeaderGroups()[0]?.headers.slice(-1)[0]?.id === header.id;
 
@@ -301,10 +338,7 @@ export function HeroUiTable<TData extends RowData>({
                     );
                 })}
             </Table.Header>
-            <Table.Body
-                items={isLoading || !hasRows ? [] : rows}
-                renderEmptyState={renderEmptyState}
-            >
+            <Table.Body items={isLoading || !hasRows ? [] : rows} renderEmptyState={renderEmptyState}>
                 {(row) => (
                     <Table.Row
                         key={row.id}
@@ -329,7 +363,6 @@ export function HeroUiTable<TData extends RowData>({
                                 </Checkbox>
                             </Table.Cell>
                         )}
-
                         {row.getAllCells().map((cell) => (
                             <Table.Cell
                                 key={cell.id}
@@ -351,7 +384,22 @@ export function HeroUiTable<TData extends RowData>({
 
     return (
         <Table>
-            {renderHeader}
+            {/* 👇 Si hay filtersConfig, TableFilters se renderiza automáticamente */}
+            {filtersConfig && (
+                <TableFilters
+                    start={filtersConfig.start}
+                    end={filtersConfig.end}
+                    enableFiltersBtn={filtersConfig.enableFiltersBtn}
+                    enableRefreshBtn={filtersConfig.enableRefreshBtn}
+                    enableFilterName={filtersConfig.enableFilterName}
+                    enableFilterRole={filtersConfig.enableFilterRole}
+                    enableFilterStatus={filtersConfig.enableFilterStatus}
+                    namePlaceholder={filtersConfig.namePlaceholder}
+                    onFilterChange={handleFilterChange}
+                    onRefresh={handleRefresh}
+                />
+            )}
+
             {enableColumnResizing ? (
                 <Table.ResizableContainer>
                     {tableContent}

@@ -1,9 +1,9 @@
 import React, {useState} from "react";
-import {Input, ListBox, Select, TextField} from "@heroui/react";
-
 // @ts-ignore
 import styles from "./TableFilters.module.css";
 import HeroUIIconButton from "../../HeroUIIConButton/HeroUIIconButton";
+import HeroUISelect from "../../HeroUISelect/HeroUISelect";
+import HeroUITextField from "../../HeroUITextField/HeroUITextField";
 
 export interface FilterValues {
     name?: string;
@@ -12,36 +12,25 @@ export interface FilterValues {
 }
 
 interface TableFiltersProps {
-    /** Contenido libre alineado a la izquierda */
     start?: React.ReactNode;
-    /** Contenido libre alineado a la derecha */
     end?: React.ReactNode;
 
-    // 👇 Botones integrados
-    /** Muestra el botón de toggle de filtros */
     enableFiltersBtn?: boolean;
-    /** Muestra el botón de refrescar */
     enableRefreshBtn?: boolean;
-    /** Callback al pulsar refresh */
     onRefresh?: () => void;
 
-    // 👇 Filtros predefinidos (opt-in)
     enableFilterName?: boolean;
     enableFilterRole?: boolean;
     enableFilterStatus?: boolean;
 
-    /** Callback que se llama cada vez que cambia cualquier filtro */
     onFilterChange?: (filters: FilterValues) => void;
 
-    /** Placeholder para el filtro de nombre */
     namePlaceholder?: string;
 
-    /** Clases extra para el contenedor principal */
     className?: string;
 }
 
 const ROLE_OPTIONS = [
-    {id: "all", label: "Todos"},
     {id: "CEO", label: "CEO"},
     {id: "CTO", label: "CTO"},
     {id: "CMO", label: "CMO"},
@@ -49,7 +38,6 @@ const ROLE_OPTIONS = [
 ];
 
 const STATUS_OPTIONS = [
-    {id: "all", label: "Todos"},
     {id: "Active", label: "Active"},
     {id: "Inactive", label: "Inactive"},
     {id: "On Leave", label: "On Leave"},
@@ -77,87 +65,62 @@ const TableFilters: React.FC<TableFiltersProps> = ({
         onFilterChange?.(next);
     };
 
+    const handleClearFilters = () => {
+        setFilters({});
+        onFilterChange?.({});
+    };
+
+    // 👇 Cuenta cuántos filtros tienen valor
+    const activeFiltersCount = [
+        filters.name,
+        filters.role,
+        filters.status,
+    ].filter((v) => v !== undefined && v !== null && v !== "").length;
+
     return (
         <div className={`${styles.container} ${className}`.trim()}>
             <div className={styles.start}>
-                {/* 👇 Si los filtros están visibles, ocultamos el start */}
                 {!showFilters && start}
 
-                {/* 👇 Filtros: solo si showFilters está activo */}
                 {showFilters && (
                     <>
-                        {enableFilterName && (<>
-                                <TextField
-                                    className="w-full max-w-64"
-                                    name="filterName"
-                                    type="text"
-                                    value={filters.name ?? ""}
-                                    style={{width: "195px"}}
-                                    onChange={(v) => updateFilter("name", v || undefined)}
-                                >
-                                    <Input className="rounded-[5px]" placeholder={namePlaceholder}/>
-                                </TextField>
-                            </>
+                        {enableFilterName && (
+                            <HeroUITextField
+                                name="filterName"
+                                type="text"
+                                value={filters.name ?? ""}
+                                placeholder={namePlaceholder}
+                                onChange={(v) => updateFilter("name", v || undefined)}
+                                startIcon="fa6-solid:magnifying-glass"
+                                tooltip="Filter by name"
+                            />
                         )}
 
                         {enableFilterRole && (
-                            <Select
-                                aria-label="Filter by role"
-                                className="w-40"
-                                value={filters.role ?? "all"}
-                                style={{width: "195px"}}
-                                onChange={(key) =>
-                                    updateFilter("role", key === "all" ? undefined : String(key))
-                                }
-                            >
-                                <Select.Trigger className="rounded-[5px]">
-                                    <Select.Value/>
-                                    <Select.Indicator/>
-                                </Select.Trigger>
-                                <Select.Popover className="rounded-[5px]" style={{width: "195px"}}>
-                                    <ListBox>
-                                        {ROLE_OPTIONS.map((opt) => (
-                                            <ListBox.Item
-                                                key={opt.id}
-                                                id={opt.id}
-                                                textValue={opt.label}
-                                            >
-                                                {opt.label}
-                                            </ListBox.Item>
-                                        ))}
-                                    </ListBox>
-                                </Select.Popover>
-                            </Select>
+                            <HeroUISelect
+                                ariaLabel="Filter by role"
+                                options={ROLE_OPTIONS}
+                                value={filters.role ?? ""}
+                                showClearButton
+                                onChange={(key) => updateFilter("role", key || undefined)}
+                                tooltip={{
+                                    text: "Filter by role",
+                                    placement: "top",
+                                    showArrow: true,
+                                    delay: 200,
+                                }}
+                            />
                         )}
 
                         {enableFilterStatus && (
-                            <Select
-                                aria-label="Filter by status"
-                                className="w-40 rounded-[5px]"
-                                style={{width: "195px"}}
-                                value={filters.status ?? "all"}
-                                onChange={(key) =>
-                                    updateFilter("status", key === "all" ? undefined : String(key))
-                                }
-                            >
-                                <Select.Trigger className="rounded-[5px]">
-                                    <Select.Value/>
-                                    <Select.Indicator/>
-                                </Select.Trigger>
-                                <Select.Popover className="rounded-[5px]">
-                                    <ListBox>
-                                        {STATUS_OPTIONS.map((opt) => (
-                                            <ListBox.Item
-                                                key={opt.id}
-                                                id={opt.id}
-                                                textValue={opt.label}
-                                            >
-                                                {opt.label}
-                                            </ListBox.Item>
-                                        ))}
-                                    </ListBox>
-                                </Select.Popover>
-                            </Select>
+                            <HeroUISelect
+                                ariaLabel="Filter by status"
+                                options={STATUS_OPTIONS}
+                                value={filters.status ?? ""}
+                                showClearButton
+                                onChange={(key) => updateFilter("status", key || undefined)}
+                                tooltip="Filter by status"
+                            />
                         )}
                     </>
                 )}
@@ -166,50 +129,57 @@ const TableFilters: React.FC<TableFiltersProps> = ({
             <div className={styles.end}>
                 {end}
 
-                {/* 👇 Botón de toggle de filtros */}
-                {enableFiltersBtn && (<>
+                {enableFiltersBtn && (
+                    <>
+                        {showFilters && (
+                            <>
+                                <HeroUIIconButton
+                                    appearance="row"
+                                    tooltip="Clear filters"
+                                    icon="fa6-solid:broom"
+                                    onPress={handleClearFilters}
+                                />
 
-                        {showFilters && (<>
-                            <HeroUIIconButton
-                                appearance="row"
-                                tooltip="Clear filters"
-                                icon="fa6-solid:broom"
-                                onPress={() => {
-                                    setFilters({});
-                                    onFilterChange?.({});
-                                    onRefresh?.();
-                                }}
-                            />
+                                <HeroUIIconButton
+                                    appearance="row"
+                                    tooltip={{
+                                        text: "Save Filters",
+                                        placement: "top",
+                                        showArrow: true,
+                                        delay: 200,
+                                    }}
+                                    icon="fa6-solid:floppy-disk"
+                                    onPress={() => {
+                                        console.log("save Filter to user");
+                                    }}
+                                />
+                            </>
+                        )}
 
+                        {/* 👇 Botón toggle con badge */}
+                        <div className={styles.filtersBtnWrapper}>
                             <HeroUIIconButton
                                 appearance="row"
                                 tooltip={{
-                                    text: "Save Filters",
+                                    text: "Toggle Filters",
                                     placement: "top",
                                     showArrow: true,
-                                    delay: 200,
+                                    delay: 100,
                                 }}
-                                icon={"fa6-solid:floppy-disk"}
-                                onPress={() => {
-                                    alert("save Filter to user")
-                                }}
+                                icon={showFilters ? "fa6-solid:filter-circle-xmark" : "fa6-solid:filter"}
+                                onPress={() => setShowFilters((v) => !v)}
                             />
-                        </>)}
 
-                        <HeroUIIconButton
-                            appearance="row"
-                            tooltip={{
-                                text: "Toggle Filters",
-                                placement: "top",
-                                showArrow: true,
-                                delay: 100,
-                            }}
-                            icon={showFilters ? "fa6-solid:filter-circle-xmark" : "fa6-solid:filter"}
-                            onPress={() => setShowFilters((v) => !v)}
-                        /></>
+                            {/* 👇 Badge solo si hay filtros activos y están ocultos */}
+                            {!showFilters && activeFiltersCount > 0 && (
+                                <span className={styles.badge}>
+                                    {activeFiltersCount}
+                                </span>
+                            )}
+                        </div>
+                    </>
                 )}
 
-                {/* 👇 Botón de refresh */}
                 {enableRefreshBtn && (
                     <HeroUIIconButton
                         appearance="row"

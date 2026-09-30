@@ -2,7 +2,7 @@
 import React from "react";
 import {Button, useTheme} from "@heroui/react";
 
-export function HeroUIThemeSwitch() {
+export function HeroUIDemoThemeSwitch() {
     const {theme, setTheme} = useTheme();
 
     return (
