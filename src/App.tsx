@@ -7,7 +7,7 @@ import TableEmpty from "./base/HeroUITable/TableEmpty/TableEmpty";
 import {FetchParams, HeroUiTable, PaginationOptions,} from "./base/HeroUITable/HeroUITable/HeroUiTable";
 import HeroUIIconButton from "./base/HeroUIIConButton/HeroUIIconButton";
 import HeroUIButton from "./base/HeroUIButton/HeroUIButton";
-import TableFilters from "./base/HeroUITable/TableFilters/TableFilters";
+import TableFilters, {FilterValues} from "./base/HeroUITable/TableFilters/TableFilters";
 
 interface User {
     id: number;
@@ -124,6 +124,8 @@ function App() {
     const [isLoading, setIsLoading] = useState(false);
     const [paginationOptions, setPaginationOptions] =
         useState<PaginationOptions>(initialPaginationOptions);
+    const [filters, setFilters] = useState<FilterValues>({});
+    const [showFilters, setShowFilters] = useState(false);
 
     // 👇 Aquí va tu llamada real a la DB / API
     const fetchData = useCallback(async (params: FetchParams) => {
@@ -164,6 +166,18 @@ function App() {
             setIsLoading(false);
         }
     }, []);
+
+    const handleFilterChange = (newFilters: FilterValues) => {
+        setFilters(newFilters);
+        fetchData({
+            first: 0,
+            offset: 0,
+            currentPage: 0,
+            pageSize: paginationOptions.pageSize,
+            sorting: [],
+            filters: newFilters,
+        });
+    };
 
     return (
         <div className="p-8">
@@ -224,8 +238,8 @@ function App() {
                 isLoading={isLoading}
                 data={data}
                 paginationOptions={paginationOptions}
-                pageSizeOptions={[5, 10, 25, 50, 100]}
                 fetchData={fetchData}
+                pageSizeOptions={[5, 10, 25, 50, 100]}
                 rowHeaderColumnId="name"
                 renderLoading={() => <TableLoader loading={true}/>}
                 renderEmpty={() => (
@@ -237,29 +251,25 @@ function App() {
                 )}
                 renderHeader={
                     <TableFilters
-                        start={
-                            <h2 className="text-lg font-semibold">Team members</h2>
-                        }
+                        showFilters={showFilters}          // 👈 controla la visibilidad
+                        enableFilterName
+                        enableFilterRole
+                        enableFilterStatus
+                        onFilterChange={(filters) => {
+                            console.log("Filtros:", filters);
+                            // disparar fetchData con filtros si quieres
+                        }}
                         end={
                             <>
                                 <HeroUIIconButton
                                     appearance="row"
-                                    aria-label={''}
+                                    aria-label="Toggle filters"
                                     icon="fa6-solid:filter"
-                                    onPress={() => {
-                                        fetchData({
-                                            first: 0,
-                                            offset: 0,
-                                            currentPage: 0,
-                                            pageSize: paginationOptions.pageSize,
-                                            sorting: [],
-                                        });
-                                    }}
+                                    onPress={() => setShowFilters((v) => !v)}   // 👈 toggle
                                 />
-
                                 <HeroUIIconButton
                                     appearance="row"
-                                    aria-label={''}
+                                    aria-label="Refresh"
                                     icon="fa6-solid:arrows-rotate"
                                     onPress={() => {
                                         fetchData({
@@ -271,7 +281,6 @@ function App() {
                                         });
                                     }}
                                 />
-
                             </>
                         }
                     />

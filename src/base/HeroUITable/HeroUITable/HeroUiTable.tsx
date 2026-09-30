@@ -14,6 +14,7 @@ import {
     useTable,
 } from "@tanstack/react-table";
 import TablePagination from "../TablePagination/TablePagination";
+import {FilterValues} from "../TableFilters/TableFilters";
 
 // --- Features globales -----------------------------------------------------
 const features = tableFeatures({
@@ -58,6 +59,7 @@ export interface FetchParams {
     currentPage: number;
     pageSize: number;
     sorting: SortingState;
+    filters?: FilterValues;
 }
 
 // --- Props del componente -------------------------------------------------
