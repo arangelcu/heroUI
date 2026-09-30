@@ -1,11 +1,5 @@
 import React from "react";
-import {
-    Calendar,
-    DateField,
-    DatePicker,
-    Label,
-    Tooltip,
-} from "@heroui/react";
+import {Calendar, DateField, DatePicker, Label, Tooltip,} from "@heroui/react";
 import type {CalendarDate} from "@internationalized/date";
 import {Icon} from "@iconify/react";
 

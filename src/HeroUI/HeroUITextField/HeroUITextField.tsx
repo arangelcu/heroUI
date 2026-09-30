@@ -1,12 +1,11 @@
 import React, {useEffect, useRef, useState} from "react";
-import {InputGroup, Label, TextField, Tooltip} from "@heroui/react";
+import {FieldError, InputGroup, Label, TextField, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 // @ts-ignore
 import styles from "./HeroUITextField.module.css";
 
 /**
  * Valid tooltip placements for HeroUI v3.
- * Uses hyphens (not spaces) as required by React Aria.
  */
 type TooltipPlacement =
     | "top"
@@ -16,8 +15,6 @@ type TooltipPlacement =
 
 /**
  * Configuration for the tooltip shown on the text field.
- *
- * Accepts either a plain string (shorthand) or this full object.
  */
 export interface HeroUITooltipConfig {
     /** Text or content displayed inside the tooltip */
@@ -34,12 +31,6 @@ export interface HeroUITooltipConfig {
 
 /**
  * Props for `HeroUITextField`.
- *
- * A wrapper around HeroUI's `TextField` + `InputGroup` that adds:
- * - Optional prefix/suffix icons
- * - Debounced `onChange` with a minimum character threshold
- * - Optional tooltip (string shorthand or full config)
- * - Configurable width, label, and native input props
  */
 interface HeroUITextFieldProps {
     /** Field name (used for form submission) */
@@ -66,8 +57,23 @@ interface HeroUITextFieldProps {
     endIcon?: string;
     /** Disables the field */
     isDisabled?: boolean;
-    /** Marks the field as required */
+    /**
+     * Marks the field as required.
+     * When `true`, an empty value will show a `FieldError`.
+     * @default false
+     */
     isRequired?: boolean;
+    /**
+     * Custom error message shown when the field is required and empty.
+     * @default "This field is required"
+     */
+    requiredMessage?: string;
+    /**
+     * Custom error message shown when the email format is invalid.
+     * Only applies when `type === "email"`.
+     * @default "Please enter a valid email address"
+     */
+    invalidEmailMessage?: string;
     /**
      * Debounce delay (ms) before firing `onChange`.
      * @default 300
@@ -75,66 +81,49 @@ interface HeroUITextFieldProps {
     debounceMs?: number;
     /**
      * Minimum number of characters required to fire `onChange` with the real value.
-     * Below this threshold, `onChange("")` is fired once to clear the filter.
      * @default 3
      */
     minChars?: number;
     /**
      * Tooltip to show on hover.
-     * - String → shown as text with `placement: "top"`.
-     * - Object → full control over text, placement, arrow, delay, and classes.
      */
     tooltip?: string | HeroUITooltipConfig;
 }
 
+/** Email regex used when `type === "email"`. */
+const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+
 /**
  * `HeroUITextField`
  *
- * A reusable text field built on top of HeroUI v3, with debounced `onChange`,
- * optional prefix/suffix icons, and an optional tooltip.
+ * A reusable text field built on top of HeroUI v3.
  *
  * ### Features
- * - Controlled value with debounced callback (`debounceMs`, `minChars`)
- * - Only fires `onChange` when the user stops typing
- * - Fires `onChange("")` once when the value drops below `minChars`
- * - Optional `label` above the input
- * - Optional `startIcon` / `endIcon` (Iconify names)
- * - Optional `tooltip` as string shorthand or full config
+ * - Debounced `onChange` with minimum character threshold
+ * - Optional prefix/suffix icons
+ * - Optional label above the input
+ * - **Required validation**: when `isRequired` is `true` and the field
+ *   is empty, a `FieldError` is displayed below the input.
+ * - **Email validation**: when `type === "email"`, the value must match
+ *   a valid email format, otherwise a `FieldError` is displayed.
+ * - Optional tooltip (string shorthand or full config)
  *
- * ### Example — Basic usage
+ * ### Example — Required field
  * ```tsx
  * <HeroUITextField
- *   name="email"
- *   type="email"
  *   label="Email"
- *   placeholder="Enter your email"
+ *   type="email"
+ *   isRequired
  *   onChange={(v) => console.log(v)}
  * />
  * ```
  *
- * ### Example — With icons and tooltip
+ * ### Example — Email validation without required
  * ```tsx
  * <HeroUITextField
- *   placeholder="Search..."
- *   startIcon="fa6-solid:magnifying-glass"
- *   endIcon="fa6-solid:xmark"
- *   tooltip={{
- *     text: "Search by name",
- *     placement: "top",
- *     showArrow: true,
- *     delay: 200,
- *   }}
- *   onChange={(v) => setSearch(v)}
- * />
- * ```
- *
- * ### Example — Debounce tuning
- * ```tsx
- * <HeroUITextField
- *   placeholder="Type at least 4 chars..."
- *   debounceMs={500}
- *   minChars={4}
- *   onChange={(v) => setFilter(v)}
+ *   label="Email"
+ *   type="email"
+ *   onChange={(v) => console.log(v)}
  * />
  * ```
  */
@@ -152,14 +141,14 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
                                                              endIcon,
                                                              isDisabled = false,
                                                              isRequired = false,
+                                                             requiredMessage = "This field is required",
+                                                             invalidEmailMessage = "Please enter a valid email address",
                                                              debounceMs = 300,
                                                              minChars = 3,
                                                              tooltip,
                                                          }) => {
     /**
      * Local value: what the user sees in the input.
-     * Kept in sync with `value` so the input stays fluid while typing,
-     * but also respects external resets (e.g. "clear filters").
      */
     const [localValue, setLocalValue] = useState(value);
 
@@ -169,17 +158,37 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
     /** Last value emitted to the parent — avoids duplicate `onChange` calls. */
     const lastEmittedRef = useRef<string>(value);
 
-    // Sync with external `value` (e.g. when the parent resets the filter).
+    // Sync with external `value`.
     useEffect(() => {
         setLocalValue(value);
         lastEmittedRef.current = value;
     }, [value]);
 
     /**
-     * Handles typing. Updates the local value immediately for a fluid UI,
-     * then debounces the `onChange` emission:
-     * - If the value has `minChars` or more, emit the real value (once).
-     * - If it drops below `minChars`, emit `""` once to clear the filter.
+     * Validates the current value.
+     *
+     * - If the field is `isRequired` and empty → returns `requiredMessage`.
+     * - If the field is `type="email"` and the value is non-empty but
+     *   doesn't match `EMAIL_REGEX` → returns `invalidEmailMessage`.
+     * - Otherwise returns `null` (no error).
+     */
+    const handleValidate = (val: string): string | null => {
+        const trimmed = val.trim();
+
+        if (isRequired && trimmed === "") {
+            return requiredMessage;
+        }
+
+        if (type === "email" && trimmed !== "" && !EMAIL_REGEX.test(trimmed)) {
+            return invalidEmailMessage;
+        }
+
+        return null;
+    };
+
+    /**
+     * Handles typing. Updates the local value immediately,
+     * then debounces the `onChange` emission.
      */
     const handleChange = (raw: string) => {
         setLocalValue(raw);
@@ -214,7 +223,11 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
 
     /**
      * The core field: `TextField` + optional label + `InputGroup`
-     * with prefix/suffix icons.
+     * with prefix/suffix icons + `FieldError` for validation.
+     *
+     * Uses `validate` so HeroUI decides when to show the error,
+     * and `validationBehavior="aria"` so errors appear in real time
+     * without blocking form submission.
      */
     const field = (
         <TextField
@@ -225,6 +238,8 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
             value={localValue}
             isDisabled={isDisabled}
             isRequired={isRequired}
+            validate={handleValidate}
+            validationBehavior="aria"
             style={{width}}
             onChange={handleChange}
         >
@@ -248,13 +263,15 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
                     </InputGroup.Suffix>
                 )}
             </InputGroup>
+
+            {/* FieldError shows the message returned by `validate` */}
+            <FieldError/>
         </TextField>
     );
 
     // No tooltip → return the field as-is.
     if (!tooltip) return field;
 
-    // Normalize string shorthand into the full config object.
     const config: HeroUITooltipConfig =
         typeof tooltip === "string" ? {text: tooltip} : tooltip;
 
@@ -268,7 +285,9 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
 
     return (
         <Tooltip delay={delay}>
-            {field}
+            <Tooltip.Trigger>
+                {field}
+            </Tooltip.Trigger>
             <Tooltip.Content
                 className={tooltipClassName}
                 placement={placement}

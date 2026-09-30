@@ -187,9 +187,9 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                                 name="filterName"
                                 type="text"
                                 value={filters.name ?? ""}
-                                placeholder={namePlaceholder}
+                                placeholder={"Filter by name"}
                                 onChange={(v) => updateFilter("name", v || undefined)}
-                                startIcon="fa6-solid:magnifying-glass"
+                                //startIcon="fa6-solid:magnifying-glass"
                                 tooltip="Filter by name"
                             />
                         )}

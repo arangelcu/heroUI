@@ -13,6 +13,7 @@ import HeroUINumberField from "../HeroUINumberField/HeroUINumberField";
 import HeroUISwitch from "../HeroUISwitch/HeroUISwitch";
 import HeroUITextArea from "../HeroUITextArea/HeroUITextArea";
 import HeroUIToggleButton from "../HeroUIToggleButton/HeroUIToggleButton";
+import HeroUITextField from "../HeroUITextField/HeroUITextField";
 
 interface User {
     id: number;
@@ -182,9 +183,12 @@ function HeroUIDemo() {
     // --- New components demo state ----------------------------------------
     const [checked, setChecked] = useState(false);
     const [enabled, setEnabled] = useState(false);
+    const [email, setEmail] = useState('');
+    const [number, setNumber] = useState('');
+    const [text, setText] = useState('');
     const [liked, setLiked] = useState(false);
     const [bookmarked, setBookmarked] = useState(false);
-    const [numberValue, setNumberValue] = useState(10);
+    const [numberValue, setNumberValue] = useState<number | undefined>(undefined);
     const [textAreaValue, setTextAreaValue] = useState("");
     const [dateValue, setDateValue] = useState<Date | null>(null);
     const [datePickerValue, setDatePickerValue] = useState<Date | null>(null);
@@ -209,7 +213,7 @@ function HeroUIDemo() {
             <br/>
 
             {/* Demo grid: ComboBox + new components side by side */}
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-1">
                 {/* ComboBox #1 — single */}
                 <div>
                     <HeroUIComboBox
@@ -225,7 +229,8 @@ function HeroUIDemo() {
                     />
 
                     <p className="text-xs mt-1">Selected id: {selected1 || "(none)"}</p>
-                    <p className="text-xs">Selected label: {options1.find((o) => o.id === selected1)?.label || "(none)"}</p>
+                    <p className="text-xs">Selected
+                        label: {options1.find((o) => o.id === selected1)?.label || "(none)"}</p>
                 </div>
 
                 {/* TextArea */}
@@ -271,8 +276,10 @@ function HeroUIDemo() {
                         ariaLabel="Quantity"
                         label="Quantity"
                         value={numberValue}
+                        isRequired
+                        requiredMessage="Please enter a quantity"
                         onChange={setNumberValue}
-                        minValue={0}
+                        minValue={1}
                         maxValue={100}
                         tooltip="Pick a number"
                     />
@@ -289,6 +296,42 @@ function HeroUIDemo() {
                         tooltip="Select a date"
                     />
                     <p className="text-xs mt-1">Date: {dateValue ? String(dateValue) : "(none)"}</p>
+                </div>
+
+                <div>
+                    <HeroUITextField
+                        label="Email"
+                        placeholder="Enter your email"
+                        type={"email"}
+                        isRequired
+                        requiredMessage="Email is required"
+                        value={email}
+                        onChange={(v) => setEmail(v as any)}
+                    />
+                </div>
+
+                <div>
+                    <HeroUITextField
+                        label="Number"
+                        placeholder="Enter number"
+                        type={"number"}
+                        isRequired
+                        requiredMessage="Number is required"
+                        value={number}
+                        onChange={(v) => setNumber(v as any)}
+                    />
+                </div>
+
+                <div>
+                    <HeroUITextField
+                        label="Text"
+                        placeholder="Enter text"
+                        type={"text"}
+                        isRequired
+                        requiredMessage="Text is required"
+                        value={text}
+                        onChange={(v) => setText(v as any)}
+                    />
                 </div>
 
                 {/* DatePicker */}
