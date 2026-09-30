@@ -1,5 +1,6 @@
 .container {
     display: flex;
+    flex-wrap: wrap;
     width: 100%;
     align-items: center;
     justify-content: space-between;
@@ -11,12 +12,18 @@
 
 .start {
     display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
+    min-width: 0; /* permite que el contenido se encoja */
 }
 
 .end {
     display: flex;
+    flex: 0 0 auto; /* nunca se encoge */
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
+    margin-left: auto; /* se empuja a la derecha cuando el start envuelve */
 }

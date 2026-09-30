@@ -1,8 +1,21 @@
 import React from "react";
-import {Button, ButtonProps} from "@heroui/react";
+import {Button, ButtonProps, Tooltip, TooltipProps} from "@heroui/react";
 import {Icon} from "@iconify/react";
 // @ts-ignore
 import styles from "./HeroUIButton.module.css";
+
+export interface HeroUITooltipConfig {
+    /** Texto o contenido del tooltip */
+    text: React.ReactNode;
+    /** Posición del tooltip */
+    placement?: TooltipProps["placement"];
+    /** Mostrar la flechita */
+    showArrow?: boolean;
+    /** Delay antes de mostrarse (ms) */
+    delay?: number;
+    /** Clases extra para el contenido */
+    className?: string;
+}
 
 interface HeroUIButtonProps extends Omit<ButtonProps, "children"> {
     /** Texto del botón */
@@ -15,6 +28,12 @@ interface HeroUIButtonProps extends Omit<ButtonProps, "children"> {
     iconClassName?: string;
     /** Apariencia especial predefinida */
     appearance?: "default" | "pagination" | "header";
+    /**
+     * Tooltip del botón.
+     * - Si es string, se usa como texto y placement "top" por defecto.
+     * - Si es objeto, permite controlar texto, placement y opciones extra.
+     */
+    tooltip?: string | HeroUITooltipConfig;
 }
 
 const HeroUIButton = ({
@@ -26,6 +45,7 @@ const HeroUIButton = ({
                           variant = "primary",
                           size = "md",
                           appearance = "default",
+                          tooltip,
                           ...rest
                       }: HeroUIButtonProps) => {
     const appearanceClass =
@@ -35,7 +55,7 @@ const HeroUIButton = ({
                 ? styles.appearanceHeader
                 : "";
 
-    return (
+    const button = (
         <Button
             className={`rounded-[5px] ${appearanceClass} ${className}`.trim()}
             size={size}
@@ -50,6 +70,35 @@ const HeroUIButton = ({
                 <Icon className={iconClassName} icon={icon}/>
             )}
         </Button>
+    );
+
+    // 👇 Sin tooltip → devolvemos el botón tal cual
+    if (!tooltip) return button;
+
+    // 👇 Normalizamos a config
+    const config: HeroUITooltipConfig =
+        typeof tooltip === "string" ? {text: tooltip} : tooltip;
+
+    const {
+        text,
+        placement = "top",
+        showArrow = false,
+        delay = 0,
+        className: tooltipClassName,
+    } = config;
+
+    return (
+        <Tooltip delay={delay}>
+            {button}
+            <Tooltip.Content
+                className={tooltipClassName}
+                placement={placement}
+                showArrow={showArrow}
+            >
+                {showArrow && <Tooltip.Arrow/>}
+                <p>{text}</p>
+            </Tooltip.Content>
+        </Tooltip>
     );
 };
 

@@ -74,6 +74,7 @@ const userColumns = columnHelper.columns([
             return (
                 <div className="flex items-center justify-end gap-1">
                     <HeroUIIconButton
+                        tooltip={"Details"}
                         aria-label={`View ${user.name}`}
                         icon="fa6-solid:eye"
                         onPress={() => handleView(user)}
@@ -81,6 +82,7 @@ const userColumns = columnHelper.columns([
 
                     {/* Edit — editar */}
                     <HeroUIIconButton
+                        tooltip={"Edit"}
                         aria-label={`Edit ${user.name}`}
                         icon="fa6-solid:pen-to-square"
                         onPress={() => handleEdit(user)}
@@ -88,6 +90,7 @@ const userColumns = columnHelper.columns([
 
                     {/* Delete — eliminar */}
                     <HeroUIIconButton
+                        tooltip={"Delete"}
                         aria-label={`Delete ${user.name}`}
                         icon="fa6-solid:trash-can"
                         variant="danger-soft"
@@ -223,6 +226,7 @@ function App() {
                             currentPage: 0,
                             pageSize: paginationOptions.pageSize,
                             sorting: [],
+                            filters: filters,
                         });
                     }}
                 >
@@ -251,38 +255,28 @@ function App() {
                 )}
                 renderHeader={
                     <TableFilters
-                        showFilters={showFilters}          // 👈 controla la visibilidad
+                        start={<h2 className="text-lg font-semibold">Team members</h2>}
+                        enableFiltersBtn  // 👇 Botones integrados
+                        enableRefreshBtn
+                        onRefresh={() => {
+                            fetchData({
+                                first: 0,
+                                offset: 0,
+                                currentPage: 0,
+                                pageSize: paginationOptions.pageSize,
+                                sorting: [],
+                                filters: filters,
+                            });
+                        }}
+
+                        // 👇 Filtros
                         enableFilterName
                         enableFilterRole
                         enableFilterStatus
                         onFilterChange={(filters) => {
                             console.log("Filtros:", filters);
-                            // disparar fetchData con filtros si quieres
+                            // fetchData con filtros
                         }}
-                        end={
-                            <>
-                                <HeroUIIconButton
-                                    appearance="row"
-                                    aria-label="Toggle filters"
-                                    icon="fa6-solid:filter"
-                                    onPress={() => setShowFilters((v) => !v)}   // 👈 toggle
-                                />
-                                <HeroUIIconButton
-                                    appearance="row"
-                                    aria-label="Refresh"
-                                    icon="fa6-solid:arrows-rotate"
-                                    onPress={() => {
-                                        fetchData({
-                                            first: 0,
-                                            offset: 0,
-                                            currentPage: 0,
-                                            pageSize: paginationOptions.pageSize,
-                                            sorting: [],
-                                        });
-                                    }}
-                                />
-                            </>
-                        }
                     />
                 }
             />

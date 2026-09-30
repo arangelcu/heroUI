@@ -53,6 +53,7 @@ const TablePagination: React.FC<TablePaginationProps> = ({
         <div className={styles.bar}>
             {/* Previous */}
             <HeroUIButton
+                tooltip="Previous"
                 className={styles.navButton}
                 isDisabled={currentPage <= 1}
                 onPress={() => goToPage(currentPage - 1)}
@@ -108,6 +109,7 @@ const TablePagination: React.FC<TablePaginationProps> = ({
 
             {/* Next */}
             <HeroUIButton
+                tooltip="Next"
                 className={styles.navButton}
                 isDisabled={currentPage >= totalPages}
                 onPress={() => goToPage(currentPage + 1)}
