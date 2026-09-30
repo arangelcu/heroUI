@@ -13,6 +13,7 @@ export interface FilterValues {
 
 interface TableFiltersProps {
     start?: React.ReactNode;
+    /** 👇 Botones extra a la derecha (antes de los de filtro/refresh) */
     end?: React.ReactNode;
 
     enableFiltersBtn?: boolean;
@@ -70,7 +71,6 @@ const TableFilters: React.FC<TableFiltersProps> = ({
         onFilterChange?.({});
     };
 
-    // 👇 Cuenta cuántos filtros tienen valor
     const activeFiltersCount = [
         filters.name,
         filters.role,
@@ -127,6 +127,7 @@ const TableFilters: React.FC<TableFiltersProps> = ({
             </div>
 
             <div className={styles.end}>
+                {/* 👇 Tus botones extra van aquí (antes de los de filtro/refresh) */}
                 {end}
 
                 {enableFiltersBtn && (
@@ -156,7 +157,6 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                             </>
                         )}
 
-                        {/* 👇 Botón toggle con badge */}
                         <div className={styles.filtersBtnWrapper}>
                             <HeroUIIconButton
                                 appearance="row"
@@ -170,7 +170,6 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                                 onPress={() => setShowFilters((v) => !v)}
                             />
 
-                            {/* 👇 Badge solo si hay filtros activos y están ocultos */}
                             {!showFilters && activeFiltersCount > 0 && (
                                 <span className={styles.badge}>
                                     {activeFiltersCount}

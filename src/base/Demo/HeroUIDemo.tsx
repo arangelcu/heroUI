@@ -1,4 +1,3 @@
-import {Button} from "@heroui/react";
 import {createColumnHelper} from "@tanstack/react-table";
 import React, {useCallback, useState} from "react";
 import {HeroUIDemoThemeSwitch} from "./HeroUIDemoThemeSwitch";
@@ -6,8 +5,8 @@ import TableLoader from "../HeroUITable/TableLoader/TableLoader";
 import TableEmpty from "../HeroUITable/TableEmpty/TableEmpty";
 import {FetchParams, HeroUiTable, PaginationOptions,} from "../HeroUITable/HeroUITable/HeroUiTable";
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
+import {FilterValues} from "../HeroUITable/TableFilters/TableFilters";
 import HeroUIButton from "../HeroUIButton/HeroUIButton";
-import TableFilters, {FilterValues} from "../HeroUITable/TableFilters/TableFilters";
 
 interface User {
     id: number;
@@ -187,56 +186,6 @@ function App() {
             <HeroUIDemoThemeSwitch/>
             <br/>
 
-            <div className="flex gap-2">
-
-                <HeroUIButton
-                    icon="fa6-solid:arrows-rotate"
-                    iconPosition="start"
-                    onClick={() => setIsLoading(!isLoading)}
-                >
-                    Loading
-                </HeroUIButton>
-                <HeroUIButton
-                    appearance="header"
-                    icon="fa6-solid:trash-can"
-                    onPress={() => alert("dsdsds")}
-                >
-                    Eliminar
-                </HeroUIButton>
-
-                <Button
-                    onClick={() => {
-                        setData([]);
-                        setPaginationOptions({
-                            ...paginationOptions,
-                            countRows: 0,
-                            totalElements: 0,
-                            pages: 0,
-                        });
-                    }}
-                >
-                    Clean
-                </Button>
-
-                <Button
-                    onClick={() => {
-                        fetchData({
-                            first: 0,
-                            offset: 0,
-                            currentPage: 0,
-                            pageSize: paginationOptions.pageSize,
-                            sorting: [],
-                            filters: filters,
-                        });
-                    }}
-                >
-                    Poblate
-                </Button>
-            </div>
-
-            <br/>
-            <br/>
-
             <HeroUiTable
                 columns={userColumns}
                 isLoading={isLoading}
@@ -253,9 +202,8 @@ function App() {
                         description="Cuando se registren usuarios aparecerán aquí."
                     />
                 )}
-                // 👇 ESTO ES LO QUE FALTA PROBABLEMENTE
                 filtersConfig={{
-                    start: <h2 className="text-lg font-semibold">Team members</h2>,
+                    start: <h2 className="text-lg font-semibold">Table + DEFAULT</h2>,
                     enableFiltersBtn: true,
                     enableRefreshBtn: true,
                     enableFilterName: true,
@@ -282,8 +230,6 @@ function App() {
                     console.log("Filas seleccionadas:", selectedUsers);
                     // aquí puedes guardar, borrar, etc.
                 }}
-
-
                 // 👇 Activar el resize
                 enableColumnResizing
 
@@ -297,6 +243,20 @@ function App() {
                         description="Cuando se registren usuarios aparecerán aquí."
                     />
                 )}
+                filtersConfig={{
+                    start: <h2 className="text-lg font-semibold">Table + SELECT</h2>,
+                    // 👇 Tus botones extra
+                    end: (
+                        <>
+                            <HeroUIIconButton icon="fa6-solid:circle-info" tooltip={"Custom ICON"} appearance={"row"}/>
+
+                        </>
+                    ),
+                    enableFiltersBtn: true,
+                    enableRefreshBtn: true,
+                    enableFilterName: true,
+                    enableFilterRole: true
+                }}
             />
 
 

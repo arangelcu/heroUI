@@ -1,14 +1,21 @@
 import React from "react";
-import {Button, ButtonProps, Tooltip, TooltipProps} from "@heroui/react";
+import {Button, ButtonProps, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 // @ts-ignore
 import styles from "./HeroUIButton.module.css";
+
+/** Tipos de posición válidos para el tooltip (HeroUI v3) */
+type TooltipPlacement =
+    | "top"
+    | "bottom"
+    | "left"
+    | "right";
 
 export interface HeroUITooltipConfig {
     /** Texto o contenido del tooltip */
     text: React.ReactNode;
     /** Posición del tooltip */
-    placement?: TooltipProps["placement"];
+    placement?: TooltipPlacement;
     /** Mostrar la flechita */
     showArrow?: boolean;
     /** Delay antes de mostrarse (ms) */

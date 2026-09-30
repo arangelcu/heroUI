@@ -1,8 +1,29 @@
 import React from "react";
-import {Button, ButtonProps, Tooltip, TooltipProps} from "@heroui/react";
+import {Button, ButtonProps, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 // @ts-ignore
 import styles from "./HeroUIIconButton.module.css";
+
+/** Tipos de posición válidos para el tooltip (HeroUI v3) */
+type TooltipPlacement =
+    | "top"
+    | "bottom"
+    | "left"
+    | "right"
+   ;
+
+interface HeroUITooltipConfig {
+    /** Texto del tooltip */
+    text: React.ReactNode;
+    /** Posición del tooltip */
+    placement?: TooltipPlacement;
+    /** Mostrar la flechita */
+    showArrow?: boolean;
+    /** Delay antes de mostrarse (ms) */
+    delay?: number;
+    /** Clases extra para el contenido */
+    className?: string;
+}
 
 interface HeroUIIconButtonProps extends Omit<ButtonProps, "isIconOnly" | "children"> {
     /** Nombre del icono de iconify (ej: "gravity-ui:trash-bin") */
@@ -11,26 +32,12 @@ interface HeroUIIconButtonProps extends Omit<ButtonProps, "isIconOnly" | "childr
     iconClassName?: string;
     /** Apariencia especial predefinida */
     appearance?: "default" | "row" | "header" | "pagination";
-
     /**
      * Tooltip del botón.
      * - Si es string, se usa como texto y placement "top" por defecto.
      * - Si es objeto, permite controlar texto, placement y opciones extra.
      */
     tooltip?: string | HeroUITooltipConfig;
-}
-
-interface HeroUITooltipConfig {
-    /** Texto del tooltip */
-    text: React.ReactNode;
-    /** Posición del tooltip */
-    placement?: TooltipProps["placement"];
-    /** Mostrar la flechita */
-    showArrow?: boolean;
-    /** Delay antes de mostrarse (ms) */
-    delay?: number;
-    /** Clases extra para el contenido */
-    className?: string;
 }
 
 const HeroUIIconButton = ({
