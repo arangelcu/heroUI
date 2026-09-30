@@ -1,6 +1,7 @@
 import React from "react";
-import {DateField, DateRangePicker, Label, RangeCalendar, Tooltip,} from "@heroui/react";
+import {DateField, DateRangePicker, FieldError, Label, RangeCalendar, Tooltip,} from "@heroui/react";
 import type {DateValue} from "@internationalized/date";
+import {Icon} from "@iconify/react";
 
 interface RangeValue<T> {
     start: T;
@@ -25,7 +26,18 @@ interface HeroUIDateRangePickerProps {
     width?: string | number;
     className?: string;
     isDisabled?: boolean;
+    /**
+     * Marks the field as required.
+     * When `true` and the value is empty, `isInvalid` becomes `true`
+     * and the `FieldError` is displayed.
+     * @default false
+     */
     isRequired?: boolean;
+    /**
+     * Custom error message shown when the field is required and empty.
+     * @default "This field is required"
+     */
+    requiredMessage?: string;
     tooltip?: string | HeroUITooltipConfig;
 }
 
@@ -35,10 +47,23 @@ interface HeroUIDateRangePickerProps {
  * Date range picker built on HeroUI v3 following the official
  * `Basic` compound component pattern.
  *
+ * ### Required validation
+ * When `isRequired` is `true` and the value is `null`, the field shows
+ * a `FieldError` below the input. The error disappears automatically
+ * as soon as a valid range is selected.
+ *
+ * ### Dynamic font size
+ * - **Empty or partially filled** → `text-[9px]` so the placeholder
+ *   fits comfortably in 195px while the user types.
+ * - **Fully selected range** (both `start` and `end` defined)
+ *   → `text-[11px]` for better legibility.
+ *
  * ### Compact styling
- * The internal `DateField.Group` is styled with a smaller font size
- * and tighter spacing so the whole control fits in ~195px, including
- * the calendar icon.
+ * - `px-0` on each segment (removes internal padding)
+ * - `gap-0` on the group (no gap between the two date fields)
+ * - `mx-0 text-[8px]` on the separator (visible but minimal)
+ * - `-ml-1` on the `DateField.Suffix` to pull the calendar trigger closer
+ * - `size-3.5` on the trigger indicator (same as `HeroUIDatePicker`)
  */
 const HeroUIDateRangePicker: React.FC<HeroUIDateRangePickerProps> = ({
                                                                          ariaLabel = "Date range picker",
@@ -49,8 +74,32 @@ const HeroUIDateRangePicker: React.FC<HeroUIDateRangePickerProps> = ({
                                                                          className = "",
                                                                          isDisabled = false,
                                                                          isRequired = false,
+                                                                         requiredMessage = "This field is required",
                                                                          tooltip,
                                                                      }) => {
+    /**
+     * Whether the field has a value (both start and end defined).
+     */
+    const hasValue =
+        value !== null &&
+        value !== undefined &&
+        value.start !== null &&
+        value.start !== undefined &&
+        value.end !== null &&
+        value.end !== undefined;
+
+    /**
+     * The field is invalid when it's required but has no value.
+     */
+    const isInvalid = isRequired && !hasValue;
+
+    /**
+     * Dynamic font size class applied to the DateField.Group.
+     */
+    const fontSizeClass = hasValue
+        ? "text-[11px] [&_*]:text-[11px]"
+        : "text-[9px] [&_*]:text-[9px]";
+
     const field = (
         <DateRangePicker
             aria-label={ariaLabel}
@@ -60,29 +109,38 @@ const HeroUIDateRangePicker: React.FC<HeroUIDateRangePickerProps> = ({
             onChange={onChange}
             isDisabled={isDisabled}
             isRequired={isRequired}
+            isInvalid={isInvalid}
+            validationBehavior="aria"
         >
             {label && <Label>{label}</Label>}
 
             <DateField.Group
                 fullWidth
-                className="rounded-[5px] text-[11px] [&_*]:text-[11px] [&_[data-slot='segment']]:px-0"
+                className={`rounded-[5px] ${fontSizeClass} [&_[data-slot='segment']]:px-0 gap-0`}
             >
                 <DateField.Input slot="start">
                     {(segment) => <DateField.Segment segment={segment}/>}
                 </DateField.Input>
 
-                <DateRangePicker.RangeSeparator className="mx-0.5 text-[10px]"/>
+                {/* Compact separator, still visible */}
+                <DateRangePicker.RangeSeparator className="mx-0 text-[8px]"/>
 
                 <DateField.Input slot="end">
                     {(segment) => <DateField.Segment segment={segment}/>}
                 </DateField.Input>
 
-                <DateField.Suffix>
+                {/* Pull the calendar trigger closer to the end date */}
+                <DateField.Suffix className="-ml-1">
                     <DateRangePicker.Trigger>
-                        <DateRangePicker.TriggerIndicator className="size-3.5"/>
+                        <DateRangePicker.TriggerIndicator>
+                            <Icon icon="fa6-solid:calendar" className="size-3.5"/>
+                        </DateRangePicker.TriggerIndicator>
                     </DateRangePicker.Trigger>
                 </DateField.Suffix>
             </DateField.Group>
+
+            {/* FieldError shows the required message when isInvalid is true */}
+            <FieldError>{requiredMessage}</FieldError>
 
             <DateRangePicker.Popover className="rounded-[5px]">
                 <RangeCalendar aria-label={ariaLabel}>

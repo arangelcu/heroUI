@@ -1,4 +1,3 @@
-// HeroUIThemeSwitch.tsx
 import React from "react";
 import {Button, useTheme} from "@heroui/react";
 
@@ -6,7 +5,7 @@ export function HeroUIDemoThemeSwitch() {
     const {theme, setTheme} = useTheme();
 
     return (
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap justify-center">
             <Button className="rounded-[5px]" onClick={() => setTheme("light")}>Light</Button>
             <Button className="rounded-[5px]" onClick={() => setTheme("dark")}>Dark</Button>
             <Button className="rounded-[5px]" onClick={() => setTheme("uber")}>Uber</Button>

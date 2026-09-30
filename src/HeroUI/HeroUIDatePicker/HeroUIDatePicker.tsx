@@ -1,25 +1,54 @@
 import React from "react";
-import {Calendar, DateField, DatePicker, Label, Tooltip,} from "@heroui/react";
+import {Calendar, DateField, DatePicker, FieldError, Label, Tooltip,} from "@heroui/react";
 import type {CalendarDate} from "@internationalized/date";
 import {Icon} from "@iconify/react";
 
+/**
+ * Configuration for the tooltip shown on the date picker.
+ */
 export interface HeroUITooltipConfig {
+    /** Tooltip content. Accepts a string or ReactNode. */
     text: React.ReactNode;
+    /** Tooltip placement relative to the field. Defaults to `"top"`. */
     placement?: "top" | "bottom" | "left" | "right";
+    /** Shows or hides the tooltip arrow. Defaults to `false`. */
     showArrow?: boolean;
+    /** Delay in ms before showing the tooltip. Defaults to `0`. */
     delay?: number;
+    /** Additional CSS classes for the tooltip content. */
     className?: string;
 }
 
 interface HeroUIDatePickerProps {
+    /** Aria label for accessibility. Defaults to `"Date picker"`. */
     ariaLabel?: string;
+    /** Optional visible label rendered above the field via the `Label` component. */
     label?: React.ReactNode;
+    /** Controlled date value. `null` means no date selected. */
     value?: CalendarDate | null;
+    /** Fired when the date changes. Receives the new value or `null`. */
     onChange?: (value: CalendarDate | null) => void;
+    /** Field width. Defaults to `"195px"`. */
     width?: string | number;
+    /** Additional CSS classes for the root DatePicker component. */
     className?: string;
+    /** Disables the field. Defaults to `false`. */
     isDisabled?: boolean;
+    /**
+     * Marks the field as required.
+     * When `true` and the value is empty, `isInvalid` becomes `true`
+     * and the `FieldError` is displayed.
+     * @default false
+     */
     isRequired?: boolean;
+    /**
+     * Custom error message shown when the field is required and empty.
+     * @default "This field is required"
+     */
+    requiredMessage?: string;
+    /**
+     * Optional tooltip shown on hover.
+     */
     tooltip?: string | HeroUITooltipConfig;
 }
 
@@ -30,6 +59,11 @@ interface HeroUIDatePickerProps {
  * structure**: DatePicker > DateField.Group > DateField.Input +
  * DateField.Suffix > DatePicker.Trigger > DatePicker.Popover > Calendar
  * with its own subcomponents (Header, Grid, GridBody, etc.).
+ *
+ * ### Required validation
+ * When `isRequired` is `true` and the value is `null`, the field shows
+ * a `FieldError` below the input. The error disappears automatically
+ * as soon as a valid date is selected.
  *
  * ### Compact styling
  * The internal `DateField.Group` uses a smaller font size and tighter
@@ -53,14 +87,23 @@ interface HeroUIDatePickerProps {
  * │   └── DateField.Suffix
  * │       └── DatePicker.Trigger
  * │           └── DatePicker.TriggerIndicator
+ * ├── FieldError
  * └── DatePicker.Popover
  *     └── Calendar
- *         ├── Calendar.Header (NavButton previous/next + YearPickerTrigger)
+ *         ├── Calendar.Header
  *         ├── Calendar.Grid
- *         │   ├── Calendar.GridHeader → Calendar.HeaderCell
- *         │   └── Calendar.GridBody → Calendar.Cell
  *         └── Calendar.YearPickerGrid (optional)
- *             └── Calendar.YearPickerGridBody → Calendar.YearPickerCell
+ * ```
+ *
+ * ### Example — Required field
+ * ```tsx
+ * <HeroUIDatePicker
+ *   label="Appointment"
+ *   isRequired
+ *   requiredMessage="Please pick a date"
+ *   value={datePickerValue}
+ *   onChange={setDatePickerValue}
+ * />
  * ```
  */
 const HeroUIDatePicker: React.FC<HeroUIDatePickerProps> = ({
@@ -72,8 +115,15 @@ const HeroUIDatePicker: React.FC<HeroUIDatePickerProps> = ({
                                                                className = "",
                                                                isDisabled = false,
                                                                isRequired = false,
+                                                               requiredMessage = "This field is required",
                                                                tooltip,
                                                            }) => {
+    /**
+     * The field is invalid when it's required but has no value.
+     * `null` and `undefined` both count as empty.
+     */
+    const isInvalid = isRequired && (value === null || value === undefined);
+
     const field = (
         <DatePicker
             aria-label={ariaLabel}
@@ -83,6 +133,8 @@ const HeroUIDatePicker: React.FC<HeroUIDatePickerProps> = ({
             onChange={onChange}
             isDisabled={isDisabled}
             isRequired={isRequired}
+            isInvalid={isInvalid}
+            validationBehavior="aria"
         >
             {label && <Label>{label}</Label>}
 
@@ -103,6 +155,9 @@ const HeroUIDatePicker: React.FC<HeroUIDatePickerProps> = ({
                     </DatePicker.Trigger>
                 </DateField.Suffix>
             </DateField.Group>
+
+            {/* FieldError shows the required message when isInvalid is true */}
+            <FieldError>{requiredMessage}</FieldError>
 
             <DatePicker.Popover className="rounded-[5px]">
                 <Calendar aria-label={ariaLabel}>

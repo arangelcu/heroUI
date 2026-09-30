@@ -1,5 +1,5 @@
 import React from "react";
-import {ComboBox, Input, Label, ListBox, Spinner, Tooltip} from "@heroui/react";
+import {ComboBox, FieldError, Input, Label, ListBox, Spinner, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 
 type TooltipPlacement = "top" | "bottom" | "left" | "right";
@@ -53,7 +53,7 @@ interface HeroUIComboBoxProps {
     onInputChange?: (value: string) => void;
     /** Input placeholder. Defaults to `"Type to search..."`. */
     placeholder?: string;
-    /** ComboBox width. Defaults to `"240px"`. */
+    /** ComboBox width. Defaults to `"195px"`. */
     width?: string | number;
     /** Additional CSS classes for the ComboBox. */
     className?: string;
@@ -65,6 +65,18 @@ interface HeroUIComboBoxProps {
     isLoading?: boolean;
     /** Text shown when there are no results. Defaults to `"No results found"`. */
     noResultsText?: string;
+    /**
+     * Marks the field as required.
+     * When `true` and the value is empty, `isInvalid` becomes `true`
+     * and the `FieldError` is displayed.
+     * @default false
+     */
+    isRequired?: boolean;
+    /**
+     * Custom error message shown when the field is required and empty.
+     * @default "This field is required"
+     */
+    requiredMessage?: string;
 }
 
 /**
@@ -79,8 +91,8 @@ interface HeroUIComboBoxProps {
  * - `allowsEmptyCollection` keeps the popover open while the server
  *   has not returned results yet.
  * - To clear the selection, the user simply empties the input.
- *   When the input becomes empty and there was a selection,
- *   `onChange("")` is fired.
+ * - **Required validation**: when `isRequired` is `true` and the value is
+ *   empty, a `FieldError` is displayed below the input.
  * - Border radius is 5px (`rounded-[5px]`) for a squarer look.
  *
  * For multiple selection, use `HeroUIComboBoxMultiple`.
@@ -100,7 +112,15 @@ const HeroUIComboBox: React.FC<HeroUIComboBoxProps> = ({
                                                            isDisabled = false,
                                                            isLoading = false,
                                                            noResultsText = "No results found",
+                                                           isRequired = false,
+                                                           requiredMessage = "This field is required",
                                                        }) => {
+    /**
+     * The field is invalid when it's required but has no value.
+     * An empty string also counts as empty.
+     */
+    const isInvalid = isRequired && (!value || value === "");
+
     /**
      * Wraps `onInputChange` to detect when the user clears the input.
      *
@@ -129,6 +149,9 @@ const HeroUIComboBox: React.FC<HeroUIComboBoxProps> = ({
             inputValue={inputValue}
             onInputChange={handleInputChange}
             isDisabled={isDisabled}
+            isRequired={isRequired}
+            isInvalid={isInvalid}
+            validationBehavior="aria"
             menuTrigger="focus"
             allowsEmptyCollection
         >
@@ -141,6 +164,9 @@ const HeroUIComboBox: React.FC<HeroUIComboBoxProps> = ({
 
                 <ComboBox.Trigger className="rounded-[5px]"/>
             </ComboBox.InputGroup>
+
+            {/* FieldError only renders when isInvalid is true */}
+            <FieldError>{requiredMessage}</FieldError>
 
             <ComboBox.Popover className="rounded-[5px]">
                 <ListBox
@@ -177,7 +203,9 @@ const HeroUIComboBox: React.FC<HeroUIComboBoxProps> = ({
 
     return (
         <Tooltip delay={delay}>
-            {field}
+            <Tooltip.Trigger>
+                {field}
+            </Tooltip.Trigger>
             <Tooltip.Content
                 className={tooltipClassName}
                 placement={placement}

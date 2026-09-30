@@ -1,15 +1,23 @@
 import React from "react";
-import {DateField, FieldError, Label, Tooltip} from "@heroui/react";
-import type {DateValue} from "@internationalized/date";
+import {DateField, FieldError, Label, TimeField, Tooltip} from "@heroui/react";
+import type {TimeValue} from "@internationalized/date";
 
 /**
- * Configuration for the tooltip shown on the date field.
+ * Valid tooltip placements for HeroUI v3.
+ * Uses hyphens (not spaces) as required by React Aria.
+ */
+type TooltipPlacement = "top" | "bottom" | "left" | "right";
+
+/**
+ * Configuration for the tooltip shown on the time field.
+ *
+ * Accepts either a plain string (shorthand) or this full object.
  */
 export interface HeroUITooltipConfig {
     /** Tooltip content. Accepts a string or ReactNode. */
     text: React.ReactNode;
     /** Tooltip placement relative to the field. Defaults to `"top"`. */
-    placement?: "top" | "bottom" | "left" | "right";
+    placement?: TooltipPlacement;
     /** Shows or hides the tooltip arrow. Defaults to `false`. */
     showArrow?: boolean;
     /** Delay in ms before showing the tooltip. Defaults to `0`. */
@@ -18,18 +26,37 @@ export interface HeroUITooltipConfig {
     className?: string;
 }
 
-interface HeroUIDateFieldProps {
-    /** Aria label for accessibility. Defaults to `"Date field"`. */
+/**
+ * Props for `HeroUITimeField`.
+ *
+ * A wrapper around HeroUI v3 `TimeField` that adds:
+ * - Optional label above the field
+ * - Required validation with a custom error message
+ * - Optional tooltip (string shorthand or full config)
+ * - Configurable width and disabled state
+ *
+ * ### HeroUI v3 Notes
+ * - **Component renamed**: `TimeInput` (v2) → `TimeField` (v3) [citation:1].
+ * - **Compound components required**: Must use `DateField.Group`,
+ *   `DateField.Input` (render prop), and `DateField.Segment` [citation:1].
+ * - **Label**: Rendered via the separate `<Label>` component as a child.
+ * - **FieldError**: Must be a sibling inside `TimeField` [citation:2].
+ * - **Tooltip**: Must wrap the trigger in `Tooltip.Trigger`.
+ * - **Props removed**: `color`, `size`, `radius`, `labelPlacement`,
+ *   `startContent`/`endContent` (use `DateField.Prefix`/`DateField.Suffix`) [citation:1].
+ */
+interface HeroUITimeFieldProps {
+    /** Aria label for accessibility. Defaults to `"Time field"`. */
     ariaLabel?: string;
     /** Optional visible label rendered above the field via the `Label` component. */
     label?: React.ReactNode;
-    /** Controlled date value. `null` means no date selected. */
-    value?: DateValue | null;
-    /** Fired when the date changes. Receives the new value or `null`. */
-    onChange?: (value: DateValue | null) => void;
+    /** Controlled time value. `null` means no time selected. */
+    value?: TimeValue | null;
+    /** Fired when the time changes. Receives the new value or `null`. */
+    onChange?: (value: TimeValue | null) => void;
     /** Field width. Defaults to `"195px"`. */
     width?: string | number;
-    /** Additional CSS classes for the root DateField component. */
+    /** Additional CSS classes for the root TimeField component. */
     className?: string;
     /** Disables the field. Defaults to `false`. */
     isDisabled?: boolean;
@@ -47,44 +74,54 @@ interface HeroUIDateFieldProps {
     requiredMessage?: string;
     /**
      * Optional tooltip shown on hover.
+     * Accepts a string (shorthand) or a full config object.
      */
     tooltip?: string | HeroUITooltipConfig;
 }
 
 /**
- * `HeroUIDateField`
+ * `HeroUITimeField`
  *
- * Date field built on HeroUI v3 `DateField`.
+ * Time input field built on HeroUI v3 `TimeField`.
  *
  * ### Required validation
  * When `isRequired` is `true` and the value is `null`, the field shows
  * a `FieldError` below the input. The error disappears automatically
- * as soon as a valid date is selected.
+ * as soon as a valid time is selected [citation:2][citation:6].
  *
- * ### Compact styling
- * The internal `DateField.Group` uses a smaller font size and tighter
- * spacing so it visually matches `HeroUIDatePicker` and
- * `HeroUIDateRangePicker` at ~195px.
+ * ### Structure
+ * ```
+ * TimeField
+ * ├── Label
+ * ├── DateField.Group
+ * │   └── DateField.Input → DateField.Segment
+ * ├── FieldError
+ * ```
  *
- * ### HeroUI v3 Notes
- * - Compound components required: `DateField.Group`, `DateField.Input`,
- *   `DateField.Segment`.
- * - `FieldError` must be a sibling inside `DateField`.
- * - Tooltip must wrap the trigger in `Tooltip.Trigger`.
+ * ### Example — Basic usage
+ * ```tsx
+ * <HeroUITimeField
+ *   ariaLabel="Appointment time"
+ *   label="Appointment time"
+ *   value={timeValue}
+ *   onChange={setTimeValue}
+ * />
+ * ```
  *
  * ### Example — Required field
  * ```tsx
- * <HeroUIDateField
- *   label="Birth date"
+ * <HeroUITimeField
+ *   ariaLabel="Start time"
+ *   label="Start time"
  *   isRequired
- *   requiredMessage="Please select a date"
- *   value={dateValue}
- *   onChange={setDateValue}
+ *   requiredMessage="Please select a start time"
+ *   value={startTime}
+ *   onChange={setStartTime}
  * />
  * ```
  */
-const HeroUIDateField: React.FC<HeroUIDateFieldProps> = ({
-                                                             ariaLabel = "Date field",
+const HeroUITimeField: React.FC<HeroUITimeFieldProps> = ({
+                                                             ariaLabel = "Time field",
                                                              label,
                                                              value = null,
                                                              onChange,
@@ -102,7 +139,7 @@ const HeroUIDateField: React.FC<HeroUIDateFieldProps> = ({
     const isInvalid = isRequired && (value === null || value === undefined);
 
     const field = (
-        <DateField
+        <TimeField
             aria-label={ariaLabel}
             className={className}
             style={{width}}
@@ -115,9 +152,7 @@ const HeroUIDateField: React.FC<HeroUIDateFieldProps> = ({
         >
             {label && <Label>{label}</Label>}
 
-            <DateField.Group
-                className="rounded-[5px] text-[11px] [&_*]:text-[11px] [&_[data-slot='segment']]:px-0"
-            >
+            <DateField.Group className="rounded-[5px]">
                 <DateField.Input>
                     {(segment) => <DateField.Segment segment={segment}/>}
                 </DateField.Input>
@@ -125,10 +160,10 @@ const HeroUIDateField: React.FC<HeroUIDateFieldProps> = ({
 
             {/* FieldError shows the required message when isInvalid is true */}
             <FieldError>{requiredMessage}</FieldError>
-        </DateField>
+        </TimeField>
     );
 
-    // No tooltip → return the bare date field.
+    // No tooltip → return the bare time field.
     if (!tooltip) return field;
 
     // Normalize the string shorthand into the full config object.
@@ -160,6 +195,6 @@ const HeroUIDateField: React.FC<HeroUIDateFieldProps> = ({
     );
 };
 
-HeroUIDateField.displayName = "HeroUIDateField";
+HeroUITimeField.displayName = "HeroUITimeField";
 
-export default HeroUIDateField;
+export default HeroUITimeField;

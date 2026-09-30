@@ -1,20 +1,13 @@
 import React from "react";
-import {Label, ListBox, Select, Tooltip} from "@heroui/react";
+import {FieldError, Label, ListBox, Select, Tooltip} from "@heroui/react";
 
 /**
  * Valid tooltip placements for HeroUI v3.
- * Uses hyphens (not spaces) as required by React Aria.
  */
-type TooltipPlacement =
-    | "top"
-    | "bottom"
-    | "left"
-    | "right";
+type TooltipPlacement = "top" | "bottom" | "left" | "right";
 
 /**
  * Configuration for the tooltip shown on the select.
- *
- * Accepts either a plain string (shorthand) or this full object.
  */
 export interface HeroUITooltipConfig {
     /** Text or content displayed inside the tooltip */
@@ -41,13 +34,6 @@ export interface HeroUISelectOption {
 
 /**
  * Props for `HeroUISelect`.
- *
- * A wrapper around HeroUI's `Select` that adds:
- * - Optional label above the trigger
- * - Optional clear button inside the trigger
- * - Single or multiple selection mode
- * - Optional tooltip (string shorthand or full config)
- * - Configurable width
  */
 interface HeroUISelectProps {
     /** Accessible label (for screen readers) */
@@ -76,8 +62,6 @@ interface HeroUISelectProps {
     className?: string;
     /**
      * Tooltip shown on hover.
-     * - String → shown as text with `placement: "top"`.
-     * - Object → full control over text, placement, arrow, delay, and classes.
      */
     tooltip?: string | HeroUITooltipConfig;
     /** Disables the select */
@@ -90,58 +74,53 @@ interface HeroUISelectProps {
      * - `"multiple"` → several options can be selected.
      */
     selectionMode?: "single" | "multiple";
+    /**
+     * Marks the field as required.
+     * When `true` and the value is empty, `isInvalid` becomes `true`
+     * and the `FieldError` is displayed.
+     * @default false
+     */
+    isRequired?: boolean;
+    /**
+     * Custom error message shown when the field is required and empty.
+     * @default "This field is required"
+     */
+    requiredMessage?: string;
 }
 
 /**
  * `HeroUISelect`
  *
  * A select built on top of HeroUI v3, with optional label, clear button,
- * single/multiple selection, and tooltip.
+ * single/multiple selection, tooltip, and required validation.
  *
- * ### Features
- * - Single or multiple selection (`selectionMode`)
- * - Optional label above the trigger
- * - Optional clear button inside the trigger
- * - Optional tooltip as string shorthand or full config
- * - Normalizes internal values to string / string[]
+ * ### Required validation
+ * When `isRequired` is `true` and the value is empty, the field shows
+ * a `FieldError` below the trigger. The error disappears automatically
+ * as soon as a valid option is selected.
  *
  * ### Example — Single selection
  * ```tsx
  * <HeroUISelect
  *   ariaLabel="Filter by role"
- *   options={[
- *     { id: "CEO", label: "CEO" },
- *     { id: "CTO", label: "CTO" },
- *   ]}
+ *   options={ROLE_OPTIONS}
  *   value={role}
  *   placeholder="Select a role"
  *   onChange={(v) => setRole(v as string)}
  * />
  * ```
  *
- * ### Example — Multiple selection
+ * ### Example — Required field
  * ```tsx
  * <HeroUISelect
- *   ariaLabel="Countries to visit"
- *   label="Countries to Visit"
- *   selectionMode="multiple"
- *   options={COUNTRIES}
- *   value={selected}
- *   placeholder="Select countries"
- *   onChange={(v) => setSelected(v as string[])}
- * />
- * ```
- *
- * ### Example — With clear button and tooltip
- * ```tsx
- * <HeroUISelect
- *   ariaLabel="Filter by status"
- *   options={STATUS_OPTIONS}
- *   value={status}
- *   placeholder="Select a status"
- *   showClearButton
- *   tooltip={{ text: "Filter by status", placement: "top", showArrow: true }}
- *   onChange={(v) => setStatus(v as string)}
+ *   ariaLabel="Filter by role"
+ *   label="Role"
+ *   options={ROLE_OPTIONS}
+ *   value={role}
+ *   placeholder="Select a role"
+ *   isRequired
+ *   requiredMessage="Please select a role"
+ *   onChange={(v) => setRole(v as string)}
  * />
  * ```
  */
@@ -158,9 +137,22 @@ const HeroUISelect: React.FC<HeroUISelectProps> = ({
                                                        isDisabled = false,
                                                        showClearButton = false,
                                                        selectionMode = "single",
+                                                       isRequired = false,
+                                                       requiredMessage = "This field is required",
                                                    }) => {
     /** Whether the select allows multiple selections. */
     const isMultiple = selectionMode === "multiple";
+
+    /**
+     * The field is invalid when it's required but has no value.
+     * - Single mode: empty string or `undefined` counts as empty.
+     * - Multiple mode: empty array counts as empty.
+     */
+    const isInvalid = isRequired && (
+        isMultiple
+            ? !Array.isArray(value) || value.length === 0
+            : !value || value === ""
+    );
 
     /**
      * Normalizes the internal HeroUI value to a stable type:
@@ -169,7 +161,6 @@ const HeroUISelect: React.FC<HeroUISelectProps> = ({
      */
     const handleChange = (key: unknown) => {
         if (isMultiple) {
-            // HeroUI passes a Set or an array-like of keys.
             const values = Array.isArray(key)
                 ? key.map(String)
                 : key instanceof Set
@@ -190,6 +181,9 @@ const HeroUISelect: React.FC<HeroUISelectProps> = ({
             placeholder={placeholder}
             isDisabled={isDisabled}
             selectionMode={selectionMode}
+            isRequired={isRequired}
+            isInvalid={isInvalid}
+            validationBehavior="aria"
             onChange={handleChange}
         >
             {label && <Label>{label}</Label>}
@@ -199,6 +193,9 @@ const HeroUISelect: React.FC<HeroUISelectProps> = ({
                 {showClearButton && !isMultiple && <Select.ClearButton/>}
                 <Select.Indicator/>
             </Select.Trigger>
+
+            {/* FieldError only renders when isInvalid is true */}
+            <FieldError>{requiredMessage}</FieldError>
 
             <Select.Popover className="rounded-[5px]" style={{width}}>
                 <ListBox selectionMode={selectionMode}>
@@ -234,7 +231,9 @@ const HeroUISelect: React.FC<HeroUISelectProps> = ({
 
     return (
         <Tooltip delay={delay}>
-            {select}
+            <Tooltip.Trigger>
+                {select}
+            </Tooltip.Trigger>
             <Tooltip.Content
                 className={tooltipClassName}
                 placement={placement}
