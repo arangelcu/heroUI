@@ -5,6 +5,14 @@ import {FetchParams, HeroUiTable, PaginationOptions,} from "../HeroUITable/HeroU
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
 import HeroUIButton from "../HeroUIButton/HeroUIButton";
 import HeroUIComboBox, {HeroUIComboBoxOption} from "../HeroUIComboBox/HeroUIComboBox";
+import HeroUICheckbox from "../HeroUICheckbox/HeroUICheckbox";
+import HeroUIDateField from "../HeroUIDateField/HeroUIDateField";
+import HeroUIDatePicker from "../HeroUIDatePicker/HeroUIDatePicker";
+import HeroUIDateRangePicker from "../HeroUIDateRangePicker/HeroUIDateRangePicker";
+import HeroUINumberField from "../HeroUINumberField/HeroUINumberField";
+import HeroUISwitch from "../HeroUISwitch/HeroUISwitch";
+import HeroUITextArea from "../HeroUITextArea/HeroUITextArea";
+import HeroUIToggleButton from "../HeroUIToggleButton/HeroUIToggleButton";
 
 interface User {
     id: number;
@@ -171,6 +179,17 @@ function HeroUIDemo() {
         setInputValue1(opt ? opt.label : "");
     };
 
+    // --- New components demo state ----------------------------------------
+    const [checked, setChecked] = useState(false);
+    const [enabled, setEnabled] = useState(false);
+    const [liked, setLiked] = useState(false);
+    const [bookmarked, setBookmarked] = useState(false);
+    const [numberValue, setNumberValue] = useState(10);
+    const [textAreaValue, setTextAreaValue] = useState("");
+    const [dateValue, setDateValue] = useState<Date | null>(null);
+    const [datePickerValue, setDatePickerValue] = useState<Date | null>(null);
+    const [dateRangeValue, setDateRangeValue] = useState<{ start: Date; end: Date } | null>(null);
+
     return (
         <div className="p-8">
             <HeroUIDemoThemeSwitch/>
@@ -189,22 +208,158 @@ function HeroUIDemo() {
             <br/>
             <br/>
 
-            {/* ComboBox #1 — single */}
-            <div className="p-1">
-                <HeroUIComboBox
-                    ariaLabel="Search user (single)"
-                    options={options1}
-                    value={selected1}
-                    onChange={(v) => handleSelectionChange1(v as string)}
-                    inputValue={inputValue1}
-                    onInputChange={handleInputChange1}
-                    isLoading={loading1}
-                    tooltip={"Combo Filter by User Name"}
-                    placeholder="Type to search..."
-                />
+            {/* Demo grid: ComboBox + new components side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-1">
+                {/* ComboBox #1 — single */}
+                <div>
+                    <HeroUIComboBox
+                        ariaLabel="Search user (single)"
+                        options={options1}
+                        value={selected1}
+                        onChange={(v) => handleSelectionChange1(v as string)}
+                        inputValue={inputValue1}
+                        onInputChange={handleInputChange1}
+                        isLoading={loading1}
+                        tooltip={"Combo Filter by User Name"}
+                        placeholder="Type to search..."
+                    />
 
-                <p>Selected id: {selected1 || "(none)"}</p>
-                <p>Selected label: {options1.find((o) => o.id === selected1)?.label || "(none)"}</p>
+                    <p className="text-xs mt-1">Selected id: {selected1 || "(none)"}</p>
+                    <p className="text-xs">Selected label: {options1.find((o) => o.id === selected1)?.label || "(none)"}</p>
+                </div>
+
+                {/* TextArea */}
+                <div>
+                    <HeroUITextArea
+                        ariaLabel="Comments"
+                        value={textAreaValue}
+                        onChange={setTextAreaValue}
+                        placeholder="Write your comments..."
+                        tooltip="Add your comments here"
+                    />
+                    <p className="text-xs mt-1">Chars: {textAreaValue.length}</p>
+                </div>
+
+                {/* Checkbox */}
+                <div>
+                    <HeroUICheckbox
+                        ariaLabel="Accept terms"
+                        isSelected={checked}
+                        onChange={setChecked}
+                        tooltip="Accept terms and conditions"
+                    >
+                        Accept terms
+                    </HeroUICheckbox>
+                    <p className="text-xs mt-1">Checked: {String(checked)}</p>
+                </div>
+
+                {/* Switch */}
+                <div>
+                    <HeroUISwitch
+                        ariaLabel="Enable notifications"
+                        isSelected={enabled}
+                        onChange={setEnabled}
+                        size="md"
+                        tooltip="Toggle notifications"
+                    />
+                    <p className="text-xs mt-1">Enabled: {String(enabled)}</p>
+                </div>
+
+                {/* NumberField */}
+                <div>
+                    <HeroUINumberField
+                        ariaLabel="Quantity"
+                        label="Quantity"
+                        value={numberValue}
+                        onChange={setNumberValue}
+                        minValue={0}
+                        maxValue={100}
+                        tooltip="Pick a number"
+                    />
+                    <p className="text-xs mt-1">Value: {numberValue}</p>
+                </div>
+
+                {/* DateField */}
+                <div>
+                    <HeroUIDateField
+                        ariaLabel="Birth date"
+                        label="Birth date"
+                        value={dateValue as any}
+                        onChange={(v) => setDateValue(v as any)}
+                        tooltip="Select a date"
+                    />
+                    <p className="text-xs mt-1">Date: {dateValue ? String(dateValue) : "(none)"}</p>
+                </div>
+
+                {/* DatePicker */}
+                <div>
+                    <HeroUIDatePicker
+                        ariaLabel="Appointment date"
+                        label="Appointment"
+                        value={datePickerValue as any}
+                        onChange={(v) => setDatePickerValue(v as any)}
+                        tooltip="Pick an appointment date"
+                    />
+                    <p className="text-xs mt-1">Picked: {datePickerValue ? String(datePickerValue) : "(none)"}</p>
+                </div>
+
+                {/* DateRangePicker */}
+                <div>
+                    <HeroUIDateRangePicker
+                        ariaLabel="Vacation range"
+                        label="Vacation range"
+                        value={dateRangeValue as any}
+                        onChange={(v) => setDateRangeValue(v as any)}
+                        tooltip="Pick a date range"
+                    />
+                    <p className="text-xs mt-1">
+                        Range: {dateRangeValue ? `${dateRangeValue.start} → ${dateRangeValue.end}` : "(none)"}
+                    </p>
+                </div>
+
+                {/* ToggleButton */}
+                <div>
+                    <div className="flex items-center gap-3">
+                        {/* Icon-only */}
+                        <HeroUIToggleButton
+                            isIconOnly
+                            ariaLabel="Like"
+                            icon="fa6-solid:calendar-check"
+                            isSelected={liked}
+                            onChange={setLiked}
+                            tooltip="Like this item"
+                        />
+
+                        {/* Icon-only with variant */}
+                        <HeroUIToggleButton
+                            isIconOnly
+                            ariaLabel="Bookmark"
+                            icon="fa6-solid:bookmark"
+                            variant="ghost"
+                            isSelected={bookmarked}
+                            onChange={setBookmarked}
+                            tooltip="Bookmark this item"
+                        />
+
+                        {/* Icon + text with stateful icons */}
+                        <HeroUIToggleButton
+                            ariaLabel="Like with text"
+                            iconConfig={{
+                                off: "fa6-solid:calendar-xmark",
+                                on: "fa6-solid:calendar-check",
+                            }}
+                            isSelected={liked}
+                            onChange={setLiked}
+                            tooltip="Toggle like"
+                        >
+                            {liked ? "Liked" : "Like"}
+                        </HeroUIToggleButton>
+                    </div>
+                    <p className="text-xs mt-1">
+                        Liked: {String(liked)} · Bookmarked: {String(bookmarked)}
+                    </p>
+                </div>
+
             </div>
 
             <br/>
