@@ -1,5 +1,5 @@
 import React from "react";
-import HeroUIDemo from "./base/Demo/HeroUIDemo";
+import HeroUIDemo from "./HeroUI/Demo/HeroUIDemo";
 
 
 function App() {

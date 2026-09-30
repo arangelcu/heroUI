@@ -1,0 +1,49 @@
+/* ==========================================================================
+   Container
+   ========================================================================== */
+
+.bar {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 1rem;
+    border-radius: 8px;
+    background-color: color-mix(in srgb, var(--surface-secondary) 40%, transparent);
+}
+
+/* ==========================================================================
+   Previous / Next buttons
+   Only min-width here — the rest comes from HeroUIButton's "surface" appearance.
+   ========================================================================== */
+
+.navButton {
+    min-width: 140px;
+}
+
+/* ==========================================================================
+   Page indicator ("Page X of Y")
+   ========================================================================== */
+
+.pageInfo {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--muted, #6b7280);
+}
+
+/* Editable page input */
+.pageInput {
+    width: 80px;
+    border-radius: 5px;
+}
+
+/* ==========================================================================
+   Rows per page selector
+   ========================================================================== */
+
+.pageSizeSelect {
+    width: 128px;
+}

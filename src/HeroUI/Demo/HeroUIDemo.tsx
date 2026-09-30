@@ -6,6 +6,7 @@ import TableEmpty from "../HeroUITable/TableEmpty/TableEmpty";
 import {FetchParams, HeroUiTable, PaginationOptions,} from "../HeroUITable/HeroUITable/HeroUiTable";
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
 import {FilterValues} from "../HeroUITable/TableFilters/TableFilters";
+import HeroUIButton from "../HeroUIButton/HeroUIButton";
 
 interface User {
     id: number;
@@ -168,6 +169,11 @@ function App() {
             <HeroUIDemoThemeSwitch/>
             <br/>
 
+            <HeroUIButton appearance="pagination" onClick={()=>{ // @ts-ignore
+                setData([])}}>Clean</HeroUIButton>
+            <br/>
+            <br/>
+
             <HeroUiTable
                 columns={userColumns}
                 isLoading={isLoading}
@@ -176,14 +182,6 @@ function App() {
                 fetchData={fetchData}
                 pageSizeOptions={[5, 10, 25, 50, 100]}
                 rowHeaderColumnId="name"
-                renderLoading={() => <TableLoader loading={true}/>}
-                renderEmpty={() => (
-                    <TableEmpty
-                        icon="fa6-solid:inbox"
-                        title="No hay usuarios"
-                        description="Cuando se registren usuarios aparecerán aquí."
-                    />
-                )}
                 filtersConfig={{
                     start: <h2 className="text-lg font-semibold">Table + DEFAULT</h2>,
                     enableFiltersBtn: true,
@@ -217,20 +215,12 @@ function App() {
 
                 ariaLabel="Team members"
                 rowHeaderColumnId="name"
-                renderLoading={() => <TableLoader loading={true}/>}
-                renderEmpty={() => (
-                    <TableEmpty
-                        icon="fa6-solid:inbox"
-                        title="No hay usuarios"
-                        description="Cuando se registren usuarios aparecerán aquí."
-                    />
-                )}
                 filtersConfig={{
                     start: <h2 className="text-lg font-semibold">Table + SELECT</h2>,
                     // 👇 Tus botones extra
                     end: (
                         <>
-                            <HeroUIIconButton icon="fa6-solid:circle-info" tooltip={"Custom ICON"} appearance={"row"}/>
+                            <HeroUIIconButton icon="fa6-solid:circle-info" tooltip={"Custom ICON"} appearance={"surface"}/>
 
                         </>
                     ),

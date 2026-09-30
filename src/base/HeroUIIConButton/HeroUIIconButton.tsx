@@ -10,7 +10,7 @@ type TooltipPlacement =
     | "bottom"
     | "left"
     | "right"
-   ;
+    ;
 
 interface HeroUITooltipConfig {
     /** Texto del tooltip */
