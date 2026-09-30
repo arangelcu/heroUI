@@ -1,12 +1,10 @@
 import {createColumnHelper} from "@tanstack/react-table";
 import React, {useCallback, useState} from "react";
 import {HeroUIDemoThemeSwitch} from "./HeroUIDemoThemeSwitch";
-import TableLoader from "../HeroUITable/TableLoader/TableLoader";
-import TableEmpty from "../HeroUITable/TableEmpty/TableEmpty";
 import {FetchParams, HeroUiTable, PaginationOptions,} from "../HeroUITable/HeroUITable/HeroUiTable";
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
-import {FilterValues} from "../HeroUITable/TableFilters/TableFilters";
 import HeroUIButton from "../HeroUIButton/HeroUIButton";
+import HeroUIComboBox, {HeroUIComboBoxOption} from "../HeroUIComboBox/HeroUIComboBox";
 
 interface User {
     id: number;
@@ -16,7 +14,7 @@ interface User {
     email: string;
 }
 
-// 👇 Handlers de acciones
+// Action handlers
 const handleView = (user: User) => console.log("View", user);
 const handleEdit = (user: User) => console.log("Edit", user);
 const handleDelete = (user: User) => console.log("Delete", user);
@@ -24,28 +22,10 @@ const handleDelete = (user: User) => console.log("Delete", user);
 const columnHelper = createColumnHelper<any, User>();
 
 const userColumns = columnHelper.columns([
-    columnHelper.accessor("name", {
-        header: "Name",
-        minWidth: 160,
-        defaultWidth: "1fr",
-    } as any),
-    columnHelper.accessor("role", {
-        header: "Role",
-        minWidth: 150,
-        defaultWidth: "1fr",
-    } as any),
-    columnHelper.accessor("status", {
-        header: "Status",
-        minWidth: 120,
-        defaultWidth: "1fr",
-    } as any),
-    columnHelper.accessor("email", {
-        header: "Email",
-        minWidth: 200,
-        defaultWidth: "1fr",
-    } as any),
-
-    // 👇 Columna de acciones
+    columnHelper.accessor("name", {header: "Name", minWidth: 160, defaultWidth: "1fr"} as any),
+    columnHelper.accessor("role", {header: "Role", minWidth: 150, defaultWidth: "1fr"} as any),
+    columnHelper.accessor("status", {header: "Status", minWidth: 120, defaultWidth: "1fr"} as any),
+    columnHelper.accessor("email", {header: "Email", minWidth: 200, defaultWidth: "1fr"} as any),
     columnHelper.display({
         id: "actions",
         header: () => <div className="w-full text-end">Actions</div>,
@@ -61,16 +41,12 @@ const userColumns = columnHelper.columns([
                         icon="fa6-solid:eye"
                         onPress={() => handleView(user)}
                     />
-
-                    {/* Edit — editar */}
                     <HeroUIIconButton
                         tooltip={"Edit"}
                         aria-label={`Edit ${user.name}`}
                         icon="fa6-solid:pen-to-square"
                         onPress={() => handleEdit(user)}
                     />
-
-                    {/* Delete — eliminar */}
                     <HeroUIIconButton
                         tooltip={"Delete"}
                         aria-label={`Delete ${user.name}`}
@@ -84,7 +60,7 @@ const userColumns = columnHelper.columns([
     }),
 ]);
 
-// Simulación de "DB" — 57 filas
+// Simulated "DB" — 57 rows
 const ALL_USERS: User[] = Array.from({length: 57}, (_, i) => ({
     id: i + 1,
     name: `User ${i + 1}`,
@@ -93,7 +69,6 @@ const ALL_USERS: User[] = Array.from({length: 57}, (_, i) => ({
     email: `user${i + 1}@acme.com`,
 }));
 
-// 👇 Estado inicial de tu objeto
 const initialPaginationOptions: PaginationOptions = {
     first: 0,
     offset: 0,
@@ -104,21 +79,31 @@ const initialPaginationOptions: PaginationOptions = {
     pages: 0,
 };
 
-function App() {
+/**
+ * Simula una búsqueda server-side.
+ * En una app real, reemplaza esto por tu llamada `api.get(...)`.
+ */
+const searchUsers = async (query: string): Promise<HeroUIComboBoxOption[]> => {
+    await new Promise((r) => setTimeout(r, 300));
+
+    return ALL_USERS
+        .filter((u) => u.name.toLowerCase().includes(query.toLowerCase()))
+        .slice(0, 10)
+        .map((u) => ({id: String(u.id), label: u.name}));
+};
+
+function HeroUIDemo() {
+    // --- Table state -------------------------------------------------------
     const [data, setData] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [paginationOptions, setPaginationOptions] =
         useState<PaginationOptions>(initialPaginationOptions);
-    const [filters, setFilters] = useState<FilterValues>({});
-    const [showFilters, setShowFilters] = useState(false);
 
-    // 👇 Aquí va tu llamada real a la DB / API
     const fetchData = useCallback(async (params: FetchParams) => {
         setIsLoading(true);
         try {
             const {offset, pageSize, sorting} = params;
 
-            // Simulación: filtrado + paginado + sorting en el "server"
             let result = [...ALL_USERS];
 
             if (sorting.length > 0) {
@@ -130,21 +115,18 @@ function App() {
                 });
             }
 
-            const startIdx = offset;
-            const paged = result.slice(startIdx, startIdx + pageSize);
+            const paged = result.slice(offset, offset + pageSize);
 
-            // Simula latencia
             await new Promise((r) => setTimeout(r, 600));
 
-            // 👇 Actualizamos data + tu objeto paginationOptions
             setData(paged);
             setPaginationOptions({
                 first: offset,
-                offset: offset,
+                offset,
                 currentPage: params.currentPage,
                 totalElements: result.length,
                 countRows: paged.length,
-                pageSize: pageSize,
+                pageSize,
                 pages: Math.ceil(result.length / pageSize),
             });
         } finally {
@@ -152,16 +134,41 @@ function App() {
         }
     }, []);
 
-    const handleFilterChange = (newFilters: FilterValues) => {
-        setFilters(newFilters);
-        fetchData({
-            first: 0,
-            offset: 0,
-            currentPage: 0,
-            pageSize: paginationOptions.pageSize,
-            sorting: [],
-            filters: newFilters,
-        });
+    // --- ComboBox #1 (single) state ---------------------------------------
+    const [options1, setOptions1] = useState<HeroUIComboBoxOption[]>([]);
+    const [selected1, setSelected1] = useState("");
+    const [inputValue1, setInputValue1] = useState("");
+    const [loading1, setLoading1] = useState(false);
+
+    const handleInputChange1 = async (query: string) => {
+        setInputValue1(query);
+
+        if (selected1 && options1.find((o) => o.id === selected1)?.label === query) {
+            return;
+        }
+
+        if (query.length < 3) {
+            setOptions1([]);
+            return;
+        }
+
+        setLoading1(true);
+        try {
+            setOptions1(await searchUsers(query));
+        } finally {
+            setLoading1(false);
+        }
+    };
+
+    const handleSelectionChange1 = (id: string) => {
+        console.log(id);
+        setSelected1(id);
+        if (!id) {
+            setInputValue1("");
+            return;
+        }
+        const opt = options1.find((o) => o.id === id);
+        setInputValue1(opt ? opt.label : "");
     };
 
     return (
@@ -169,9 +176,37 @@ function App() {
             <HeroUIDemoThemeSwitch/>
             <br/>
 
-            <HeroUIButton appearance="pagination" onClick={()=>{ // @ts-ignore
-                setData([])}}>Clean</HeroUIButton>
+            <HeroUIButton
+                appearance="pagination"
+                onClick={() => {
+                    // @ts-ignore
+                    setData([]);
+                }}
+            >
+                Clean
+            </HeroUIButton>
+
             <br/>
+            <br/>
+
+            {/* ComboBox #1 — single */}
+            <div className="p-1">
+                <HeroUIComboBox
+                    ariaLabel="Search user (single)"
+                    options={options1}
+                    value={selected1}
+                    onChange={(v) => handleSelectionChange1(v as string)}
+                    inputValue={inputValue1}
+                    onInputChange={handleInputChange1}
+                    isLoading={loading1}
+                    tooltip={"Combo Filter by User Name"}
+                    placeholder="Type to search..."
+                />
+
+                <p>Selected id: {selected1 || "(none)"}</p>
+                <p>Selected label: {options1.find((o) => o.id === selected1)?.label || "(none)"}</p>
+            </div>
+
             <br/>
 
             <HeroUiTable
@@ -193,8 +228,8 @@ function App() {
                 }}
             />
 
-
             <br/>
+
             <HeroUiTable
                 columns={userColumns}
                 isLoading={isLoading}
@@ -202,38 +237,31 @@ function App() {
                 paginationOptions={paginationOptions}
                 fetchData={fetchData}
                 pageSizeOptions={[5, 10, 25, 50, 100]}
-
-                // 👇 Activar selección
                 enableSelection
                 getRowId={(user) => user.id}
                 onSelectionChange={(selectedUsers) => {
                     console.log("Filas seleccionadas:", selectedUsers);
-                    // aquí puedes guardar, borrar, etc.
                 }}
-                // 👇 Activar el resize
                 enableColumnResizing
-
                 ariaLabel="Team members"
                 rowHeaderColumnId="name"
                 filtersConfig={{
                     start: <h2 className="text-lg font-semibold">Table + SELECT</h2>,
-                    // 👇 Tus botones extra
                     end: (
-                        <>
-                            <HeroUIIconButton icon="fa6-solid:circle-info" tooltip={"Custom ICON"} appearance={"surface"}/>
-
-                        </>
+                        <HeroUIIconButton
+                            icon="fa6-solid:circle-info"
+                            tooltip="Custom ICON"
+                            appearance="surface"
+                        />
                     ),
                     enableFiltersBtn: true,
                     enableRefreshBtn: true,
                     enableFilterName: true,
-                    enableFilterRole: true
+                    enableFilterRole: true,
                 }}
             />
-
-
         </div>
     );
 }
 
-export default App;
+export default HeroUIDemo;
