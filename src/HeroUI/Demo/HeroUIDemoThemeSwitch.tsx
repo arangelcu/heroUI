@@ -18,6 +18,7 @@ export function HeroUIDemoThemeSwitch() {
             <Button className="rounded-[5px]" onClick={() => setTheme("coinbase")}>Coinbase</Button>
             <Button className="rounded-[5px]" onClick={() => setTheme("airbnb")}>Airbnb</Button>
             <Button className="rounded-[5px]" onClick={() => setTheme("rabbit")}>Rabbit</Button>
+            <Button className="rounded-[5px]" onClick={() => setTheme("rose")}>Rose</Button>
         </div>
     );
 }

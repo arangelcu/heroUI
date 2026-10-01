@@ -489,7 +489,7 @@ export function HeroUiTable<TData extends RowData>({
 
     // --- Render -------------------------------------------------------------
     return (
-        <Table>
+        <Table className="rounded-[15px] overflow-hidden">
             {/* Filters bar (only when filtersConfig is provided) */}
             {filtersConfig && (
                 <TableFilters
