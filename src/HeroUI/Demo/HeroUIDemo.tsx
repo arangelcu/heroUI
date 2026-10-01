@@ -17,6 +17,7 @@ import HeroUITextArea from "../HeroUITextArea/HeroUITextArea";
 import HeroUITextField from "../HeroUITextField/HeroUITextField";
 import HeroUIToggleButton from "../HeroUIToggleButton/HeroUIToggleButton";
 import HeroUIPhone from "../HeroUIPhone/HeroUIPhone";
+import HeroUICard from "../HeroUICard/HeroUICard";
 
 interface User {
     id: number;
@@ -222,6 +223,22 @@ function HeroUIDemo() {
     return (
         <div className="p-8">
             <div className="w-4/5 mx-auto p-8 flex flex-col gap-[15px]">
+
+                <HeroUICard
+                    title="Theme Buttons"
+                    description="All HeroUI default themes"
+                    toolbar={{
+                        end: (
+                            <>
+                                <HeroUIIconButton icon="fa6-solid:circle-info" />
+                            </>
+                        ),
+                    }}
+                >
+                    <div className="p-4">
+                        <HeroUIDemoThemeSwitch/>
+                    </div>
+                </HeroUICard>
 
                 <Card className="rounded-[5px]">
                     <Card.Header>
@@ -532,15 +549,11 @@ function HeroUIDemo() {
                 </Card>
 
                 {/* Table + DEFAULT — wrapped in a Card */}
-                <Card className="rounded-[5px]">
-                    <Card.Header>
-                        <Card.Title>Table + DEFAULT</Card.Title>
-                        <Card.Description>
-                            Server-side pagination, sorting, and filters.
-                        </Card.Description>
-                    </Card.Header>
-
-                    <Card.Content>
+                <HeroUICard
+                    title="Table + DEFAULT"
+                    description="Server-side pagination, sorting, and filters."
+                >
+                    <div className="p-4">
                         <HeroUiTable
                             columns={userColumns}
                             isLoading={isLoading}
@@ -559,19 +572,15 @@ function HeroUIDemo() {
                                 namePlaceholder: "Buscar por nombre...",
                             }}
                         />
-                    </Card.Content>
-                </Card>
+                    </div>
+                </HeroUICard>
 
                 {/* Table + SELECT — wrapped in a Card */}
-                <Card className="rounded-[5px]">
-                    <Card.Header>
-                        <Card.Title>Table + SELECT</Card.Title>
-                        <Card.Description>
-                            Row selection, column resizing, and custom actions.
-                        </Card.Description>
-                    </Card.Header>
-
-                    <Card.Content>
+                <HeroUICard
+                    title="Table + SELECT"
+                    description=" Row selection, column resizing, and custom actions."
+                >
+                    <div className="p-4">
                         <HeroUiTable
                             columns={userColumns}
                             isLoading={isLoading}
@@ -602,8 +611,8 @@ function HeroUIDemo() {
                                 enableFilterRole: true,
                             }}
                         />
-                    </Card.Content>
-                </Card>
+                    </div>
+                </HeroUICard>
             </div>
         </div>
     );
