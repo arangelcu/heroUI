@@ -384,7 +384,7 @@ export function HeroUiTable<TData extends RowData>({
             selectionMode={enableSelection ? "multiple" : "none"}
             onSelectionChange={enableSelection ? handleSelectionChange : undefined}
         >
-            <Table.Header className="bg-surface-secondary [&>tr]:border-b [&>tr]:border-border">
+            <Table.Header className="bg-transparent [&>tr]:border-b [&>tr]:border-border">
                 {/* Selection column */}
                 {enableSelection && (
                     <Table.Column
@@ -489,8 +489,8 @@ export function HeroUiTable<TData extends RowData>({
 
     // --- Render -------------------------------------------------------------
     return (
-        <Table className="rounded-[15px] overflow-hidden shadow-sm border border-border/40">
-            {/* Filters bar (only when filtersConfig is provided) */}
+
+        <>
             {filtersConfig && (
                 <TableFilters
                     start={filtersConfig.start}
@@ -506,31 +506,38 @@ export function HeroUiTable<TData extends RowData>({
                 />
             )}
 
-            {/* Table body: resizable or scrollable */}
-            {enableColumnResizing ? (
-                <Table.ResizableContainer>
-                    {tableContent}
-                </Table.ResizableContainer>
-            ) : (
-                <Table.ScrollContainer>
-                    {tableContent}
-                </Table.ScrollContainer>
-            )}
+            <Table className="rounded-[15px] overflow-hidden shadow-sm border border-border/40">
+                {/* Filters bar (only when filtersConfig is provided) */}
 
-            {/* Pagination footer */}
-            <Table.Footer>
-                {isLoading || !hasRows ? null : (
-                    <TablePagination
-                        currentPage={pageIndex + 1}
-                        totalPages={pageCount}
-                        pageSize={pageSize}
-                        pageSizeOptions={pageSizeOptions}
-                        onPageChange={(page) => handlePageChange(page - 1)}
-                        onPageSizeChange={handlePageSizeChange}
-                    />
+
+                {/* Table body: resizable or scrollable */}
+                {enableColumnResizing ? (
+                    <Table.ResizableContainer>
+                        {tableContent}
+                    </Table.ResizableContainer>
+                ) : (
+                    <Table.ScrollContainer>
+                        {tableContent}
+                    </Table.ScrollContainer>
                 )}
-            </Table.Footer>
-        </Table>
+
+                {/* Pagination footer */}
+                <Table.Footer>
+                    {isLoading || !hasRows ? null : (
+                        <TablePagination
+                            currentPage={pageIndex + 1}
+                            totalPages={pageCount}
+                            pageSize={pageSize}
+                            pageSizeOptions={pageSizeOptions}
+                            onPageChange={(page) => handlePageChange(page - 1)}
+                            onPageSizeChange={handlePageSizeChange}
+                        />
+                    )}
+                </Table.Footer>
+            </Table>
+        </>
+
+
     );
 }
 

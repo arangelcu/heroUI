@@ -2,6 +2,8 @@
    Container
    ========================================================================== */
 
+/* TableFilters.module.css */
+/* TableFilters.module.css */
 .container {
     display: flex;
     flex-wrap: wrap;
@@ -9,12 +11,12 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    padding: 0.5rem;
+    padding: 0.50rem 1rem;
     background-color: white;
-    margin-top:5px;
-    border-bottom: 2px solid var(--surface);
-    border-radius: 15px;
+
 }
+
+
 
 /* ==========================================================================
    Left slot — title or filters

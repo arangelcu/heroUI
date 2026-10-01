@@ -628,7 +628,7 @@ function HeroUIDemo() {
                                 enableColumnResizing
                                 ariaLabel="Team members"
                                 rowHeaderColumnId="name"
-                                filtersConfig={{
+                                /*filtersConfig={{
                                     start: <h2 className="text-lg font-semibold"></h2>,
                                     end: (
                                         <>
@@ -644,7 +644,7 @@ function HeroUIDemo() {
                                     enableRefreshBtn: true,
                                     enableFilterName: true,
                                     enableFilterRole: true,
-                                }}
+                                }}*/
                             />
                         </div>
                     </HeroUICard>
