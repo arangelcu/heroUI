@@ -6,8 +6,7 @@ export function HeroUIThemes() {
 
     return (
         <div className="flex gap-2 flex-wrap justify-center">
-            <Button className="rounded-[5px]" onClick={() => setTheme("light")}>Light</Button>
-            <Button className="rounded-[5px]" onClick={() => setTheme("dark")}>Dark</Button>
+            <Button className="rounded-[5px]" onClick={() => setTheme("light")}>LIGHT</Button>
             <Button className="rounded-[5px]" onClick={() => setTheme("sms")}>SMS</Button>
             <Button className="rounded-[5px]" onClick={() => setTheme("rcm")}>RCM</Button>
         </div>
