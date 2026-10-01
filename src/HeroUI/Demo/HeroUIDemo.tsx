@@ -16,6 +16,7 @@ import HeroUISwitch from "../HeroUISwitch/HeroUISwitch";
 import HeroUITextArea from "../HeroUITextArea/HeroUITextArea";
 import HeroUITextField from "../HeroUITextField/HeroUITextField";
 import HeroUIToggleButton from "../HeroUIToggleButton/HeroUIToggleButton";
+import HeroUIPhone from "../HeroUIPhone/HeroUIPhone";
 
 interface User {
     id: number;
@@ -202,6 +203,7 @@ function HeroUIDemo() {
     const [email, setEmail] = useState('');
     const [number, setNumber] = useState('');
     const [text, setText] = useState('');
+    const [phone, setPhone] = useState('');
     const [timeValue, setTimeValue] = useState(null);
     const [liked, setLiked] = useState(false);
     const [bookmarked, setBookmarked] = useState(false);
@@ -235,14 +237,17 @@ function HeroUIDemo() {
                     <div>
                         <HeroUITextField
                             label="Text"
-                            isInvalid={true}
                             tooltip="Text"
                             placeholder="Enter text"
                             type={"text"}
                             isRequired
                             requiredMessage="Text is required"
+                            isInvalid={true}
+                            invalidMessage="Something went wrong"
                             value={text}
-                            onChange={(v) => setText(v as any)}
+                            onChange={(v) => {
+                                setText(v as any);
+                            }}
                         />
                     </div>
 
@@ -463,18 +468,16 @@ function HeroUIDemo() {
                         </p>
                     </div>
 
-                    {/* TextArea */}
                     <div>
-                        <HeroUITextArea
-                            ariaLabel="Comments"
-                            value={textAreaValue}
-                            onChange={setTextAreaValue}
-                            placeholder="Write your comments..."
+                        <HeroUIPhone
+                            label="Contact phone"
                             isRequired
-                            requiredMessage="Please write your comments"
-                            tooltip="Add your comments here"
+                            requiredMessage="Please enter your phone"
+                            invalidPhoneMessage="That's not a valid phone number"
+                            value={phone}
+                            tooltip={"Phone number"}
+                            onChange={setPhone}
                         />
-                        <p className="text-xs mt-1">Chars: {textAreaValue.length}</p>
                     </div>
 
                     {/* Checkbox */}
@@ -489,6 +492,22 @@ function HeroUIDemo() {
                         </HeroUICheckbox>
                         <p className="text-xs mt-1">Checked: {String(checked)}</p>
                     </div>
+
+                    {/* TextArea */}
+                    <div>
+                        <HeroUITextArea
+                            ariaLabel="Comments"
+                            value={textAreaValue}
+                            onChange={setTextAreaValue}
+                            placeholder="Write your comments..."
+                            isRequired
+                            requiredMessage="Please write your comments"
+                            tooltip="Add your comments here"
+                        />
+                        <p className="text-xs mt-1">Chars: {textAreaValue.length}</p>
+                    </div>
+
+
 
                 </div>
             </div>

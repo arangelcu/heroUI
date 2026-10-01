@@ -1,0 +1,5 @@
+/* Outer container for the field (keeps label + input stacked). */
+.container {
+    display: flex;
+    flex-direction: column;
+}

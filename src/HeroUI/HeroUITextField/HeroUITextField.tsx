@@ -4,90 +4,47 @@ import {Icon} from "@iconify/react";
 // @ts-ignore
 import styles from "./HeroUITextField.module.css";
 
-/**
- * Valid tooltip placements for HeroUI v3.
- */
-type TooltipPlacement =
-    | "top"
-    | "bottom"
-    | "left"
-    | "right";
+type TooltipPlacement = "top" | "bottom" | "left" | "right";
 
-/**
- * Configuration for the tooltip shown on the text field.
- */
 export interface HeroUITooltipConfig {
-    /** Text or content displayed inside the tooltip */
     text: React.ReactNode;
-    /** Placement of the tooltip relative to the field */
     placement?: TooltipPlacement;
-    /** Whether to render a small arrow pointing at the field */
     showArrow?: boolean;
-    /** Delay (ms) before the tooltip appears */
     delay?: number;
-    /** Extra classes for the tooltip content */
     className?: string;
 }
 
-/**
- * Props for `HeroUITextField`.
- */
 interface HeroUITextFieldProps {
-    /** Field name (used for form submission) */
     name?: string;
-    /** HTML input type (`text`, `email`, `password`, etc.) */
     type?: string;
-    /** Optional label rendered above the input */
     label?: React.ReactNode;
-    /** Current value (controlled) */
     value?: string;
-    /** Debounced callback fired when the value changes */
     onChange?: (value: string) => void;
-    /** Placeholder text shown when the field is empty */
     placeholder?: string;
-    /** Field width (default: `"195px"`) */
     width?: string | number;
-    /** Extra classes for the outer container */
     className?: string;
-    /** Extra classes for the inner `<input>` element */
     inputClassName?: string;
-    /** Optional icon (Iconify name) rendered at the start of the input */
     startIcon?: string;
-    /** Optional icon (Iconify name) rendered at the end of the input */
     endIcon?: string;
-    /** Disables the field */
     isDisabled?: boolean;
+    isRequired?: boolean;
+    requiredMessage?: string;
+    invalidEmailMessage?: string;
+    debounceMs?: number;
+    minChars?: number;
+    tooltip?: string | HeroUITooltipConfig;
+
     /**
-     * Marks the field as required.
-     * When `true`, an empty value will show a `FieldError`.
+     * Marks the field as invalid from the outside.
+     * When `true`, the `FieldError` shows `invalidMessage`.
      * @default false
      */
-    isRequired?: boolean;
+    isInvalid?: boolean;
     /**
-     * Custom error message shown when the field is required and empty.
-     * @default "This field is required"
+     * Custom error message shown when `isInvalid` is `true`.
+     * @default "This field is invalid"
      */
-    requiredMessage?: string;
-    /**
-     * Custom error message shown when the email format is invalid.
-     * Only applies when `type === "email"`.
-     * @default "Please enter a valid email address"
-     */
-    invalidEmailMessage?: string;
-    /**
-     * Debounce delay (ms) before firing `onChange`.
-     * @default 300
-     */
-    debounceMs?: number;
-    /**
-     * Minimum number of characters required to fire `onChange` with the real value.
-     * @default 3
-     */
-    minChars?: number;
-    /**
-     * Tooltip to show on hover.
-     */
-    tooltip?: string | HeroUITooltipConfig;
+    invalidMessage?: string;
 }
 
 /** Email regex used when `type === "email"`. */
@@ -98,34 +55,14 @@ const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
  *
  * A reusable text field built on top of HeroUI v3.
  *
- * ### Features
- * - Debounced `onChange` with minimum character threshold
- * - Optional prefix/suffix icons
- * - Optional label above the input
- * - **Required validation**: when `isRequired` is `true` and the field
- *   is empty, a `FieldError` is displayed below the input.
- * - **Email validation**: when `type === "email"`, the value must match
- *   a valid email format, otherwise a `FieldError` is displayed.
- * - Optional tooltip (string shorthand or full config)
+ * ### Validation modes
+ * 1. **Internal validation** (`isRequired`, `type="email"`): handled by
+ *    the `validate` prop passed to `TextField`. The message shown comes
+ *    from `requiredMessage` or `invalidEmailMessage`.
+ * 2. **External validation** (`isInvalid` + `invalidMessage`): you control
+ *    when the field is invalid from the parent, and pass the message to show.
  *
- * ### Example — Required field
- * ```tsx
- * <HeroUITextField
- *   label="Email"
- *   type="email"
- *   isRequired
- *   onChange={(v) => console.log(v)}
- * />
- * ```
- *
- * ### Example — Email validation without required
- * ```tsx
- * <HeroUITextField
- *   label="Email"
- *   type="email"
- *   onChange={(v) => console.log(v)}
- * />
- * ```
+ * When `isInvalid` is `true`, its message takes priority over the internal one.
  */
 const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
                                                              name,
@@ -146,31 +83,21 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
                                                              debounceMs = 300,
                                                              minChars = 3,
                                                              tooltip,
+                                                             isInvalid = false,
+                                                             invalidMessage = "This field is invalid",
                                                          }) => {
-    /**
-     * Local value: what the user sees in the input.
-     */
     const [localValue, setLocalValue] = useState(value);
-
-    /** Debounce timer for the `onChange` callback. */
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    /** Last value emitted to the parent — avoids duplicate `onChange` calls. */
     const lastEmittedRef = useRef<string>(value);
 
-    // Sync with external `value`.
     useEffect(() => {
         setLocalValue(value);
         lastEmittedRef.current = value;
     }, [value]);
 
     /**
-     * Validates the current value.
-     *
-     * - If the field is `isRequired` and empty → returns `requiredMessage`.
-     * - If the field is `type="email"` and the value is non-empty but
-     *   doesn't match `EMAIL_REGEX` → returns `invalidEmailMessage`.
-     * - Otherwise returns `null` (no error).
+     * Internal validation (used by `validate`).
+     * Returns a message string when invalid, or `null` when valid.
      */
     const handleValidate = (val: string): string | null => {
         const trimmed = val.trim();
@@ -187,9 +114,17 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
     };
 
     /**
-     * Handles typing. Updates the local value immediately,
-     * then debounces the `onChange` emission.
+     * Computes the final `isInvalid` flag and the message to show.
+     *
+     * Priority:
+     * 1. External `isInvalid` → shows `invalidMessage`.
+     * 2. Internal validation via `handleValidate`.
+     * 3. No error.
      */
+    const internalError = handleValidate(localValue);
+    const finalIsInvalid = isInvalid || internalError !== null;
+    const errorMessage = isInvalid ? invalidMessage : internalError ?? "";
+
     const handleChange = (raw: string) => {
         setLocalValue(raw);
 
@@ -214,21 +149,12 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
         }, debounceMs);
     };
 
-    // Clear any pending debounce on unmount.
     useEffect(() => {
         return () => {
             if (debounceRef.current) clearTimeout(debounceRef.current);
         };
     }, []);
 
-    /**
-     * The core field: `TextField` + optional label + `InputGroup`
-     * with prefix/suffix icons + `FieldError` for validation.
-     *
-     * Uses `validate` so HeroUI decides when to show the error,
-     * and `validationBehavior="aria"` so errors appear in real time
-     * without blocking form submission.
-     */
     const field = (
         <TextField
             aria-label={placeholder}
@@ -238,7 +164,7 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
             value={localValue}
             isDisabled={isDisabled}
             isRequired={isRequired}
-            validate={handleValidate}
+            isInvalid={finalIsInvalid}
             validationBehavior="aria"
             style={{width}}
             onChange={handleChange}
@@ -264,12 +190,11 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
                 )}
             </InputGroup>
 
-            {/* FieldError shows the message returned by `validate` */}
-            <FieldError/>
+            {/* Shows the correct message based on the source of invalidity */}
+            <FieldError>{errorMessage}</FieldError>
         </TextField>
     );
 
-    // No tooltip → return the field as-is.
     if (!tooltip) return field;
 
     const config: HeroUITooltipConfig =
