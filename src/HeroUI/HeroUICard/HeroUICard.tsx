@@ -36,7 +36,7 @@ interface HeroUICardProps {
  * `HeroUICard`
  *
  * A card with an inverted layout:
- * - A **toolbar** at the top using the table-header color (`--surface-secondary`).
+ * - A **toolbar** at the top using the table-header color (`--surface-tertiary`).
  * - A **content** area with 25px rounded top corners and 15px rounded bottom
  *   corners that visually overlaps the toolbar.
  *
@@ -49,7 +49,7 @@ interface HeroUICardProps {
  *
  * ### How the "inverted" effect works
  * - The **wrapper** has `rounded-[15px]` + `overflow-hidden`.
- * - The **toolbar** is a short colored block (`bg-surface-secondary`)
+ * - The **toolbar** is a short colored block (`bg-surface-tertiary`)
  *   that acts as the back panel.
  * - The **content** is a white block with `rounded-t-[25px]` and
  *   `rounded-b-[15px]`, pulled up with `-mt-[15px]` so its rounded top
@@ -97,7 +97,7 @@ const HeroUICard: React.FC<HeroUICardProps> = ({
                 rounded-[15px]
                 overflow-hidden
                 shadow-sm
-                bg-surface-secondary
+                bg-surface-tertiary
                 ${className}
             `.trim()}
         >
@@ -107,7 +107,7 @@ const HeroUICard: React.FC<HeroUICardProps> = ({
                     className="
                         flex items-start justify-between gap-2
                         px-4 pt-3 pb-2
-                        bg-surface-secondary text-surface-secondary-foreground
+                        bg-surface-tertiary text-surface-tertiary-foreground
                         rounded-[25px]
                     "
                     style={{height: "25px"}}

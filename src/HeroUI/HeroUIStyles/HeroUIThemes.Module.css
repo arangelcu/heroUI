@@ -925,6 +925,9 @@
         --default: oklch(94% 0.018 22.99);
         --default-foreground: oklch(21.03% 0.0059 22.99);
 
+        /* 👇 Hover de filas de tabla — igual que Uber, bien marcado */
+        --default-100: oklch(88% 0.035 22.99);
+
         /* ---- Muted ---- */
         --muted: oklch(55.17% 0.028 22.99);
 
@@ -939,15 +942,17 @@
         --surface: oklch(100% 0.006 22.99);
         --surface-foreground: oklch(21.03% 0.012 22.99);
 
-        /* ⭐ El color clave que pediste */
-        --surface-secondary: oklch(70.09% 0.1345 22.99);           /* #E57373 */
-        --surface-secondary-foreground: oklch(99.11% 0 0);          /* blanco para contraste */
+        /* ⭐ surface-secondary — coral claro (B) */
+        --surface-secondary: oklch(86% 0.072 22.99);
+        --surface-secondary-foreground: oklch(21.03% 0.012 22.99);
+        --surface-secondary-hover: oklch(82% 0.086 22.99);
+        --surface-secondary-hover-foreground: oklch(21.03% 0.012 22.99);
 
-        --surface-secondary-hover: oklch(66.5% 0.1405 22.99);       /* #E57373 ligeramente más oscuro */
-        --surface-secondary-hover-foreground: oklch(99.11% 0 0);
-
-        --surface-tertiary: oklch(78% 0.098 22.99);
-        --surface-tertiary-foreground: oklch(21.03% 0.012 22.99);
+        /* ⭐ surface-tertiary — #E57373 coral PURO */
+        --surface-tertiary: oklch(70.09% 0.1345 22.99);
+        --surface-tertiary-foreground: oklch(99.11% 0 0);
+        --surface-tertiary-hover: oklch(66.5% 0.1405 22.99);
+        --surface-tertiary-hover-foreground: oklch(99.11% 0 0);
 
         /* ---- Borders & separators ---- */
         --border: oklch(85% 0.048 22.99);
@@ -1013,15 +1018,17 @@
         --surface: oklch(21.03% 0.025 22.99);
         --surface-foreground: oklch(99.11% 0.012 22.99);
 
-        /* ⭐ El color clave — en dark mantenemos el coral pero un poco menos luminoso */
-        --surface-secondary: oklch(62% 0.135 22.99);
-        --surface-secondary-foreground: oklch(99.11% 0 0);
+        /* ⭐ surface-secondary — coral oscuro suave (B) */
+        --surface-secondary: oklch(33% 0.060 22.99);
+        --surface-secondary-foreground: oklch(99.11% 0.012 22.99);
+        --surface-secondary-hover: oklch(38% 0.076 22.99);
+        --surface-secondary-hover-foreground: oklch(99.11% 0.012 22.99);
 
-        --surface-secondary-hover: oklch(58% 0.1405 22.99);
-        --surface-secondary-hover-foreground: oklch(99.11% 0 0);
-
-        --surface-tertiary: oklch(48% 0.098 22.99);
-        --surface-tertiary-foreground: oklch(99.11% 0.012 22.99);
+        /* ⭐ surface-tertiary — #E57373 coral (más saturado en dark) */
+        --surface-tertiary: oklch(62% 0.135 22.99);
+        --surface-tertiary-foreground: oklch(99.11% 0 0);
+        --surface-tertiary-hover: oklch(58% 0.1405 22.99);
+        --surface-tertiary-hover-foreground: oklch(99.11% 0 0);
 
         /* ---- Borders & separators ---- */
         --border: oklch(32% 0.045 22.99);
@@ -1060,4 +1067,6 @@
         --chart-4: oklch(from var(--accent) calc(l + 0.12) c h);
         --chart-5: oklch(from var(--accent) calc(l + 0.24) c h);
     }
+
+
 }

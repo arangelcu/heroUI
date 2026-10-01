@@ -445,7 +445,7 @@ export function HeroUiTable<TData extends RowData>({
                     <Table.Row
                         key={row.id}
                         id={String(getRowId(row.original))}
-                        className="border-b border-border hover:bg-surface-secondary-hover"
+                        className="border-b border-border hover:bg-surface-tertiary-hover"
                     >
                         {/* Selection cell */}
                         {enableSelection && (
