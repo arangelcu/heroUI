@@ -86,7 +86,7 @@ export default function HeroUIDemoSidebar({
 
     return (
         <aside
-            className="fixed left-0 bottom-0 z-30 flex flex-col bg-surface-secondary/40 backdrop-blur-sm transition-[width] duration-200 ease-out"
+            className="fixed left-0 bottom-0 z-30 flex flex-col bg-surface-secondary/40 backdrop-blur-sm transition-[width] duration-200 ease-out hidden"
             style={{
                 top: `${topOffset}px`,
                 width: `${width}px`,

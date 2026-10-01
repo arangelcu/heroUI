@@ -118,7 +118,7 @@ const HeroUICard: React.FC<HeroUICardProps> = ({
                 The toolbar color fills the "empty" corners. */}
             <div
                 className={`
-                    bg-surface text-surface-foreground
+                    bg-white                    
                     rounded-t-[25px]
                     rounded-b-[15px]
                     ${hasToolbar ? "-mt-[15px]" : ""}

@@ -230,54 +230,8 @@ function HeroUIDemo() {
 
     return (
         <>
-            {/* ---------- Top Toolbar ---------- */}
-            {/* ---------- Top Toolbar ---------- */}
-            <div className="sticky top-0 z-50 flex items-center justify-between gap-4 bg-surface-secondary/40 px-4 py-3 backdrop-blur-md">
-                {/* Left — Title + subtitle */}
-                <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-surface-tertiary text-surface-tertiary-foreground">
-                        <Icon icon="fa6-solid:table-cells-large" className="size-4" />
-                    </div>
-                    <div className="flex flex-col leading-tight">
-                        <span className="text-sm font-semibold text-foreground">HeroUI Playground</span>
-                        <span className="text-xs text-muted">Components, tones & table demo</span>
-                    </div>
-                </div>
-
-                {/* Right — Actions grouped */}
-                <div className="flex items-center gap-2">
-                    {/* Group 5: Text buttons */}
-                    <div className="flex items-center gap-2">
-                        <HeroUIButton icon="fa6-solid:floppy-disk" tone="success">
-                            Save
-                        </HeroUIButton>
-                        <HeroUIButton icon="fa6-solid:xmark" tone="gray-soft">
-                            Cancel
-                        </HeroUIButton>
-                        <HeroUIButton icon="fa6-solid:arrow-right" iconPosition="end" tone="info">
-                            Next
-                        </HeroUIButton>
-                    </div>
-                </div>
-            </div>
-
-            {/* ---------- Sidebar (fixed, debajo del toolbar) ---------- */}
-            <HeroUIDemoSidebar
-                expanded={sidebarExpanded}
-                onExpandedChange={setSidebarExpanded}
-                topOffset={60}
-                railWidth={64}
-                expandedWidth={260}
-                activeKey="Home"
-                onSelect={(item) => console.log("Selected:", item.label)}
-            />
-
-            {/* ---------- Main content (con padding dinámico) ---------- */}
             <div
                 className="p-2 transition-[padding-left] duration-200 ease-out"
-                style={{
-                    paddingLeft: sidebarExpanded ? 260 + 32 : 64 + 32,
-                }}
             >
                 <div className="w-9/10 mx-auto p-8 flex flex-col gap-[15px]">
 
