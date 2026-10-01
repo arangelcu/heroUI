@@ -20,7 +20,6 @@ import HeroUIToggleButton from "../HeroUIToggleButton/HeroUIToggleButton";
 import HeroUIPhone from "../HeroUIPhone/HeroUIPhone";
 import HeroUICard from "../HeroUICard/HeroUICard";
 import {Icon} from "@iconify/react";
-import HeroUIDemoSidebar from "./HeroUIDemoSidebar";
 
 interface User {
     id: number;
@@ -241,30 +240,40 @@ function HeroUIDemo() {
                         description="HeroUI default themes + custom tones"
                         toolbar={{
                             end: (<>
-                                <HeroUIIconButton icon="fa6-solid:circle-info" tooltip="Info" tone="info" />
-                                <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="Success" tone="success" />
-                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="Warning" tone="warning" />
-                                <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="Danger" tone="danger" />
-                                <HeroUIIconButton icon="fa6-solid:mug-hot" tooltip="Brown" tone="brown" />
-                                <HeroUIIconButton icon="fa6-solid:sun" tooltip="Yellow" tone="yellow" />
-                                <HeroUIIconButton icon="fa6-solid:circle" tooltip="Gray" tone="gray" />
-                                <HeroUIIconButton icon="fa6-solid:moon" tooltip="White" tone="white" />
-                                <HeroUIIconButton icon="fa6-solid:heart" tooltip="White + Primary" tone="white-primary" />
-                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="White + Secondary" tone="white-secondary" />
-                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="White + Tertiary" tone="white-tertiary" />
-                                <HeroUIIconButton icon="fa6-solid:circle-info" tooltip="Info soft" tone="info-soft" />
-                                <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="Success soft" tone="success-soft" />
-                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="Warning soft" tone="warning-soft" />
-                                <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="Danger soft" tone="danger-soft" />
-                                <HeroUIIconButton icon="fa6-solid:mug-hot" tooltip="Brown soft" tone="brown-soft" />
-                                <HeroUIIconButton icon="fa6-solid:sun" tooltip="Yellow soft" tone="yellow-soft" />
-                                <HeroUIIconButton icon="fa6-solid:circle" tooltip="Gray soft" tone="gray-soft" />
-                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="Secondary soft" tone="white-secondary-soft" />
-                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="Tertiary soft" tone="white-tertiary-soft" />
-                            </>)}}
+                                <HeroUIIconButton icon="fa6-solid:circle-info" tooltip="Info" tone="info"/>
+                                <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="Success" tone="success"/>
+                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="Warning"
+                                                  tone="warning"/>
+                                <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="Danger" tone="danger"/>
+                                <HeroUIIconButton icon="fa6-solid:mug-hot" tooltip="Brown" tone="brown"/>
+                                <HeroUIIconButton icon="fa6-solid:sun" tooltip="Yellow" tone="yellow"/>
+                                <HeroUIIconButton icon="fa6-solid:circle" tooltip="Gray" tone="gray"/>
+                                <HeroUIIconButton icon="fa6-solid:moon" tooltip="White" tone="white"/>
+                                <HeroUIIconButton icon="fa6-solid:heart" tooltip="White + Primary"
+                                                  tone="white-primary"/>
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="White + Secondary"
+                                                  tone="white-secondary"/>
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="White + Tertiary"
+                                                  tone="white-tertiary"/>
+                                <HeroUIIconButton icon="fa6-solid:circle-info" tooltip="Info soft" tone="info-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="Success soft"
+                                                  tone="success-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="Warning soft"
+                                                  tone="warning-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="Danger soft"
+                                                  tone="danger-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:mug-hot" tooltip="Brown soft" tone="brown-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:sun" tooltip="Yellow soft" tone="yellow-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:circle" tooltip="Gray soft" tone="gray-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="Secondary soft"
+                                                  tone="white-secondary-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="Tertiary soft"
+                                                  tone="white-tertiary-soft"/>
+                            </>)
+                        }}
                     >
                         <div className="p-4">
-                            <HeroUIThemes />
+                            <HeroUIThemes/>
                         </div>
                     </HeroUICard>
 
@@ -283,17 +292,21 @@ function HeroUIDemo() {
                             <HeroUIButton icon="fa6-solid:circle" tone="gray">Gray</HeroUIButton>
                             <HeroUIButton icon="fa6-solid:moon" tone="white">White</HeroUIButton>
                             <HeroUIButton icon="fa6-solid:heart" tone="white-primary">White + Primary</HeroUIButton>
-                            <HeroUIButton icon="fa6-solid:palette" tone="white-secondary">White + Secondary</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:palette" tone="white-secondary">White +
+                                Secondary</HeroUIButton>
                             <HeroUIButton icon="fa6-solid:palette" tone="white-tertiary">White + Tertiary</HeroUIButton>
                             <HeroUIButton icon="fa6-solid:circle-info" tone="info-soft">Info soft</HeroUIButton>
                             <HeroUIButton icon="fa6-solid:circle-check" tone="success-soft">Success soft</HeroUIButton>
-                            <HeroUIButton icon="fa6-solid:triangle-exclamation" tone="warning-soft">Warning soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:triangle-exclamation" tone="warning-soft">Warning
+                                soft</HeroUIButton>
                             <HeroUIButton icon="fa6-solid:circle-xmark" tone="danger-soft">Danger soft</HeroUIButton>
                             <HeroUIButton icon="fa6-solid:mug-hot" tone="brown-soft">Brown soft</HeroUIButton>
                             <HeroUIButton icon="fa6-solid:sun" tone="yellow-soft">Yellow soft</HeroUIButton>
                             <HeroUIButton icon="fa6-solid:circle" tone="gray-soft">Gray soft</HeroUIButton>
-                            <HeroUIButton icon="fa6-solid:palette" tone="white-secondary-soft">White + Secondary Soft</HeroUIButton>
-                            <HeroUIButton icon="fa6-solid:palette" tone="white-tertiary-soft">White + Tertiary Soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:palette" tone="white-secondary-soft">White + Secondary
+                                Soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:palette" tone="white-tertiary-soft">White + Tertiary
+                                Soft</HeroUIButton>
                         </div>
                     </HeroUICard>
 
@@ -628,7 +641,7 @@ function HeroUIDemo() {
                                 enableColumnResizing
                                 ariaLabel="Team members"
                                 rowHeaderColumnId="name"
-                                /*filtersConfig={{
+                                filtersConfig={{
                                     start: <h2 className="text-lg font-semibold"></h2>,
                                     end: (
                                         <>
@@ -644,7 +657,33 @@ function HeroUIDemo() {
                                     enableRefreshBtn: true,
                                     enableFilterName: true,
                                     enableFilterRole: true,
-                                }}*/
+                                }}
+                            />
+                        </div>
+                    </HeroUICard>
+
+                    {/* ---------- Card 5: Table + SELECT ---------- */}
+                    <HeroUICard
+                        title="Table Simple"
+                        description="Simple Table."
+                    >
+                        <div className="p-4">
+                            <HeroUiTable
+                                columns={userColumns}
+                                isLoading={isLoading}
+                                data={data}
+                                paginationOptions={paginationOptions}
+                                fetchData={fetchData}
+                                pageSizeOptions={[5, 10, 25, 50, 100]}
+                                enableSelection
+                                getRowId={(user) => user.id}
+                                ariaLabel="Team members"
+                                rowHeaderColumnId="name"
+                                filtersConfig={{
+                                    startIcon: "fa6-solid:users",
+                                    start: <h2 className="flex text-sm font-semibold text-surface-tertiary">My User Table</h2>,
+                                    enableRefreshBtn: true,
+                                }}
                             />
                         </div>
                     </HeroUICard>

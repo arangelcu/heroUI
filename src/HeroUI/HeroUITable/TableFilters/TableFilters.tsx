@@ -1,124 +1,53 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 // @ts-ignore
 import styles from "./TableFilters.module.css";
 import HeroUIIconButton from "../../HeroUIIConButton/HeroUIIconButton";
 import HeroUISelect from "../../HeroUISelect/HeroUISelect";
 import HeroUITextField from "../../HeroUITextField/HeroUITextField";
+import { Icon } from "@iconify/react"; // 👈 Aseguramos la importación del componente de íconos
 
-/**
- * Values of the currently active filters.
- * Only keys that have a value are considered "active".
- *
- * - `name` and `role` are single-value filters (`string`).
- * - `status` is a multi-value filter (`string[]`).
- */
 export interface FilterValues {
-    /** Free-text search on the "name" column */
     name?: string;
-    /** Selected role */
     role?: string;
-    /** Selected statuses (multi-select) */
     status?: string[];
 }
 
-/**
- * Props for `TableFilters`.
- *
- * A header bar that sits above a table and provides:
- * - A "start" slot for a title or custom content.
- * - An "end" slot for extra action buttons.
- * - Optional built-in filters (name, role, status).
- * - Optional toggle, refresh, clear, and save buttons.
- * - A badge showing the number of active filters when collapsed.
- */
 interface TableFiltersProps {
+    /** Nombre o string del ícono que se renderizará al inicio (ej: "fa6-solid:users") */
+    startIcon?: string; // 👈 Nueva prop opcional
     /** Free content aligned to the left (e.g. a title) */
     start?: React.ReactNode;
     /** Extra buttons aligned to the right (rendered before the built-in ones) */
     end?: React.ReactNode;
 
-    /** Show the filters toggle button. Default: `false` */
     enableFiltersBtn?: boolean;
-    /** Show the refresh button. Default: `false` */
     enableRefreshBtn?: boolean;
-    /** Callback fired when the refresh button is pressed */
     onRefresh?: () => void;
 
-    /** Show the "name" filter (text input). Default: `false` */
     enableFilterName?: boolean;
-    /** Show the "role" filter (select). Default: `false` */
     enableFilterRole?: boolean;
-    /** Show the "status" filter (multi-select). Default: `false` */
     enableFilterStatus?: boolean;
 
-    /** Callback fired whenever any filter changes */
     onFilterChange?: (filters: FilterValues) => void;
-
-    /** Placeholder for the name filter. Default: `"Type to Search..."` */
     namePlaceholder?: string;
-
-    /** Extra classes for the outer container */
     className?: string;
 }
 
-/** Predefined role options for the role filter. */
 const ROLE_OPTIONS = [
-    {id: "CEO", label: "CEO"},
-    {id: "CTO", label: "CTO"},
-    {id: "CMO", label: "CMO"},
-    {id: "Engineer", label: "Engineer"},
+    { id: "CEO", label: "CEO" },
+    { id: "CTO", label: "CTO" },
+    { id: "CMO", label: "CMO" },
+    { id: "Engineer", label: "Engineer" },
 ];
 
-/** Predefined status options for the status filter. */
 const STATUS_OPTIONS = [
-    {id: "Active", label: "Active"},
-    {id: "Inactive", label: "Inactive"},
-    {id: "On Leave", label: "On Leave"},
+    { id: "Active", label: "Active" },
+    { id: "Inactive", label: "Inactive" },
+    { id: "On Leave", label: "On Leave" },
 ];
 
-/**
- * `TableFilters`
- *
- * A configurable filters header for tables. It provides:
- * - A collapsed state showing only `start` and `end`.
- * - An expanded state showing the built-in filters.
- * - A badge on the toggle button with the number of active filters.
- *
- * ### Features
- * - Toggle between collapsed/expanded filters
- * - Built-in filters: name (text), role (select), status (multi-select)
- * - Clear filters button
- * - Save filters button (placeholder — connect your own logic)
- * - Active filters badge when collapsed
- * - Fully responsive (filters wrap, buttons stay put)
- *
- * ### Example — Minimal usage
- * ```tsx
- * <TableFilters
- *   start={<h2>Team members</h2>}
- *   enableFiltersBtn
- *   enableFilterName
- *   onFilterChange={(filters) => console.log(filters)}
- * />
- * ```
- *
- * ### Example — Full setup
- * ```tsx
- * <TableFilters
- *   start={<h2>Team members</h2>}
- *   end={<HeroUIButton icon="fa6-solid:plus">Add</HeroUIButton>}
- *   enableFiltersBtn
- *   enableRefreshBtn
- *   enableFilterName
- *   enableFilterRole
- *   enableFilterStatus
- *   namePlaceholder="Search by name..."
- *   onFilterChange={(filters) => fetchData(filters)}
- *   onRefresh={() => fetchData()}
- * />
- * ```
- */
 const TableFilters: React.FC<TableFiltersProps> = ({
+                                                       startIcon, // 👈 Extraemos la nueva propiedad
                                                        start,
                                                        end,
                                                        enableFiltersBtn = false,
@@ -131,39 +60,23 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                                                        namePlaceholder = "Type to Search...",
                                                        className = "",
                                                    }) => {
-    /** Current filter values. */
     const [filters, setFilters] = useState<FilterValues>({});
-
-    /** Whether the built-in filters are visible. */
     const [showFilters, setShowFilters] = useState(false);
 
-    /**
-     * Updates a single filter key and notifies the parent.
-     *
-     * The generic `K` ensures the value type matches the key:
-     * - `name` → `string | undefined`
-     * - `role` → `string | undefined`
-     * - `status` → `string[] | undefined`
-     */
     const updateFilter = <K extends keyof FilterValues>(
         key: K,
         value: FilterValues[K] | undefined
     ) => {
-        const next = {...filters, [key]: value};
+        const next = { ...filters, [key]: value };
         setFilters(next);
         onFilterChange?.(next);
     };
 
-    /** Clears all filters and notifies the parent. */
     const handleClearFilters = () => {
         setFilters({});
         onFilterChange?.({});
     };
 
-    /**
-     * Number of active filters.
-     * Counts only keys with a non-empty value (for arrays: length > 0).
-     */
     const activeFiltersCount = (Object.keys(filters) as Array<keyof FilterValues>)
         .filter((key) => {
             const value = filters[key];
@@ -175,10 +88,22 @@ const TableFilters: React.FC<TableFiltersProps> = ({
     return (
         <div className={`${styles.container} ${className}`.trim()}>
             {/* ---------------------------------------------------------------
-                Left side: title or filters
+                Left side: icon + title or filters
                 --------------------------------------------------------------- */}
             <div className={styles.start}>
-                {!showFilters && start}
+                {!showFilters && (
+                    <div className="flex items-center gap-2">
+                        {/* 👇 Si se pasa un startIcon, se renderiza usando el color verde del tema */}
+                        {startIcon && (
+                            <Icon
+                                icon={startIcon}
+                                style={{ color: "var(--surface-tertiary)" }}
+                                className="text-sm flex-shrink-0"
+                            />
+                        )}
+                        {start}
+                    </div>
+                )}
 
                 {showFilters && (
                     <>
@@ -187,9 +112,8 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                                 name="filterName"
                                 type="text"
                                 value={filters.name ?? ""}
-                                placeholder={"Filter by name"}
+                                placeholder={namePlaceholder}
                                 onChange={(v) => updateFilter("name", v || undefined)}
-                                //startIcon="fa6-solid:magnifying-glass"
                                 tooltip="Filter by name"
                             />
                         )}
@@ -231,12 +155,10 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                 Right side: extra buttons + built-in actions
                 --------------------------------------------------------------- */}
             <div className={styles.end}>
-                {/* Extra user-provided buttons */}
                 {end}
 
                 {enableFiltersBtn && (
                     <>
-                        {/* Actions visible only when filters are expanded */}
                         {showFilters && (
                             <>
                                 <HeroUIIconButton
@@ -262,7 +184,6 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                             </>
                         )}
 
-                        {/* Toggle button with active filters badge */}
                         <div className={styles.filtersBtnWrapper}>
                             <HeroUIIconButton
                                 tone="white-tertiary"

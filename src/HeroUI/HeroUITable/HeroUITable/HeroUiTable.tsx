@@ -94,6 +94,7 @@ export interface TableFiltersConfig {
     enableFilterStatus?: boolean;
     /** Placeholder for the name filter */
     namePlaceholder?: string;
+    startIcon?: string;
 }
 
 // --- Props -----------------------------------------------------------------
@@ -493,6 +494,7 @@ export function HeroUiTable<TData extends RowData>({
         <>
             {filtersConfig && (
                 <TableFilters
+                    startIcon={filtersConfig.startIcon}
                     start={filtersConfig.start}
                     end={filtersConfig.end}
                     enableFiltersBtn={filtersConfig.enableFiltersBtn}
