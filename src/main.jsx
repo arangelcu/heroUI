@@ -1,14 +1,14 @@
 import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
-import {Providers} from "./providers";
-import './index.css'
-import './HeroUI/HeroUIThemes/HeroUIThemes.Module.css'
+import {HeroUIProvider} from "./HeroUI/HeroUIStyles/HeroUIProvider.tsx";
+import './HeroUI/HeroUIStyles/HeroUIStyles.css'
+import './HeroUI/HeroUIStyles/HeroUIThemes.Module.css'
 import App from './App.js'
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
-        <Providers>
+        <HeroUIProvider>
             <App/>
-        </Providers>
+        </HeroUIProvider>
     </StrictMode>,
 )

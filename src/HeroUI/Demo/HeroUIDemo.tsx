@@ -1,7 +1,7 @@
 import {createColumnHelper} from "@tanstack/react-table";
 import React, {useCallback, useState} from "react";
 import {Card, Label} from "@heroui/react";
-import {HeroUIDemoThemeSwitch} from "./HeroUIDemoThemeSwitch";
+import {HeroUIThemes} from "../HeroUIStyles/HeroUIThemes";
 import {FetchParams, HeroUiTable, PaginationOptions,} from "../HeroUITable/HeroUITable/HeroUiTable";
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
 import HeroUITimeField from "../HeroUITimeField/HeroUITimeField";
@@ -236,7 +236,7 @@ function HeroUIDemo() {
                     }}
                 >
                     <div className="p-4">
-                        <HeroUIDemoThemeSwitch/>
+                        <HeroUIThemes/>
                     </div>
                 </HeroUICard>
 
@@ -249,7 +249,7 @@ function HeroUIDemo() {
                     </Card.Header>
 
                     <Card.Content>
-                        <HeroUIDemoThemeSwitch/>
+                        <HeroUIThemes/>
                     </Card.Content>
                 </Card>
 
