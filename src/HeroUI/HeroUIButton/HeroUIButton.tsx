@@ -1,109 +1,102 @@
 import React from "react";
-import {Button, ButtonProps, Tooltip} from "@heroui/react";
-import {Icon} from "@iconify/react";
+import { Button, ButtonProps, Tooltip } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { tv, type VariantProps } from "tailwind-variants";
 // @ts-ignore
 import styles from "./HeroUIButton.module.css";
 
-/**
- * Valid tooltip placements for HeroUI v3.
- * Uses hyphens (not spaces) as required by React Aria.
- */
-type TooltipPlacement =
-    | "top"
-    | "bottom"
-    | "left"
-    | "right";
+/* -------------------------------------------------------------------------- */
+/*                               Tooltip types                                */
+/* -------------------------------------------------------------------------- */
 
-/**
- * Configuration for the tooltip shown on the button.
- *
- * Accepts either a plain string (shorthand) or this full object.
- */
+type TooltipPlacement = "top" | "bottom" | "left" | "right";
+
 export interface HeroUITooltipConfig {
-    /** Text or content displayed inside the tooltip */
     text: React.ReactNode;
-    /** Placement of the tooltip relative to the button */
     placement?: TooltipPlacement;
-    /** Whether to render a small arrow pointing at the button */
     showArrow?: boolean;
-    /** Delay (ms) before the tooltip appears */
     delay?: number;
-    /** Extra classes for the tooltip content */
     className?: string;
 }
 
-/**
- * Props for `HeroUIButton`.
- *
- * Extends HeroUI's `ButtonProps` (so you can still pass `variant`, `size`,
- * `onPress`, `isDisabled`, `fullWidth`, etc.), and adds:
- * - Optional `icon` (Iconify name) rendered before or after the text.
- * - `appearance` shortcut for predefined styles.
- * - `tooltip` (string shorthand or full config).
- */
-interface HeroUIButtonProps extends Omit<ButtonProps, "children"> {
-    /** Button label */
-    children: React.ReactNode;
-    /** Optional Iconify icon name (e.g. `"fa6-solid:plus"`) */
+/* -------------------------------------------------------------------------- */
+/*                          Custom tone variants                              */
+/* -------------------------------------------------------------------------- */
+
+const buttonTones = tv({
+    base: "rounded-[5px] transition-colors",
+    variants: {
+        tone: {
+            default: "",
+
+            /* --- Info (azul) --- */
+            info: "bg-blue-500 text-white hover:bg-blue-600 border-none",
+            "info-soft": "bg-blue-500/15 text-blue-700 hover:bg-blue-500/25 border-none dark:text-blue-300",
+
+            /* --- Success (verde) --- */
+            success: "bg-green-500 text-white hover:bg-green-600 border-none",
+            "success-soft": "bg-green-500/15 text-green-700 hover:bg-green-500/25 border-none dark:text-green-300",
+
+            /* --- Warning (amarillo, ícono blanco) --- */
+            warning: "bg-yellow-500 text-black hover:bg-yellow-600 border-none [&_svg]:text-white",
+            "warning-soft": "bg-yellow-500/20 text-yellow-800 hover:bg-yellow-500/30 border-none dark:text-yellow-300",
+
+            /* --- Danger (rojo) --- */
+            danger: "bg-red-500 text-white hover:bg-red-600 border-none",
+            "danger-soft": "bg-red-500/15 text-red-700 hover:bg-red-500/25 border-none dark:text-red-300",
+
+            /* --- Brown (carmelita) --- */
+            brown: "bg-amber-800 text-white hover:bg-amber-900 border-none",
+            "brown-soft": "bg-amber-800/15 text-amber-900 hover:bg-amber-800/25 border-none dark:text-amber-300",
+
+            /* --- Yellow (amarillo puro) --- */
+            yellow: "bg-yellow-400 text-black hover:bg-yellow-500 border-none [&_svg]:text-white",
+            "yellow-soft": "bg-yellow-400/20 text-yellow-800 hover:bg-yellow-400/30 border-none dark:text-yellow-300",
+
+            /* --- Gray (gris) --- */
+            gray: "bg-gray-500 text-white hover:bg-gray-600 border-none",
+            "gray-soft": "bg-gray-500/15 text-gray-700 hover:bg-gray-500/25 border-none dark:text-gray-300",
+
+            /* --- White (fondo blanco, texto/ícono negro) --- */
+            white: "bg-white text-black border border-black/10 hover:bg-gray-100",
+
+            /* --- White + color primario del tema --- */
+            "white-primary": "bg-white text-primary border border-primary/20 hover:bg-primary/5 [&_svg]:text-primary",
+
+            /* --- White + color del tema secondary --- */
+            "white-secondary": "bg-white text-surface-secondary border border-black/10 hover:bg-surface-secondary/10 [&_svg]:text-surface-secondary",
+            "white-secondary-soft": "bg-surface-secondary/10 text-surface-secondary border border-surface-secondary/20 hover:bg-surface-secondary/20",
+
+            /* --- White + color del tema tertiary --- */
+            "white-tertiary": "bg-white text-surface-tertiary border border-black/10 hover:bg-surface-tertiary/10 [&_svg]:text-surface-tertiary",
+            "white-tertiary-soft": "bg-surface-tertiary/10 text-surface-tertiary border border-surface-tertiary/20 hover:bg-surface-tertiary/20",
+        },
+    },
+    defaultVariants: {
+        tone: "default",
+    },
+});
+
+type ButtonTones = VariantProps<typeof buttonTones>;
+
+/* -------------------------------------------------------------------------- */
+/*                                 Props                                      */
+/* -------------------------------------------------------------------------- */
+
+interface HeroUIButtonProps extends Omit<ButtonProps, "children">, ButtonTones {
+    /** Button label (optional — can be icon-only with aria-label) */
+    children?: React.ReactNode;
     icon?: string;
-    /** Where the icon is rendered relative to the text */
     iconPosition?: "start" | "end";
-    /** Extra classes for the `<Icon>` element */
     iconClassName?: string;
-    /**
-     * Predefined appearance.
-     * - `default` → HeroUI's native look (uses `variant`).
-     * - `surface` → background matches the base surface (`--surface`).
-     * - `header` → background matches table headers (`--surface-secondary`).
-     * - `pagination` → background matches the pagination bar.
-     */
     appearance?: "default" | "surface" | "header" | "pagination";
-    /**
-     * Tooltip shown on hover.
-     * - String → shown as text with `placement: "top"`.
-     * - Object → full control over text, placement, arrow, delay, and classes.
-     */
     tooltip?: string | HeroUITooltipConfig;
 }
 
-/**
- * `HeroUIButton`
- *
- * A button with optional icon and tooltip, built on top of HeroUI v3's `Button`.
- *
- * ### Features
- * - Accepts all `ButtonProps` except `children` (replaced by the explicit `children` prop).
- * - Optional `icon` with configurable position (`start` / `end`).
- * - `appearance` shortcut for common surface/header/pagination styles.
- * - Optional `tooltip` as string shorthand or full config.
- *
- * ### Example — Basic usage
- * ```tsx
- * <HeroUIButton icon="fa6-solid:floppy-disk" onPress={handleSave}>
- *   Save
- * </HeroUIButton>
- * ```
- *
- * ### Example — Icon at the end
- * ```tsx
- * <HeroUIButton icon="fa6-solid:arrow-right" iconPosition="end" onPress={handleNext}>
- *   Next
- * </HeroUIButton>
- * ```
- *
- * ### Example — With tooltip and custom appearance
- * ```tsx
- * <HeroUIButton
- *   appearance="surface"
- *   icon="fa6-solid:trash-can"
- *   variant="danger-soft"
- *   tooltip={{ text: "Delete permanently", placement: "top", showArrow: true }}
- *   onPress={handleDelete}
- * >
- *   Delete
- * </HeroUIButton>
- * ```
- */
+/* -------------------------------------------------------------------------- */
+/*                               Component                                    */
+/* -------------------------------------------------------------------------- */
+
 const HeroUIButton = ({
                           children,
                           icon,
@@ -113,10 +106,10 @@ const HeroUIButton = ({
                           variant = "primary",
                           size = "md",
                           appearance = "default",
+                          tone = "default",
                           tooltip,
                           ...rest
                       }: HeroUIButtonProps) => {
-    /** Resolve the appearance class from the CSS module. */
     const appearanceClass =
         appearance === "surface"
             ? styles.appearanceSurface
@@ -126,30 +119,31 @@ const HeroUIButton = ({
                     ? styles.appearanceHeader
                     : "";
 
-    /** The core button. */
+    const toneClass = buttonTones({ tone });
+
+    const resolvedVariant = tone && tone !== "default" ? "ghost" : variant;
+
     const button = (
         <Button
-            className={`rounded-[5px] ${appearanceClass} ${className}`.trim()}
+            className={`${toneClass} ${appearanceClass} ${className}`.trim()}
             size={size}
-            variant={variant}
+            variant={resolvedVariant}
             {...rest}
         >
             {icon && iconPosition === "start" && (
-                <Icon className={iconClassName} icon={icon}/>
+                <Icon className={iconClassName} icon={icon} />
             )}
             {children}
             {icon && iconPosition === "end" && (
-                <Icon className={iconClassName} icon={icon}/>
+                <Icon className={iconClassName} icon={icon} />
             )}
         </Button>
     );
 
-    // No tooltip → return the button as-is.
     if (!tooltip) return button;
 
-    // Normalize string shorthand into the full config object.
     const config: HeroUITooltipConfig =
-        typeof tooltip === "string" ? {text: tooltip} : tooltip;
+        typeof tooltip === "string" ? { text: tooltip } : tooltip;
 
     const {
         text,
@@ -167,7 +161,7 @@ const HeroUIButton = ({
                 placement={placement}
                 showArrow={showArrow}
             >
-                {showArrow && <Tooltip.Arrow/>}
+                {showArrow && <Tooltip.Arrow />}
                 <p>{text}</p>
             </Tooltip.Content>
         </Tooltip>

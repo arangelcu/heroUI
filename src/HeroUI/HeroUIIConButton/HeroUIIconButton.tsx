@@ -1,112 +1,109 @@
 import React from "react";
-import {Button, ButtonProps, Tooltip} from "@heroui/react";
-import {Icon} from "@iconify/react";
+import { Button, ButtonProps, Tooltip } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { tv, type VariantProps } from "tailwind-variants";
 // @ts-ignore
 import styles from "./HeroUIIconButton.module.css";
 
-/**
- * Valid tooltip placements for HeroUI v3.
- * Uses hyphens (not spaces) as required by React Aria.
- */
-type TooltipPlacement =
-    | "top"
-    | "bottom"
-    | "left"
-    | "right";
+/* -------------------------------------------------------------------------- */
+/*                               Tooltip types                                */
+/* -------------------------------------------------------------------------- */
 
-/**
- * Configuration for the tooltip shown on the icon button.
- *
- * Accepts either a plain string (shorthand) or this full object.
- */
+type TooltipPlacement = "top" | "bottom" | "left" | "right";
+
 interface HeroUITooltipConfig {
-    /** Text or content displayed inside the tooltip */
     text: React.ReactNode;
-    /** Placement of the tooltip relative to the button */
     placement?: TooltipPlacement;
-    /** Whether to render a small arrow pointing at the button */
     showArrow?: boolean;
-    /** Delay (ms) before the tooltip appears */
     delay?: number;
-    /** Extra classes for the tooltip content */
     className?: string;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                          Custom tone variants                              */
+/* -------------------------------------------------------------------------- */
+
 /**
- * Props for `HeroUIIconButton`.
+ * Custom tone variants layered on top of HeroUI's Button.
  *
- * Extends HeroUI's `ButtonProps` (so you can still pass `variant`, `size`,
- * `onPress`, `isDisabled`, `color`, `radius`, etc.), but:
- * - `isIconOnly` is forced to `true` (this is an icon-only button).
- * - `children` is replaced by the `icon` prop (an Iconify name).
- *
- * It also adds:
- * - `appearance` shortcut for predefined styles (`surface`, `header`, `pagination`).
- * - `tooltip` (string shorthand or full config).
+ * Solid  → fondo fuerte, texto/ícono en contraste.
+ * Soft   → fondo translúcido del mismo color, texto del color.
+ * White  → fondo blanco con ícono en negro.
+ * WhitePrimary → fondo blanco con ícono en el color primario del tema.
  */
-interface HeroUIIconButtonProps extends Omit<ButtonProps, "isIconOnly" | "children"> {
-    /** Iconify icon name (e.g. `"fa6-solid:trash-can"`) */
+const iconButtonTones = tv({
+    base: "rounded-[5px] transition-colors",
+    variants: {
+        tone: {
+            default: "",
+
+            /* --- Info (azul) --- */
+            info: "bg-blue-500 text-white hover:bg-blue-600 border-none",
+            "info-soft": "bg-blue-500/15 text-blue-700 hover:bg-blue-500/25 border-none dark:text-blue-300",
+
+            /* --- Success (verde) --- */
+            success: "bg-green-500 text-white hover:bg-green-600 border-none",
+            "success-soft": "bg-green-500/15 text-green-700 hover:bg-green-500/25 border-none dark:text-green-300",
+
+            /* --- Warning (amarillo, ícono blanco) --- */
+            warning: "bg-yellow-500 text-black hover:bg-yellow-600 border-none [&_svg]:text-white",
+            "warning-soft": "bg-yellow-500/20 text-yellow-800 hover:bg-yellow-500/30 border-none dark:text-yellow-300",
+
+            /* --- Danger (rojo) --- */
+            danger: "bg-red-500 text-white hover:bg-red-600 border-none",
+            "danger-soft": "bg-red-500/15 text-red-700 hover:bg-red-500/25 border-none dark:text-red-300",
+
+            /* --- Brown (carmelita) --- */
+            brown: "bg-amber-800 text-white hover:bg-amber-900 border-none",
+            "brown-soft": "bg-amber-800/15 text-amber-900 hover:bg-amber-800/25 border-none dark:text-amber-300",
+
+            /* --- Yellow (amarillo puro, distinto de warning) --- */
+            yellow: "bg-yellow-400 text-black hover:bg-yellow-500 border-none [&_svg]:text-white",
+            "yellow-soft": "bg-yellow-400/20 text-yellow-800 hover:bg-yellow-400/30 border-none dark:text-yellow-300",
+
+            /* --- Gray (gris) --- */
+            gray: "bg-gray-500 text-white hover:bg-gray-600 border-none",
+            "gray-soft": "bg-gray-500/15 text-gray-700 hover:bg-gray-500/25 border-none dark:text-gray-300",
+
+            /* --- White (fondo blanco, ícono negro) --- */
+            white: "bg-white text-black border border-black/10 hover:bg-gray-100",
+
+            /* --- White + ícono del color primario del tema --- */
+            "white-primary": "bg-white text-primary border border-primary/20 hover:bg-primary/5 [&_svg]:text-primary",
+
+            /* --- White + color del tema secondary --- */
+            "white-secondary": "bg-white border border-black/10 hover:bg-surface-secondary/10 [&_svg]:text-surface-secondary",
+            "white-secondary-soft": "bg-surface-secondary/10 text-surface-secondary border border-surface-secondary/20 hover:bg-surface-secondary/20",
+
+            /* --- White + color del tema tertiary --- */
+            "white-tertiary": "bg-white border border-black/10 hover:bg-surface-tertiary/10 [&_svg]:text-surface-tertiary",
+            "white-tertiary-soft": "bg-surface-tertiary/10 text-surface-tertiary border border-surface-tertiary/20 hover:bg-surface-tertiary/20",
+        },
+    },
+    defaultVariants: {
+        tone: "default",
+    },
+});
+
+type IconButtonTones = VariantProps<typeof iconButtonTones>;
+
+/* -------------------------------------------------------------------------- */
+/*                                 Props                                      */
+/* -------------------------------------------------------------------------- */
+
+interface HeroUIIconButtonProps
+    extends Omit<ButtonProps, "isIconOnly" | "children">,
+        IconButtonTones {
     icon: string;
-    /** Extra classes for the `<Icon>` element */
     iconClassName?: string;
-    /**
-     * Predefined appearance.
-     * - `default` → HeroUI's native look (uses `variant`).
-     * - `surface` → background matches the base surface.
-     * - `header` → background matches table headers.
-     * - `pagination` → background matches the pagination bar.
-     */
     appearance?: "default" | "surface" | "header" | "pagination";
-    /**
-     * Tooltip shown on hover.
-     * - String → shown as text with `placement: "top"`.
-     * - Object → full control over text, placement, arrow, delay, and classes.
-     */
     tooltip?: string | HeroUITooltipConfig;
 }
 
-/**
- * `HeroUIIconButton`
- *
- * An icon-only button built on top of HeroUI v3's `Button`, with optional
- * tooltip and predefined appearances.
- *
- * ### Features
- * - Fixed `isIconOnly` (this component only renders an icon).
- * - Accepts all `ButtonProps` except `isIconOnly` and `children`.
- * - `appearance` shortcut for common surface/header/pagination styles.
- * - Optional `tooltip` as string shorthand or full config.
- *
- * ### Example — Basic usage
- * ```tsx
- * <HeroUIIconButton
- *   icon="fa6-solid:eye"
- *   aria-label="View user"
- *   onPress={handleView}
- * />
- * ```
- *
- * ### Example — With tooltip and custom appearance
- * ```tsx
- * <HeroUIIconButton
- *   appearance="surface"
- *   icon="fa6-solid:trash-can"
- *   tooltip={{ text: "Delete", placement: "top", showArrow: true }}
- *   onPress={handleDelete}
- * />
- * ```
- *
- * ### Example — Using native Button props
- * ```tsx
- * <HeroUIIconButton
- *   icon="fa6-solid:floppy-disk"
- *   variant="primary"
- *   size="md"
- *   isDisabled={!hasChanges}
- *   onPress={handleSave}
- * />
- * ```
- */
+/* -------------------------------------------------------------------------- */
+/*                               Component                                    */
+/* -------------------------------------------------------------------------- */
+
 const HeroUIIconButton = ({
                               icon,
                               iconClassName = "size-4",
@@ -114,10 +111,10 @@ const HeroUIIconButton = ({
                               variant = "tertiary",
                               size = "sm",
                               appearance = "default",
+                              tone = "default",
                               tooltip,
                               ...rest
                           }: HeroUIIconButtonProps) => {
-    /** Resolve the appearance class from the CSS module. */
     const appearanceClass =
         appearance === "surface"
             ? styles.appearanceSurface
@@ -127,25 +124,28 @@ const HeroUIIconButton = ({
                     ? styles.appearancePagination
                     : "";
 
-    /** The core button — always `isIconOnly`, always renders a single icon. */
+    const toneClass = iconButtonTones({ tone });
+
+    /* When a custom tone is used, force variant="ghost" so HeroUI's native
+       variant styles don't fight our tone background. */
+    const resolvedVariant = tone && tone !== "default" ? "ghost" : variant;
+
     const button = (
         <Button
             isIconOnly
-            className={`rounded-[5px] ${appearanceClass} ${className}`.trim()}
+            className={`${toneClass} ${appearanceClass} ${className}`.trim()}
             size={size}
-            variant={variant}
+            variant={resolvedVariant}
             {...rest}
         >
-            <Icon className={iconClassName} icon={icon}/>
+            <Icon className={iconClassName} icon={icon} />
         </Button>
     );
 
-    // No tooltip → return the button as-is.
     if (!tooltip) return button;
 
-    // Normalize string shorthand into the full config object.
     const config: HeroUITooltipConfig =
-        typeof tooltip === "string" ? {text: tooltip} : tooltip;
+        typeof tooltip === "string" ? { text: tooltip } : tooltip;
 
     const {
         text,
@@ -163,7 +163,7 @@ const HeroUIIconButton = ({
                 placement={placement}
                 showArrow={showArrow}
             >
-                {showArrow && <Tooltip.Arrow/>}
+                {showArrow && <Tooltip.Arrow />}
                 <p>{text}</p>
             </Tooltip.Content>
         </Tooltip>

@@ -4,6 +4,7 @@ import {Card, Label} from "@heroui/react";
 import {HeroUIThemes} from "../HeroUIStyles/HeroUIThemes";
 import {FetchParams, HeroUiTable, PaginationOptions,} from "../HeroUITable/HeroUITable/HeroUiTable";
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
+import HeroUIButton from "../HeroUIButton/HeroUIButton";
 import HeroUITimeField from "../HeroUITimeField/HeroUITimeField";
 import HeroUIComboBox, {HeroUIComboBoxOption} from "../HeroUIComboBox/HeroUIComboBox";
 import HeroUICheckbox from "../HeroUICheckbox/HeroUICheckbox";
@@ -18,6 +19,8 @@ import HeroUITextField from "../HeroUITextField/HeroUITextField";
 import HeroUIToggleButton from "../HeroUIToggleButton/HeroUIToggleButton";
 import HeroUIPhone from "../HeroUIPhone/HeroUIPhone";
 import HeroUICard from "../HeroUICard/HeroUICard";
+import {Icon} from "@iconify/react";
+import HeroUIDemoSidebar from "./HeroUIDemoSidebar";
 
 interface User {
     id: number;
@@ -50,11 +53,13 @@ const userColumns = columnHelper.columns([
                 <div className="flex items-center justify-end gap-1">
                     <HeroUIIconButton
                         tooltip={"Details"}
+                        tone="info-soft"
                         aria-label={`View ${user.name}`}
                         icon="fa6-solid:eye"
                         onPress={() => handleView(user)}
                     />
                     <HeroUIIconButton
+                        tone="brown-soft"
                         tooltip={"Edit"}
                         aria-label={`Edit ${user.name}`}
                         icon="fa6-solid:pen-to-square"
@@ -64,7 +69,7 @@ const userColumns = columnHelper.columns([
                         tooltip={"Delete"}
                         aria-label={`Delete ${user.name}`}
                         icon="fa6-solid:trash-can"
-                        variant="danger-soft"
+                        tone="danger-soft"
                         onPress={() => handleDelete(user)}
                     />
                 </div>
@@ -220,401 +225,478 @@ function HeroUIDemo() {
     /** Multi-selection status filter (mirrors TableFilters status). */
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
 
+    // --- Sidebar state -----------------------------------------------------
+    const [sidebarExpanded, setSidebarExpanded] = useState(false);
+
     return (
-        <div className="p-8">
-            <div className="w-4/5 mx-auto p-8 flex flex-col gap-[15px]">
-
-                <HeroUICard
-                    title="Theme Buttons"
-                    description="All HeroUI default themes"
-                    toolbar={{
-                        end: (
-                            <>
-                                <HeroUIIconButton icon="fa6-solid:circle-info" />
-                            </>
-                        ),
-                    }}
-                >
-                    <div className="p-4">
-                        <HeroUIThemes/>
+        <>
+            {/* ---------- Top Toolbar ---------- */}
+            {/* ---------- Top Toolbar ---------- */}
+            <div className="sticky top-0 z-50 flex items-center justify-between gap-4 bg-surface-secondary/40 px-4 py-3 backdrop-blur-md">
+                {/* Left — Title + subtitle */}
+                <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-surface-tertiary text-surface-tertiary-foreground">
+                        <Icon icon="fa6-solid:table-cells-large" className="size-4" />
                     </div>
-                </HeroUICard>
-
-                <Card className="rounded-[5px]">
-                    <Card.Header>
-                        <Card.Title>Theme Buttons</Card.Title>
-                        <Card.Description>
-                            All HeroUI default Themes.
-                        </Card.Description>
-                    </Card.Header>
-
-                    <Card.Content>
-                        <HeroUIThemes/>
-                    </Card.Content>
-                </Card>
-
-                {/* Card wrapping all the demo fields */}
-                <Card className="rounded-[5px]">
-                    <Card.Header>
-                        <Card.Title>Form Fields</Card.Title>
-                        <Card.Description>
-                            All HeroUI input components with validation, tooltips, and required states.
-                        </Card.Description>
-                    </Card.Header>
-
-                    <Card.Content>
-                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full">
-
-                            <div>
-                                <HeroUITextField
-                                    label="Text"
-                                    tooltip="Text"
-                                    placeholder="Enter text"
-                                    type={"text"}
-                                    isRequired
-                                    requiredMessage="Text is required"
-                                    isInvalid={true}
-                                    invalidMessage="Something went wrong"
-                                    value={text}
-                                    onChange={(v) => {
-                                        setText(v as any);
-                                    }}
-                                />
-                            </div>
-
-                            <div>
-                                <HeroUITextField
-                                    label="Email"
-                                    tooltip="Email"
-                                    placeholder="Enter your email"
-                                    type={"email"}
-                                    isRequired
-                                    requiredMessage="Email is required"
-                                    value={email}
-                                    onChange={(v) => setEmail(v as any)}
-                                />
-                            </div>
-
-                            <div>
-                                <HeroUITextField
-                                    label="Number"
-                                    tooltip="Number"
-                                    placeholder="Enter number"
-                                    type={"number"}
-                                    isRequired
-                                    requiredMessage="Number is required"
-                                    value={number}
-                                    onChange={(v) => setNumber(v as any)}
-                                />
-                            </div>
-
-                            {/* NumberField */}
-                            <div>
-                                <HeroUINumberField
-                                    ariaLabel="Quantity"
-                                    label="Quantity"
-                                    value={numberValue}
-                                    isRequired
-                                    requiredMessage="Please enter a quantity"
-                                    onChange={setNumberValue}
-                                    minValue={1}
-                                    maxValue={100}
-                                    tooltip="Pick a number"
-                                />
-                                <p className="text-xs mt-1">Value: {numberValue}</p>
-                            </div>
-
-                            {/* ToggleButton */}
-                            <div>
-                                <Label> Toggle Buttons</Label>
-                                <div className="flex items-center gap-3">
-                                    <HeroUIToggleButton
-                                        isIconOnly
-                                        ariaLabel="Like"
-                                        icon="fa6-solid:calendar-check"
-                                        isSelected={liked}
-                                        onChange={setLiked}
-                                        tooltip="Like this item"
-                                    />
-
-                                    <HeroUIToggleButton
-                                        isIconOnly
-                                        ariaLabel="Bookmark"
-                                        icon="fa6-solid:bookmark"
-                                        variant="ghost"
-                                        isSelected={bookmarked}
-                                        onChange={setBookmarked}
-                                        tooltip="Bookmark this item"
-                                    />
-
-                                    <HeroUIToggleButton
-                                        ariaLabel="Like with text"
-                                        iconConfig={{
-                                            off: "fa6-solid:calendar-xmark",
-                                            on: "fa6-solid:calendar-check",
-                                        }}
-                                        isSelected={liked}
-                                        onChange={setLiked}
-                                        tooltip="Toggle like"
-                                    >
-                                        {liked ? "Liked" : "Like"}
-                                    </HeroUIToggleButton>
-                                </div>
-                                <p className="text-xs mt-1">
-                                    Liked: {String(liked)} · Bookmarked: {String(bookmarked)}
-                                </p>
-                            </div>
-
-                            {/* DateField */}
-                            <div>
-                                <HeroUIDateField
-                                    ariaLabel="Birth date"
-                                    label="Birth date"
-                                    value={dateValue as any}
-                                    isRequired
-                                    requiredMessage="Please select a date"
-                                    onChange={(v) => setDateValue(v as any)}
-                                    tooltip="Select a date"
-                                />
-                                <p className="text-xs mt-1">Date: {dateValue ? String(dateValue) : "(none)"}</p>
-                            </div>
-
-                            {/* DatePicker */}
-                            <div>
-                                <HeroUIDatePicker
-                                    ariaLabel="Appointment date"
-                                    label="Appointment"
-                                    value={datePickerValue as any}
-                                    isRequired
-                                    requiredMessage="Please pick a date"
-                                    onChange={(v) => setDatePickerValue(v as any)}
-                                    tooltip="Pick an appointment date"
-                                />
-                                <p className="text-xs mt-1">Picked: {datePickerValue ? String(datePickerValue) : "(none)"}</p>
-                            </div>
-
-                            {/* DateRangePicker */}
-                            <div>
-                                <HeroUIDateRangePicker
-                                    ariaLabel="Vacation range"
-                                    label="Vacation range"
-                                    isRequired
-                                    requiredMessage="Please pick a date"
-                                    value={dateRangeValue as any}
-                                    onChange={(v) => setDateRangeValue(v as any)}
-                                    tooltip="Pick a date range"
-                                />
-                                <p className="text-xs mt-1">
-                                    Range: {dateRangeValue ? `${dateRangeValue.start} → ${dateRangeValue.end}` : "(none)"}
-                                </p>
-                            </div>
-
-                            {/* TimeField */}
-                            <div>
-                                <HeroUITimeField
-                                    ariaLabel="Appointment time"
-                                    label="Appointment time"
-                                    value={timeValue}
-                                    onChange={setTimeValue}
-                                    isRequired
-                                    requiredMessage="Please select a time"
-                                    tooltip="Select the appointment time"
-                                />
-                            </div>
-
-                            {/* Switch */}
-                            <div>
-                                <Label> Switch</Label>
-                                <br/>
-                                <HeroUISwitch
-                                    ariaLabel="Enable notifications"
-                                    isSelected={enabled}
-                                    onChange={setEnabled}
-                                    size="md"
-                                    tooltip="Toggle notifications"
-                                />
-                                <p className="text-xs mt-1">Enabled: {String(enabled)}</p>
-                            </div>
-
-                            {/* ComboBox #1 — single */}
-                            <div>
-                                <HeroUIComboBox
-                                    ariaLabel="Search user (single)"
-                                    options={options1}
-                                    value={selected1}
-                                    label={"Combo example"}
-                                    onChange={(v) => handleSelectionChange1(v as string)}
-                                    inputValue={inputValue1}
-                                    onInputChange={handleInputChange1}
-                                    isLoading={loading1}
-                                    tooltip={"Combo Filter by User Name"}
-                                    placeholder="Type to search..."
-                                    isRequired
-                                    requiredMessage="Please select a user"
-                                />
-
-                                <p className="text-xs mt-1">Selected id: {selected1 || "(none)"}</p>
-                                <p className="text-xs">Selected
-                                    label: {options1.find((o) => o.id === selected1)?.label || "(none)"}</p>
-                            </div>
-
-                            {/* Select — Single (roles) */}
-                            <div>
-                                <HeroUISelect
-                                    ariaLabel="Filter by role"
-                                    label="Select Simple"
-                                    options={ROLE_OPTIONS}
-                                    value={selectedRole}
-                                    placeholder="Select a role"
-                                    showClearButton
-                                    onChange={(key) => setSelectedRole((key as string) || "")}
-                                    isRequired
-                                    requiredMessage="Please select a item"
-                                    tooltip={{
-                                        text: "Filter by role",
-                                        placement: "top",
-                                        showArrow: true,
-                                        delay: 200,
-                                    }}
-                                />
-                                <p className="text-xs mt-1">Role: {selectedRole || "(none)"}</p>
-                            </div>
-
-                            {/* Select — Multiple (statuses) */}
-                            <div>
-                                <HeroUISelect
-                                    ariaLabel="Filter by status"
-                                    label="Select Multiple"
-                                    selectionMode="multiple"
-                                    options={STATUS_OPTIONS}
-                                    value={selectedStatuses}
-                                    placeholder="Select statuses"
-                                    onChange={(keys) => setSelectedStatuses(keys as string[])}
-                                    isRequired
-                                    requiredMessage="Please select a item"
-                                    tooltip="Filter by status"
-                                />
-                                <p className="text-xs mt-1">
-                                    Statuses: {selectedStatuses.length > 0 ? selectedStatuses.join(", ") : "(none)"}
-                                </p>
-                            </div>
-
-                            <div>
-                                <HeroUIPhone
-                                    label="Contact phone"
-                                    isRequired
-                                    requiredMessage="Please enter your phone"
-                                    invalidPhoneMessage="That's not a valid phone number"
-                                    value={phone}
-                                    tooltip={"Phone number"}
-                                    onChange={setPhone}
-                                />
-                            </div>
-
-                            {/* Checkbox */}
-                            <div>
-                                <HeroUICheckbox
-                                    ariaLabel="Accept terms"
-                                    isSelected={checked}
-                                    onChange={setChecked}
-                                    tooltip="Accept terms and conditions"
-                                >
-                                    Accept terms
-                                </HeroUICheckbox>
-                                <p className="text-xs mt-1">Checked: {String(checked)}</p>
-                            </div>
-
-                            {/* TextArea */}
-                            <div>
-                                <HeroUITextArea
-                                    ariaLabel="Comments"
-                                    value={textAreaValue}
-                                    onChange={setTextAreaValue}
-                                    placeholder="Write your comments..."
-                                    isRequired
-                                    requiredMessage="Please write your comments"
-                                    tooltip="Add your comments here"
-                                />
-                                <p className="text-xs mt-1">Chars: {textAreaValue.length}</p>
-                            </div>
-
-                        </div>
-                    </Card.Content>
-
-                    <Card.Footer>
-                        <p className="text-xs text-muted">
-                            All fields are controlled and validated in real time.
-                        </p>
-                    </Card.Footer>
-                </Card>
-
-                {/* Table + DEFAULT — wrapped in a Card */}
-                <HeroUICard
-                    title="Table + DEFAULT"
-                    description="Server-side pagination, sorting, and filters."
-                >
-                    <div className="p-4">
-                        <HeroUiTable
-                            columns={userColumns}
-                            isLoading={isLoading}
-                            data={data}
-                            paginationOptions={paginationOptions}
-                            fetchData={fetchData}
-                            pageSizeOptions={[5, 10, 25, 50, 100]}
-                            rowHeaderColumnId="name"
-                            filtersConfig={{
-                                start: <h2 className="text-lg font-semibold"></h2>,
-                                enableFiltersBtn: true,
-                                enableRefreshBtn: true,
-                                enableFilterName: true,
-                                enableFilterRole: true,
-                                enableFilterStatus: true,
-                                namePlaceholder: "Buscar por nombre...",
-                            }}
-                        />
+                    <div className="flex flex-col leading-tight">
+                        <span className="text-sm font-semibold text-foreground">HeroUI Playground</span>
+                        <span className="text-xs text-muted">Components, tones & table demo</span>
                     </div>
-                </HeroUICard>
+                </div>
 
-                {/* Table + SELECT — wrapped in a Card */}
-                <HeroUICard
-                    title="Table + SELECT"
-                    description=" Row selection, column resizing, and custom actions."
-                >
-                    <div className="p-4">
-                        <HeroUiTable
-                            columns={userColumns}
-                            isLoading={isLoading}
-                            data={data}
-                            paginationOptions={paginationOptions}
-                            fetchData={fetchData}
-                            pageSizeOptions={[5, 10, 25, 50, 100]}
-                            enableSelection
-                            getRowId={(user) => user.id}
-                            onSelectionChange={(selectedUsers) => {
-                                console.log("Filas seleccionadas:", selectedUsers);
-                            }}
-                            enableColumnResizing
-                            ariaLabel="Team members"
-                            rowHeaderColumnId="name"
-                            filtersConfig={{
-                                start: <h2 className="text-lg font-semibold"></h2>,
-                                end: (
-                                    <HeroUIIconButton
-                                        icon="fa6-solid:circle-info"
-                                        tooltip="Custom ICON"
-                                        appearance="surface"
-                                    />
-                                ),
-                                enableFiltersBtn: true,
-                                enableRefreshBtn: true,
-                                enableFilterName: true,
-                                enableFilterRole: true,
-                            }}
-                        />
+                {/* Right — Actions grouped */}
+                <div className="flex items-center gap-2">
+                    {/* Group 5: Text buttons */}
+                    <div className="flex items-center gap-2">
+                        <HeroUIButton icon="fa6-solid:floppy-disk" tone="success">
+                            Save
+                        </HeroUIButton>
+                        <HeroUIButton icon="fa6-solid:xmark" tone="gray-soft">
+                            Cancel
+                        </HeroUIButton>
+                        <HeroUIButton icon="fa6-solid:arrow-right" iconPosition="end" tone="info">
+                            Next
+                        </HeroUIButton>
                     </div>
-                </HeroUICard>
+                </div>
             </div>
-        </div>
+
+            {/* ---------- Sidebar (fixed, debajo del toolbar) ---------- */}
+            <HeroUIDemoSidebar
+                expanded={sidebarExpanded}
+                onExpandedChange={setSidebarExpanded}
+                topOffset={60}
+                railWidth={64}
+                expandedWidth={260}
+                activeKey="Home"
+                onSelect={(item) => console.log("Selected:", item.label)}
+            />
+
+            {/* ---------- Main content (con padding dinámico) ---------- */}
+            <div
+                className="p-2 transition-[padding-left] duration-200 ease-out"
+                style={{
+                    paddingLeft: sidebarExpanded ? 260 + 32 : 64 + 32,
+                }}
+            >
+                <div className="w-9/10 mx-auto p-8 flex flex-col gap-[15px]">
+
+                    {/* ---------- Card 1: Theme Buttons ---------- */}
+                    <HeroUICard
+                        title="Theme Buttons"
+                        description="HeroUI default themes + custom tones"
+                        toolbar={{
+                            end: (<>
+                                <HeroUIIconButton icon="fa6-solid:circle-info" tooltip="Info" tone="info" />
+                                <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="Success" tone="success" />
+                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="Warning" tone="warning" />
+                                <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="Danger" tone="danger" />
+                                <HeroUIIconButton icon="fa6-solid:mug-hot" tooltip="Brown" tone="brown" />
+                                <HeroUIIconButton icon="fa6-solid:sun" tooltip="Yellow" tone="yellow" />
+                                <HeroUIIconButton icon="fa6-solid:circle" tooltip="Gray" tone="gray" />
+                                <HeroUIIconButton icon="fa6-solid:moon" tooltip="White" tone="white" />
+                                <HeroUIIconButton icon="fa6-solid:heart" tooltip="White + Primary" tone="white-primary" />
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="White + Secondary" tone="white-secondary" />
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="White + Tertiary" tone="white-tertiary" />
+                                <HeroUIIconButton icon="fa6-solid:circle-info" tooltip="Info soft" tone="info-soft" />
+                                <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="Success soft" tone="success-soft" />
+                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="Warning soft" tone="warning-soft" />
+                                <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="Danger soft" tone="danger-soft" />
+                                <HeroUIIconButton icon="fa6-solid:mug-hot" tooltip="Brown soft" tone="brown-soft" />
+                                <HeroUIIconButton icon="fa6-solid:sun" tooltip="Yellow soft" tone="yellow-soft" />
+                                <HeroUIIconButton icon="fa6-solid:circle" tooltip="Gray soft" tone="gray-soft" />
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="Secondary soft" tone="white-secondary-soft" />
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="Tertiary soft" tone="white-tertiary-soft" />
+                            </>)}}
+                    >
+                        <div className="p-4">
+                            <HeroUIThemes />
+                        </div>
+                    </HeroUICard>
+
+                    {/* ---------- Card 2: Text Buttons ---------- */}
+                    <HeroUICard
+                        title="Text Buttons — Solid/Soft Tones"
+                        description="SolidSoft text buttons with icon and custom semantic tones."
+                    >
+                        <div className="p-4 flex flex-wrap gap-3 items-center">
+                            <HeroUIButton icon="fa6-solid:circle-info" tone="info">Info</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:circle-check" tone="success">Success</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:triangle-exclamation" tone="warning">Warning</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:circle-xmark" tone="danger">Danger</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:mug-hot" tone="brown">Brown</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:sun" tone="yellow">Yellow</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:circle" tone="gray">Gray</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:moon" tone="white">White</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:heart" tone="white-primary">White + Primary</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:palette" tone="white-secondary">White + Secondary</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:palette" tone="white-tertiary">White + Tertiary</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:circle-info" tone="info-soft">Info soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:circle-check" tone="success-soft">Success soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:triangle-exclamation" tone="warning-soft">Warning soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:circle-xmark" tone="danger-soft">Danger soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:mug-hot" tone="brown-soft">Brown soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:sun" tone="yellow-soft">Yellow soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:circle" tone="gray-soft">Gray soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:palette" tone="white-secondary-soft">White + Secondary Soft</HeroUIButton>
+                            <HeroUIButton icon="fa6-solid:palette" tone="white-tertiary-soft">White + Tertiary Soft</HeroUIButton>
+                        </div>
+                    </HeroUICard>
+
+                    {/* ---------- Card 3: Form Fields ---------- */}
+                    <Card className="rounded-[5px]">
+                        <Card.Header>
+                            <Card.Title>Form Fields</Card.Title>
+                            <Card.Description>
+                                All HeroUI input components with validation, tooltips, and required states.
+                            </Card.Description>
+                        </Card.Header>
+
+                        <Card.Content>
+                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full">
+
+                                <div>
+                                    <HeroUITextField
+                                        label="Text"
+                                        tooltip="Text"
+                                        placeholder="Enter text"
+                                        type={"text"}
+                                        isRequired
+                                        requiredMessage="Text is required"
+                                        isInvalid={true}
+                                        invalidMessage="Something went wrong"
+                                        value={text}
+                                        onChange={(v) => {
+                                            setText(v as any);
+                                        }}
+                                    />
+                                </div>
+
+                                <div>
+                                    <HeroUITextField
+                                        label="Email"
+                                        tooltip="Email"
+                                        placeholder="Enter your email"
+                                        type={"email"}
+                                        isRequired
+                                        requiredMessage="Email is required"
+                                        value={email}
+                                        onChange={(v) => setEmail(v as any)}
+                                    />
+                                </div>
+
+                                <div>
+                                    <HeroUITextField
+                                        label="Number"
+                                        tooltip="Number"
+                                        placeholder="Enter number"
+                                        type={"number"}
+                                        isRequired
+                                        requiredMessage="Number is required"
+                                        value={number}
+                                        onChange={(v) => setNumber(v as any)}
+                                    />
+                                </div>
+
+                                <div>
+                                    <HeroUINumberField
+                                        ariaLabel="Quantity"
+                                        label="Quantity"
+                                        value={numberValue}
+                                        isRequired
+                                        requiredMessage="Please enter a quantity"
+                                        onChange={setNumberValue}
+                                        minValue={1}
+                                        maxValue={100}
+                                        tooltip="Pick a number"
+                                    />
+                                    <p className="text-xs mt-1">Value: {numberValue}</p>
+                                </div>
+
+                                <div>
+                                    <Label> Toggle Buttons</Label>
+                                    <div className="flex items-center gap-3">
+                                        <HeroUIToggleButton
+                                            isIconOnly
+                                            ariaLabel="Like"
+                                            icon="fa6-solid:calendar-check"
+                                            isSelected={liked}
+                                            onChange={setLiked}
+                                            tooltip="Like this item"
+                                        />
+
+                                        <HeroUIToggleButton
+                                            isIconOnly
+                                            ariaLabel="Bookmark"
+                                            icon="fa6-solid:bookmark"
+                                            variant="ghost"
+                                            isSelected={bookmarked}
+                                            onChange={setBookmarked}
+                                            tooltip="Bookmark this item"
+                                        />
+
+                                        <HeroUIToggleButton
+                                            ariaLabel="Like with text"
+                                            iconConfig={{
+                                                off: "fa6-solid:calendar-xmark",
+                                                on: "fa6-solid:calendar-check",
+                                            }}
+                                            isSelected={liked}
+                                            onChange={setLiked}
+                                            tooltip="Toggle like"
+                                        >
+                                            {liked ? "Liked" : "Like"}
+                                        </HeroUIToggleButton>
+                                    </div>
+                                    <p className="text-xs mt-1">
+                                        Liked: {String(liked)} · Bookmarked: {String(bookmarked)}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <HeroUIDateField
+                                        ariaLabel="Birth date"
+                                        label="Birth date"
+                                        value={dateValue as any}
+                                        isRequired
+                                        requiredMessage="Please select a date"
+                                        onChange={(v) => setDateValue(v as any)}
+                                        tooltip="Select a date"
+                                    />
+                                    <p className="text-xs mt-1">Date: {dateValue ? String(dateValue) : "(none)"}</p>
+                                </div>
+
+                                <div>
+                                    <HeroUIDatePicker
+                                        ariaLabel="Appointment date"
+                                        label="Appointment"
+                                        value={datePickerValue as any}
+                                        isRequired
+                                        requiredMessage="Please pick a date"
+                                        onChange={(v) => setDatePickerValue(v as any)}
+                                        tooltip="Pick an appointment date"
+                                    />
+                                    <p className="text-xs mt-1">Picked: {datePickerValue ? String(datePickerValue) : "(none)"}</p>
+                                </div>
+
+                                <div>
+                                    <HeroUIDateRangePicker
+                                        ariaLabel="Vacation range"
+                                        label="Vacation range"
+                                        isRequired
+                                        requiredMessage="Please pick a date"
+                                        value={dateRangeValue as any}
+                                        onChange={(v) => setDateRangeValue(v as any)}
+                                        tooltip="Pick a date range"
+                                    />
+                                    <p className="text-xs mt-1">
+                                        Range: {dateRangeValue ? `${dateRangeValue.start} → ${dateRangeValue.end}` : "(none)"}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <HeroUITimeField
+                                        ariaLabel="Appointment time"
+                                        label="Appointment time"
+                                        value={timeValue}
+                                        onChange={setTimeValue}
+                                        isRequired
+                                        requiredMessage="Please select a time"
+                                        tooltip="Select the appointment time"
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label> Switch</Label>
+                                    <br/>
+                                    <HeroUISwitch
+                                        ariaLabel="Enable notifications"
+                                        isSelected={enabled}
+                                        onChange={setEnabled}
+                                        size="md"
+                                        tooltip="Toggle notifications"
+                                    />
+                                    <p className="text-xs mt-1">Enabled: {String(enabled)}</p>
+                                </div>
+
+                                <div>
+                                    <HeroUIComboBox
+                                        ariaLabel="Search user (single)"
+                                        options={options1}
+                                        value={selected1}
+                                        label={"Combo example"}
+                                        onChange={(v) => handleSelectionChange1(v as string)}
+                                        inputValue={inputValue1}
+                                        onInputChange={handleInputChange1}
+                                        isLoading={loading1}
+                                        tooltip={"Combo Filter by User Name"}
+                                        placeholder="Type to search..."
+                                        isRequired
+                                        requiredMessage="Please select a user"
+                                    />
+
+                                    <p className="text-xs mt-1">Selected id: {selected1 || "(none)"}</p>
+                                    <p className="text-xs">Selected
+                                        label: {options1.find((o) => o.id === selected1)?.label || "(none)"}</p>
+                                </div>
+
+                                <div>
+                                    <HeroUISelect
+                                        ariaLabel="Filter by role"
+                                        label="Select Simple"
+                                        options={ROLE_OPTIONS}
+                                        value={selectedRole}
+                                        placeholder="Select a role"
+                                        showClearButton
+                                        onChange={(key) => setSelectedRole((key as string) || "")}
+                                        isRequired
+                                        requiredMessage="Please select a item"
+                                        tooltip={{
+                                            text: "Filter by role",
+                                            placement: "top",
+                                            showArrow: true,
+                                            delay: 200,
+                                        }}
+                                    />
+                                    <p className="text-xs mt-1">Role: {selectedRole || "(none)"}</p>
+                                </div>
+
+                                <div>
+                                    <HeroUISelect
+                                        ariaLabel="Filter by status"
+                                        label="Select Multiple"
+                                        selectionMode="multiple"
+                                        options={STATUS_OPTIONS}
+                                        value={selectedStatuses}
+                                        placeholder="Select statuses"
+                                        onChange={(keys) => setSelectedStatuses(keys as string[])}
+                                        isRequired
+                                        requiredMessage="Please select a item"
+                                        tooltip="Filter by status"
+                                    />
+                                    <p className="text-xs mt-1">
+                                        Statuses: {selectedStatuses.length > 0 ? selectedStatuses.join(", ") : "(none)"}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <HeroUIPhone
+                                        label="Contact phone"
+                                        isRequired
+                                        requiredMessage="Please enter your phone"
+                                        invalidPhoneMessage="That's not a valid phone number"
+                                        value={phone}
+                                        tooltip={"Phone number"}
+                                        onChange={setPhone}
+                                    />
+                                </div>
+
+                                <div>
+                                    <HeroUICheckbox
+                                        ariaLabel="Accept terms"
+                                        isSelected={checked}
+                                        onChange={setChecked}
+                                        tooltip="Accept terms and conditions"
+                                    >
+                                        Accept terms
+                                    </HeroUICheckbox>
+                                    <p className="text-xs mt-1">Checked: {String(checked)}</p>
+                                </div>
+
+                                <div>
+                                    <HeroUITextArea
+                                        ariaLabel="Comments"
+                                        value={textAreaValue}
+                                        onChange={setTextAreaValue}
+                                        placeholder="Write your comments..."
+                                        isRequired
+                                        requiredMessage="Please write your comments"
+                                        tooltip="Add your comments here"
+                                    />
+                                    <p className="text-xs mt-1">Chars: {textAreaValue.length}</p>
+                                </div>
+
+                            </div>
+                        </Card.Content>
+
+                        <Card.Footer>
+                            <p className="text-xs text-muted">
+                                All fields are controlled and validated in real time.
+                            </p>
+                        </Card.Footer>
+                    </Card>
+
+                    {/* ---------- Card 4: Table + DEFAULT ---------- */}
+                    <HeroUICard
+                        title="Table + DEFAULT"
+                        description="Server-side pagination, sorting, and filters."
+                    >
+                        <div className="p-4">
+                            <HeroUiTable
+                                columns={userColumns}
+                                isLoading={isLoading}
+                                data={data}
+                                paginationOptions={paginationOptions}
+                                fetchData={fetchData}
+                                pageSizeOptions={[5, 10, 25, 50, 100]}
+                                rowHeaderColumnId="name"
+                                filtersConfig={{
+                                    start: <h2 className="text-lg font-semibold"></h2>,
+                                    enableFiltersBtn: true,
+                                    enableRefreshBtn: true,
+                                    enableFilterName: true,
+                                    enableFilterRole: true,
+                                    enableFilterStatus: true,
+                                    namePlaceholder: "Buscar por nombre...",
+                                }}
+                            />
+                        </div>
+                    </HeroUICard>
+
+                    {/* ---------- Card 5: Table + SELECT ---------- */}
+                    <HeroUICard
+                        title="Table + SELECT"
+                        description=" Row selection, column resizing, and custom actions."
+                    >
+                        <div className="p-4">
+                            <HeroUiTable
+                                columns={userColumns}
+                                isLoading={isLoading}
+                                data={data}
+                                paginationOptions={paginationOptions}
+                                fetchData={fetchData}
+                                pageSizeOptions={[5, 10, 25, 50, 100]}
+                                enableSelection
+                                getRowId={(user) => user.id}
+                                onSelectionChange={(selectedUsers) => {
+                                    console.log("Filas seleccionadas:", selectedUsers);
+                                }}
+                                enableColumnResizing
+                                ariaLabel="Team members"
+                                rowHeaderColumnId="name"
+                                filtersConfig={{
+                                    start: <h2 className="text-lg font-semibold"></h2>,
+                                    end: (
+                                        <>
+                                            <HeroUIIconButton
+                                                tone={'white'}
+                                                icon="fa6-solid:circle-info"
+                                                tooltip="Custom ICON"
+                                            />
+                                        </>
+
+                                    ),
+                                    enableFiltersBtn: true,
+                                    enableRefreshBtn: true,
+                                    enableFilterName: true,
+                                    enableFilterRole: true,
+                                }}
+                            />
+                        </div>
+                    </HeroUICard>
+                </div>
+            </div>
+        </>
     );
 }
 
