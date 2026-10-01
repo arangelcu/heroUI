@@ -912,4 +912,152 @@
         --chart-4: oklch(from var(--accent) calc(l + 0.12) c h);
         --chart-5: oklch(from var(--accent) calc(l + 0.24) c h);
     }
+
+    /* SMS theme — base coral #E57373 (oklch 70.09% 0.1345 22.99) */
+    [data-theme="sms"]:not(.dark):not([data-theme="dark"]) {
+        color-scheme: light;
+
+        /* ---- Backgrounds ---- */
+        --background: oklch(97.5% 0.012 22.99);
+        --foreground: oklch(21.03% 0.012 22.99);
+
+        /* ---- Defaults ---- */
+        --default: oklch(94% 0.018 22.99);
+        --default-foreground: oklch(21.03% 0.0059 22.99);
+
+        /* ---- Muted ---- */
+        --muted: oklch(55.17% 0.028 22.99);
+
+        /* ---- Overlay ---- */
+        --overlay: oklch(100% 0.004 22.99);
+        --overlay-foreground: oklch(21.03% 0.012 22.99);
+
+        /* ---- Scrollbar ---- */
+        --scrollbar: oklch(87.1% 0.018 22.99);
+
+        /* ---- Surfaces ---- */
+        --surface: oklch(100% 0.006 22.99);
+        --surface-foreground: oklch(21.03% 0.012 22.99);
+
+        /* ⭐ El color clave que pediste */
+        --surface-secondary: oklch(70.09% 0.1345 22.99);           /* #E57373 */
+        --surface-secondary-foreground: oklch(99.11% 0 0);          /* blanco para contraste */
+
+        --surface-secondary-hover: oklch(66.5% 0.1405 22.99);       /* #E57373 ligeramente más oscuro */
+        --surface-secondary-hover-foreground: oklch(99.11% 0 0);
+
+        --surface-tertiary: oklch(78% 0.098 22.99);
+        --surface-tertiary-foreground: oklch(21.03% 0.012 22.99);
+
+        /* ---- Borders & separators ---- */
+        --border: oklch(85% 0.048 22.99);
+        --separator: oklch(90% 0.032 22.99);
+
+        /* ---- Links ---- */
+        --link: oklch(21.03% 0.012 22.99);
+
+        /* ---- Segments ---- */
+        --segment: oklch(100% 0.018 22.99);
+        --segment-foreground: oklch(21.03% 0.012 22.99);
+
+        /* ---- Fields ---- */
+        --field-background: oklch(100% 0.006 22.99);
+        --field-border: oklch(85% 0.048 22.99);
+        --field-foreground: oklch(21.03% 0.012 22.99);
+        --field-placeholder: oklch(55.17% 0.028 22.99);
+
+        /* ---- Accent (mismo coral, un poco más saturado para CTAs) ---- */
+        --accent: oklch(70.09% 0.1345 22.99);
+        --accent-foreground: oklch(99.11% 0 0);
+        --focus: oklch(70.09% 0.1345 22.99);
+
+        /* ---- Semánticos ---- */
+        --success: oklch(73.29% 0.1992 148.02);
+        --success-foreground: oklch(21.03% 0.0059 148.02);
+        --warning: oklch(78.19% 0.1631 69.51);
+        --warning-foreground: oklch(21.03% 0.0059 69.51);
+        --danger: oklch(58% 0.2398 22.91);
+        --danger-foreground: oklch(99.11% 0 0);
+
+        /* ---- Charts ---- */
+        --chart-1: oklch(from var(--accent) calc(l - 0.24) c h);
+        --chart-2: oklch(from var(--accent) calc(l - 0.12) c h);
+        --chart-3: var(--accent);
+        --chart-4: oklch(from var(--accent) calc(l + 0.12) c h);
+        --chart-5: oklch(from var(--accent) calc(l + 0.24) c h);
+    }
+
+    [data-theme="sms"].dark,
+    [data-theme="sms"][data-theme="dark"] {
+        color-scheme: dark;
+
+        /* ---- Backgrounds ---- */
+        --background: oklch(12% 0.012 22.99);
+        --foreground: oklch(99.11% 0.012 22.99);
+
+        /* ---- Defaults ---- */
+        --default: oklch(27.4% 0.018 22.99);
+        --default-foreground: oklch(99.11% 0 0);
+
+        /* ---- Muted ---- */
+        --muted: oklch(70.5% 0.028 22.99);
+
+        /* ---- Overlay ---- */
+        --overlay: oklch(21.03% 0.025 22.99);
+        --overlay-foreground: oklch(99.11% 0.012 22.99);
+
+        /* ---- Scrollbar ---- */
+        --scrollbar: oklch(70.5% 0.018 22.99);
+
+        /* ---- Surfaces ---- */
+        --surface: oklch(21.03% 0.025 22.99);
+        --surface-foreground: oklch(99.11% 0.012 22.99);
+
+        /* ⭐ El color clave — en dark mantenemos el coral pero un poco menos luminoso */
+        --surface-secondary: oklch(62% 0.135 22.99);
+        --surface-secondary-foreground: oklch(99.11% 0 0);
+
+        --surface-secondary-hover: oklch(58% 0.1405 22.99);
+        --surface-secondary-hover-foreground: oklch(99.11% 0 0);
+
+        --surface-tertiary: oklch(48% 0.098 22.99);
+        --surface-tertiary-foreground: oklch(99.11% 0.012 22.99);
+
+        /* ---- Borders & separators ---- */
+        --border: oklch(32% 0.045 22.99);
+        --separator: oklch(25% 0.030 22.99);
+
+        /* ---- Links ---- */
+        --link: oklch(99.11% 0.012 22.99);
+
+        /* ---- Segments ---- */
+        --segment: oklch(39.64% 0.018 22.99);
+        --segment-foreground: oklch(99.11% 0.012 22.99);
+
+        /* ---- Fields ---- */
+        --field-background: oklch(21.03% 0.028 22.99);
+        --field-border: oklch(32% 0.045 22.99);
+        --field-foreground: oklch(99.11% 0.012 22.99);
+        --field-placeholder: oklch(70.5% 0.028 22.99);
+
+        /* ---- Accent ---- */
+        --accent: oklch(70.09% 0.1345 22.99);
+        --accent-foreground: oklch(15% 0.03 22.99);
+        --focus: oklch(70.09% 0.1345 22.99);
+
+        /* ---- Semánticos ---- */
+        --success: oklch(73.29% 0.1992 148.02);
+        --success-foreground: oklch(21.03% 0.0059 148.02);
+        --warning: oklch(78.19% 0.1631 69.51);
+        --warning-foreground: oklch(21.03% 0.0059 69.51);
+        --danger: oklch(65.32% 0.2398 22.91);
+        --danger-foreground: oklch(99.11% 0 0);
+
+        /* ---- Charts ---- */
+        --chart-1: oklch(from var(--accent) calc(l - 0.24) c h);
+        --chart-2: oklch(from var(--accent) calc(l - 0.12) c h);
+        --chart-3: var(--accent);
+        --chart-4: oklch(from var(--accent) calc(l + 0.12) c h);
+        --chart-5: oklch(from var(--accent) calc(l + 0.24) c h);
+    }
 }
