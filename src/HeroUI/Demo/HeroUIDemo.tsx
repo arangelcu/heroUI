@@ -633,7 +633,7 @@ function HeroUIDemo() {
                                     end: (
                                         <>
                                             <HeroUIIconButton
-                                                tone={'white'}
+                                                tone={'info-soft'}
                                                 icon="fa6-solid:circle-info"
                                                 tooltip="Custom ICON"
                                             />

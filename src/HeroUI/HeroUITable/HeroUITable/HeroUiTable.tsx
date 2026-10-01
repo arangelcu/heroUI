@@ -445,9 +445,9 @@ export function HeroUiTable<TData extends RowData>({
                     <Table.Row
                         key={row.id}
                         id={String(getRowId(row.original))}
-                        className="border-b border-border hover:bg-surface-tertiary-hover"
+                        className="border-b border-border bg-white hover:bg-[var(--surface-secondary)]/20"
                     >
-                        {/* Selection cell */}
+                    {/* Selection cell */}
                         {enableSelection && (
                             <Table.Cell
                                 className="pe-0"
@@ -489,7 +489,7 @@ export function HeroUiTable<TData extends RowData>({
 
     // --- Render -------------------------------------------------------------
     return (
-        <Table className="rounded-[15px] overflow-hidden">
+        <Table className="rounded-[15px] overflow-hidden shadow-sm border border-border/40">
             {/* Filters bar (only when filtersConfig is provided) */}
             {filtersConfig && (
                 <TableFilters

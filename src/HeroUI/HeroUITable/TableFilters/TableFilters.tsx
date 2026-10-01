@@ -240,14 +240,14 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                         {showFilters && (
                             <>
                                 <HeroUIIconButton
-                                    tone="white"
+                                    tone="white-tertiary"
                                     tooltip="Clear filters"
                                     icon="fa6-solid:broom"
                                     onPress={handleClearFilters}
                                 />
 
                                 <HeroUIIconButton
-                                    tone="white"
+                                    tone="white-tertiary"
                                     tooltip={{
                                         text: "Save filters",
                                         placement: "top",
@@ -265,7 +265,7 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                         {/* Toggle button with active filters badge */}
                         <div className={styles.filtersBtnWrapper}>
                             <HeroUIIconButton
-                                tone="white"
+                                tone="white-tertiary"
                                 tooltip={{
                                     text: showFilters ? "Hide filters" : "Show filters",
                                     placement: "top",
@@ -291,7 +291,7 @@ const TableFilters: React.FC<TableFiltersProps> = ({
 
                 {enableRefreshBtn && (
                     <HeroUIIconButton
-                        tone="white"
+                        tone="white-tertiary"
                         tooltip="Refresh"
                         icon="fa6-solid:arrows-rotate"
                         onPress={onRefresh}
