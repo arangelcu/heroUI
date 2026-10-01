@@ -1068,5 +1068,159 @@
         --chart-5: oklch(from var(--accent) calc(l + 0.24) c h);
     }
 
+    /* RCM theme — base green #4daf51 (oklch 66.29% 0.1518 144.02) */
+    [data-theme="rcm"]:not(.dark):not([data-theme="dark"]) {
+        color-scheme: light;
+
+        /* ---- Backgrounds ---- */
+        --background: oklch(97.5% 0.012 144.02);
+        --foreground: oklch(21.03% 0.012 144.02);
+
+        /* ---- Defaults ---- */
+        --default: oklch(94% 0.018 144.02);
+        --default-foreground: oklch(21.03% 0.0059 144.02);
+
+        /* 👇 Hover de filas de tabla — igual que SMS, bien marcado */
+        --default-100: oklch(88% 0.040 144.02);
+
+        /* ---- Muted ---- */
+        --muted: oklch(55.17% 0.028 144.02);
+
+        /* ---- Overlay ---- */
+        --overlay: oklch(100% 0.004 144.02);
+        --overlay-foreground: oklch(21.03% 0.012 144.02);
+
+        /* ---- Scrollbar ---- */
+        --scrollbar: oklch(87.1% 0.018 144.02);
+
+        /* ---- Surfaces ---- */
+        --surface: oklch(100% 0.006 144.02);
+        --surface-foreground: oklch(21.03% 0.012 144.02);
+
+        /* ⭐ surface-secondary — verde claro */
+        --surface-secondary: oklch(86% 0.072 144.02);
+        --surface-secondary-foreground: oklch(21.03% 0.012 144.02);
+        --surface-secondary-hover: oklch(82% 0.086 144.02);
+        --surface-secondary-hover-foreground: oklch(21.03% 0.012 144.02);
+
+        /* ⭐ surface-tertiary — #4daf51 verde PURO */
+        --surface-tertiary: oklch(66.29% 0.1518 144.02);
+        --surface-tertiary-foreground: oklch(99.11% 0 0);
+        --surface-tertiary-hover: oklch(62.5% 0.158 144.02);
+        --surface-tertiary-hover-foreground: oklch(99.11% 0 0);
+
+        /* ---- Borders & separators ---- */
+        --border: oklch(85% 0.048 144.02);
+        --separator: oklch(90% 0.032 144.02);
+
+        /* ---- Links ---- */
+        --link: oklch(21.03% 0.012 144.02);
+
+        /* ---- Segments ---- */
+        --segment: oklch(100% 0.018 144.02);
+        --segment-foreground: oklch(21.03% 0.012 144.02);
+
+        /* ---- Fields ---- */
+        --field-background: oklch(100% 0.006 144.02);
+        --field-border: oklch(85% 0.048 144.02);
+        --field-foreground: oklch(21.03% 0.012 144.02);
+        --field-placeholder: oklch(55.17% 0.028 144.02);
+
+        /* ---- Accent (mismo verde, un poco más saturado para CTAs) ---- */
+        --accent: oklch(66.29% 0.1518 144.02);
+        --accent-foreground: oklch(99.11% 0 0);
+        --focus: oklch(66.29% 0.1518 144.02);
+
+        /* ---- Semánticos ---- */
+        --success: oklch(73.29% 0.1992 148.02);
+        --success-foreground: oklch(21.03% 0.0059 148.02);
+        --warning: oklch(78.19% 0.1631 69.51);
+        --warning-foreground: oklch(21.03% 0.0059 69.51);
+        --danger: oklch(58% 0.2398 22.91);
+        --danger-foreground: oklch(99.11% 0 0);
+
+        /* ---- Charts ---- */
+        --chart-1: oklch(from var(--accent) calc(l - 0.24) c h);
+        --chart-2: oklch(from var(--accent) calc(l - 0.12) c h);
+        --chart-3: var(--accent);
+        --chart-4: oklch(from var(--accent) calc(l + 0.12) c h);
+        --chart-5: oklch(from var(--accent) calc(l + 0.24) c h);
+    }
+
+    [data-theme="rcm"].dark,
+    [data-theme="rcm"][data-theme="dark"] {
+        color-scheme: dark;
+
+        /* ---- Backgrounds ---- */
+        --background: oklch(12% 0.012 144.02);
+        --foreground: oklch(99.11% 0.012 144.02);
+
+        /* ---- Defaults ---- */
+        --default: oklch(27.4% 0.018 144.02);
+        --default-foreground: oklch(99.11% 0 0);
+
+        /* ---- Muted ---- */
+        --muted: oklch(70.5% 0.028 144.02);
+
+        /* ---- Overlay ---- */
+        --overlay: oklch(21.03% 0.025 144.02);
+        --overlay-foreground: oklch(99.11% 0.012 144.02);
+
+        /* ---- Scrollbar ---- */
+        --scrollbar: oklch(70.5% 0.018 144.02);
+
+        /* ---- Surfaces ---- */
+        --surface: oklch(21.03% 0.025 144.02);
+        --surface-foreground: oklch(99.11% 0.012 144.02);
+
+        /* ⭐ surface-secondary — verde oscuro suave */
+        --surface-secondary: oklch(33% 0.060 144.02);
+        --surface-secondary-foreground: oklch(99.11% 0.012 144.02);
+        --surface-secondary-hover: oklch(38% 0.076 144.02);
+        --surface-secondary-hover-foreground: oklch(99.11% 0.012 144.02);
+
+        /* ⭐ surface-tertiary — #4daf51 verde (más saturado en dark) */
+        --surface-tertiary: oklch(58% 0.155 144.02);
+        --surface-tertiary-foreground: oklch(99.11% 0 0);
+        --surface-tertiary-hover: oklch(54% 0.162 144.02);
+        --surface-tertiary-hover-foreground: oklch(99.11% 0 0);
+
+        /* ---- Borders & separators ---- */
+        --border: oklch(32% 0.045 144.02);
+        --separator: oklch(25% 0.030 144.02);
+
+        /* ---- Links ---- */
+        --link: oklch(99.11% 0.012 144.02);
+
+        /* ---- Segments ---- */
+        --segment: oklch(39.64% 0.018 144.02);
+        --segment-foreground: oklch(99.11% 0.012 144.02);
+
+        /* ---- Fields ---- */
+        --field-background: oklch(21.03% 0.028 144.02);
+        --field-border: oklch(32% 0.045 144.02);
+        --field-foreground: oklch(99.11% 0.012 144.02);
+        --field-placeholder: oklch(70.5% 0.028 144.02);
+
+        /* ---- Accent ---- */
+        --accent: oklch(66.29% 0.1518 144.02);
+        --accent-foreground: oklch(15% 0.03 144.02);
+        --focus: oklch(66.29% 0.1518 144.02);
+
+        /* ---- Semánticos ---- */
+        --success: oklch(73.29% 0.1992 148.02);
+        --success-foreground: oklch(21.03% 0.0059 148.02);
+        --warning: oklch(78.19% 0.1631 69.51);
+        --warning-foreground: oklch(21.03% 0.0059 69.51);
+        --danger: oklch(65.32% 0.2398 22.91);
+        --danger-foreground: oklch(99.11% 0 0);
+
+        /* ---- Charts ---- */
+        --chart-1: oklch(from var(--accent) calc(l - 0.24) c h);
+        --chart-2: oklch(from var(--accent) calc(l - 0.12) c h);
+        --chart-3: var(--accent);
+        --chart-4: oklch(from var(--accent) calc(l + 0.12) c h);
+        --chart-5: oklch(from var(--accent) calc(l + 0.24) c h);
+    }
 
 }
