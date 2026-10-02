@@ -358,7 +358,7 @@ function HeroUIDemo() {
                                         type={"text"}
                                         isRequired
                                         requiredMessage="Text is required"
-                                        isInvalid={true}
+                                        isInvalid={false}
                                         invalidMessage="Something went wrong"
                                         value={text}
                                         onChange={(v) => {
