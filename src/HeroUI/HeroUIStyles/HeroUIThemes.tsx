@@ -2,7 +2,7 @@ import React from "react";
 import {Button, useTheme} from "@heroui/react";
 
 export function HeroUIThemes() {
-    const {theme, setTheme} = useTheme();
+    const {theme, setTheme} = useTheme("rcm");
 
     return (
         <div className="flex gap-2 flex-wrap justify-center">
