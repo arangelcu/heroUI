@@ -19,7 +19,7 @@ import HeroUITextField from "../HeroUITextField/HeroUITextField";
 import HeroUIToggleButton from "../HeroUIToggleButton/HeroUIToggleButton";
 import HeroUIPhone from "../HeroUIPhone/HeroUIPhone";
 import HeroUICard from "../HeroUICard/HeroUICard";
-import {Icon} from "@iconify/react";
+import {HeroUIAlertDialog} from "../HeroUIAlertDialog/HeroUIAlertDialog";
 
 interface User {
     id: number;
@@ -583,6 +583,72 @@ function HeroUIDemo() {
                                     <p className="text-xs mt-1">Chars: {textAreaValue.length}</p>
                                 </div>
 
+                                {/* ---------- AlertDialog trigger buttons ---------- */}
+
+
+                                <div className="w-[195px] grid grid-cols-2">
+                                    {/* Info type — only confirm, no cancel */}
+                                    <HeroUIAlertDialog
+                                        type="accent"
+                                        title="New version available"
+                                        description="A new version of HeroUI is available. Please update to the latest version for the best experience."
+                                        confirmText="Got it"
+                                        showCancel={false}
+                                        onConfirm={() => console.log("Info acknowledged")}
+                                        trigger={
+                                            <>
+                                                <HeroUIButton
+                                                    tone="info"
+                                                    icon={'fa6-solid:circle-info'}
+                                                    tooltip="Info Alert"  >
+                                                    Alert
+                                                </HeroUIButton>
+                                            </>
+                                        }
+                                    />
+
+                                    {/* Confirm type — has confirm and cancel */}
+                                    <HeroUIAlertDialog
+                                        type="warning"
+                                        title="Discard unsaved changes?"
+                                        description="You have unsaved changes that will be permanently lost. Are you sure you want to discard them?"
+                                        confirmText="Discard"
+                                        cancelText="Keep editing"
+                                        onConfirm={() => console.log("Confirmed: discard")}
+                                        onCancel={() => console.log("Cancelled")}
+                                        trigger={
+                                            <>
+                                                <HeroUIButton
+                                                    icon={'fa6-solid:triangle-exclamation'}
+                                                    tone="brown"
+                                                    tooltip="Confirm Alert"  >
+                                                    Alert
+                                                </HeroUIButton>
+                                            </>
+                                        }
+                                    />
+
+                                    {/* Danger type */}
+                                    <HeroUIAlertDialog
+                                        type="danger"
+                                        title="Delete this item?"
+                                        description="This action cannot be undone. The item will be permanently removed."
+                                        confirmText="Delete"
+                                        cancelText="Cancel"
+                                        onConfirm={() => console.log("Confirmed: delete")}
+                                        onCancel={() => console.log("Cancelled")}
+                                        trigger={
+                                            <>
+                                                <HeroUIButton
+                                                    icon={'fa6-solid:circle-xmark'}
+                                                    tone="danger"
+                                                    tooltip="Danger Alert"  >
+                                                    Alert
+                                                </HeroUIButton>
+                                            </>
+                                        }
+                                    />
+                                </div>
                             </div>
                         </Card.Content>
 
@@ -681,7 +747,8 @@ function HeroUIDemo() {
                                 rowHeaderColumnId="name"
                                 filtersConfig={{
                                     startIcon: "fa6-solid:users",
-                                    start: <h2 className="flex text-sm font-semibold text-surface-tertiary">My User Table</h2>,
+                                    start: <h2 className="flex text-sm font-semibold text-surface-tertiary">My User
+                                        Table</h2>,
                                     enableRefreshBtn: true,
                                 }}
                             />
