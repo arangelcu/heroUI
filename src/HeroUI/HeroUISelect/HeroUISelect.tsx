@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {FieldError, Label, ListBox, Select, Tooltip} from "@heroui/react";
 
 /**
@@ -32,10 +32,26 @@ export interface HeroUISelectOption {
     label: string;
 }
 
+/** Modo de seleccion del `HeroUISelect`. */
+export type HeroUISelectionMode = "single" | "multiple";
+
+/** Tipo del valor segun el modo: `string` en simple, `string[]` en multiple. */
+export type HeroUISelectValue<M extends HeroUISelectionMode> =
+    M extends "multiple" ? string[] : string;
+
 /**
- * Props for `HeroUISelect`.
+ * Props de `HeroUISelect`.
+ *
+ * El tipo de `value`/`onChange` depende de `selectionMode`, de forma que en modo
+ * simple el consumidor recibe un `string` y en multiple un `string[]`, sin tener
+ * que castear:
+ *
+ * ```tsx
+ * <HeroUISelect value={role} onChange={(v) => setRole(v)} />              // string
+ * <HeroUISelect selectionMode="multiple" value={ids} onChange={(v) => setIds(v)} />  // string[]
+ * ```
  */
-interface HeroUISelectProps {
+interface HeroUISelectProps<M extends HeroUISelectionMode = "single"> {
     /** Accessible label (for screen readers) */
     ariaLabel?: string;
     /** Optional label rendered above the trigger */
@@ -47,13 +63,13 @@ interface HeroUISelectProps {
      * - In single mode: a string.
      * - In multiple mode: an array of strings.
      */
-    value?: string | string[];
+    value?: HeroUISelectValue<M>;
     /**
      * Callback fired when the selection changes.
      * - In single mode: receives a string ("" when cleared).
      * - In multiple mode: receives an array of strings.
      */
-    onChange?: (value: string | string[]) => void;
+    onChange?: (value: HeroUISelectValue<M>) => void;
     /** Placeholder shown when no value is selected */
     placeholder?: string;
     /** Width of the select (default: `"195px"`) */
@@ -73,7 +89,7 @@ interface HeroUISelectProps {
      * - `"single"` (default) → only one option can be selected.
      * - `"multiple"` → several options can be selected.
      */
-    selectionMode?: "single" | "multiple";
+    selectionMode?: M;
     /**
      * Marks the field as required.
      * When `true` and the value is empty, `isInvalid` becomes `true`
@@ -106,7 +122,18 @@ interface HeroUISelectProps {
  *   options={ROLE_OPTIONS}
  *   value={role}
  *   placeholder="Select a role"
- *   onChange={(v) => setRole(v as string)}
+ *   onChange={setRole}
+ * />
+ * ```
+ *
+ * ### Example — Multiple selection
+ * ```tsx
+ * <HeroUISelect
+ *   ariaLabel="Filter by status"
+ *   selectionMode="multiple"
+ *   options={STATUS_OPTIONS}
+ *   value={statuses}
+ *   onChange={setStatuses}
  * />
  * ```
  *
@@ -120,45 +147,59 @@ interface HeroUISelectProps {
  *   placeholder="Select a role"
  *   isRequired
  *   requiredMessage="Please select a role"
- *   onChange={(v) => setRole(v as string)}
+ *   onChange={setRole}
  * />
  * ```
  */
-const HeroUISelect: React.FC<HeroUISelectProps> = ({
-                                                       ariaLabel = "Select",
-                                                       label,
-                                                       options,
-                                                       value,
-                                                       onChange,
-                                                       placeholder,
-                                                       width = "195px",
-                                                       className = "",
-                                                       tooltip,
-                                                       isDisabled = false,
-                                                       showClearButton = false,
-                                                       selectionMode = "single",
-                                                       isRequired = false,
-                                                       requiredMessage = "This field is required",
-                                                   }) => {
+function HeroUISelect<M extends HeroUISelectionMode = "single">({
+                                                         ariaLabel = "Select",
+                                                         label,
+                                                         options,
+                                                         value,
+                                                         onChange,
+                                                         placeholder,
+                                                         width = "195px",
+                                                         className = "",
+                                                         tooltip,
+                                                         isDisabled = false,
+                                                         showClearButton = false,
+                                                         selectionMode = "single" as M,
+                                                         isRequired = false,
+                                                         requiredMessage = "This field is required",
+                                                     }: HeroUISelectProps<M>) {
     /** Whether the select allows multiple selections. */
     const isMultiple = selectionMode === "multiple";
+
+    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    const [isTouched, setIsTouched] = useState(false);
+
+    /**
+     * `value` depende de `M` y dentro del cuerpo `M` no se estrecha, asi que se
+     * ensancha una sola vez aqui y el resto del componente usa `currentValue`.
+     */
+    const currentValue = value as string | string[] | undefined;
 
     /**
      * The field is invalid when it's required but has no value.
      * - Single mode: empty string or `undefined` counts as empty.
      * - Multiple mode: empty array counts as empty.
      */
-    const isInvalid = isRequired && (
+    const isInvalid = isTouched && isRequired && (
         isMultiple
-            ? !Array.isArray(value) || value.length === 0
-            : !value || value === ""
+            ? !Array.isArray(currentValue) || currentValue.length === 0
+            : !currentValue || currentValue === ""
     );
 
     /**
      * Normalizes the internal HeroUI value to a stable type:
      * - Single mode → `string` (empty string when cleared).
      * - Multiple mode → `string[]`.
+     *
+     * Igual que `value`: el tipo de `onChange` depende de `M`, y dentro del
+     * cuerpo `M` no se estrecha, asi que se ensancha aqui una sola vez.
      */
+    const emitChange = onChange as ((value: string | string[]) => void) | undefined;
+
     const handleChange = (key: unknown) => {
         if (isMultiple) {
             const values = Array.isArray(key)
@@ -166,24 +207,25 @@ const HeroUISelect: React.FC<HeroUISelectProps> = ({
                 : key instanceof Set
                     ? Array.from(key).map(String)
                     : [];
-            onChange?.(values);
+            emitChange?.(values);
         } else {
-            onChange?.(key == null ? "" : String(key));
+            emitChange?.(key == null ? "" : String(key));
         }
     };
 
     const select = (
         <Select
-            aria-label={ariaLabel}
+            aria-label={label ? undefined : ariaLabel}
             className={`rounded-[5px] ${className}`.trim()}
             style={{width}}
-            value={value}
+            value={currentValue}
             placeholder={placeholder}
             isDisabled={isDisabled}
             selectionMode={selectionMode}
             isRequired={isRequired}
             isInvalid={isInvalid}
             validationBehavior="aria"
+            onBlur={() => setIsTouched(true)}
             onChange={handleChange}
         >
             {label && <Label>{label}</Label>}

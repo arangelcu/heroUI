@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {FieldError, Label, TextArea, TextField, Tooltip} from "@heroui/react";
 
 /**
@@ -57,7 +57,10 @@ const HeroUITextArea: React.FC<HeroUITextAreaProps> = ({
      * The field is invalid when it's required but empty.
      * Trims whitespace so a value of `"   "` also counts as empty.
      */
-    const isInvalid = isRequired && (value ?? "").trim() === "";
+    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    const [isTouched, setIsTouched] = useState(false);
+
+    const isInvalid = isTouched && isRequired && (value ?? "").trim() === "";
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         onChange?.(event.target.value);
@@ -65,12 +68,14 @@ const HeroUITextArea: React.FC<HeroUITextAreaProps> = ({
 
     const field = (
         <TextField
-            aria-label={ariaLabel}
+            aria-label={label ? undefined : ariaLabel}
             className={className}
             style={{width}}
             isInvalid={isInvalid}
             isRequired={isRequired}
+            isDisabled={isDisabled}
             validationBehavior="aria"
+            onBlur={() => setIsTouched(true)}
         >
             {label && <Label>{label}</Label>}
 
@@ -79,7 +84,7 @@ const HeroUITextArea: React.FC<HeroUITextAreaProps> = ({
                 onChange={handleChange}
                 placeholder={placeholder}
                 rows={minRows}
-                disabled={isDisabled}
+                style={{maxHeight: `${maxRows * 1.5}rem`, overflowY: "auto"}}
             />
 
             {/* FieldError only renders when isInvalid is true */}

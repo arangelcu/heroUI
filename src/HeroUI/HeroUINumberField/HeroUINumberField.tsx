@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {FieldError, Label, NumberField, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 
@@ -62,13 +62,17 @@ const HeroUINumberField: React.FC<HeroUINumberFieldProps> = ({
      * Backspace, and `undefined` when the value is externally cleared.
      * Both cases must be treated as "empty" for validation.
      */
+    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    const [isTouched, setIsTouched] = useState(false);
+
     const isInvalid =
+        isTouched &&
         isRequired &&
         (value === undefined || Number.isNaN(value));
 
     const field = (
         <NumberField
-            aria-label={ariaLabel}
+            aria-label={label ? undefined : ariaLabel}
             className={className}
             style={{width}}
             value={value}
@@ -80,17 +84,18 @@ const HeroUINumberField: React.FC<HeroUINumberFieldProps> = ({
             isRequired={isRequired}
             isInvalid={isInvalid}
             validationBehavior="aria"
+            onBlur={() => setIsTouched(true)}
         >
             {label && <Label>{label}</Label>}
 
-            <NumberField.Group className="rounded-[5px]">
-                <NumberField.DecrementButton>
+            <NumberField.Group className="rounded-[5px] overflow-hidden">
+                <NumberField.DecrementButton className="rounded-none">
                     <Icon icon="fa6-solid:minus" className="size-3"/>
                 </NumberField.DecrementButton>
 
                 <NumberField.Input/>
 
-                <NumberField.IncrementButton>
+                <NumberField.IncrementButton className="rounded-none">
                     <Icon icon="fa6-solid:plus" className="size-3"/>
                 </NumberField.IncrementButton>
             </NumberField.Group>

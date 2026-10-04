@@ -1,9 +1,9 @@
-import React, {useState} from "react";
+import React from "react";
 import styles from "./TableFilters.module.css";
 import HeroUIIconButton from "../../HeroUIIConButton/HeroUIIconButton";
 import HeroUISelect from "../../HeroUISelect/HeroUISelect";
 import HeroUITextField from "../../HeroUITextField/HeroUITextField";
-import {Icon} from "@iconify/react"; // 👈 Aseguramos la importación del componente de íconos
+import {Icon} from "@iconify/react";
 
 export interface FilterValues {
     name?: string;
@@ -12,8 +12,10 @@ export interface FilterValues {
 }
 
 interface TableFiltersProps {
-    /** Nombre o string del ícono que se renderizará al inicio (ej: "fa6-solid:users") */
-    startIcon?: string; // 👈 Nueva prop opcional
+    /** Estado actual de los filtros. El componente es controlado. */
+    filters: FilterValues;
+    /** Nombre o string del icono que se renderizara al inicio (ej: "fa6-solid:users") */
+    startIcon?: string;
     /** Free content aligned to the left (e.g. a title) */
     start?: React.ReactNode;
     /** Extra buttons aligned to the right (rendered before the built-in ones) */
@@ -46,7 +48,8 @@ const STATUS_OPTIONS = [
 ];
 
 const TableFilters: React.FC<TableFiltersProps> = ({
-                                                       startIcon, // 👈 Extraemos la nueva propiedad
+                                                       filters,
+                                                       startIcon,
                                                        start,
                                                        end,
                                                        enableFiltersBtn = false,
@@ -59,20 +62,22 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                                                        namePlaceholder = "Type to Search...",
                                                        className = "",
                                                    }) => {
-    const [filters, setFilters] = useState<FilterValues>({});
-    const [showFilters, setShowFilters] = useState(false);
+    const [showFilters, setShowFilters] = React.useState(false);
 
+    /**
+     * Como el componente es controlado (el estado vive en el padre), `filters`
+     * siempre refleja el valor mas reciente y no hay closure obsoleta: el caso que
+     * fallaba era cuando el propio componente guardaba una copia y el debounce de
+     * `HeroUITextField` fusionaba sobre una version vieja.
+     */
     const updateFilter = <K extends keyof FilterValues>(
         key: K,
         value: FilterValues[K] | undefined
     ) => {
-        const next = {...filters, [key]: value};
-        setFilters(next);
-        onFilterChange?.(next);
+        onFilterChange?.({...filters, [key]: value});
     };
 
     const handleClearFilters = () => {
-        setFilters({});
         onFilterChange?.({});
     };
 
@@ -139,9 +144,9 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                                 selectionMode="multiple"
                                 options={STATUS_OPTIONS}
                                 value={filters.status ?? []}
-                                onChange={(keys) => {
-                                    const arr = keys as string[];
-                                    updateFilter("status", arr.length > 0 ? arr : undefined);
+                                onChange={(value) => {
+                                    const status = Array.isArray(value) ? value : value ? [value] : [];
+                                    updateFilter("status", status.length > 0 ? status : undefined);
                                 }}
                                 tooltip="Filter by status"
                             />
@@ -162,6 +167,7 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                             <>
                                 <HeroUIIconButton
                                     tone="white-tertiary"
+                                    aria-label="Clear filters"
                                     tooltip="Clear filters"
                                     icon="fa6-solid:broom"
                                     onPress={handleClearFilters}
@@ -169,6 +175,7 @@ const TableFilters: React.FC<TableFiltersProps> = ({
 
                                 <HeroUIIconButton
                                     tone="white-tertiary"
+                                    aria-label="Save filters"
                                     tooltip={{
                                         text: "Save filters",
                                         placement: "top",
@@ -186,6 +193,7 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                         <div className={styles.filtersBtnWrapper}>
                             <HeroUIIconButton
                                 tone="white-tertiary"
+                                aria-label={showFilters ? "Hide filters" : "Show filters"}
                                 tooltip={{
                                     text: showFilters ? "Hide filters" : "Show filters",
                                     placement: "top",
@@ -212,6 +220,7 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                 {enableRefreshBtn && (
                     <HeroUIIconButton
                         tone="white-tertiary"
+                        aria-label="Refresh"
                         tooltip="Refresh"
                         icon="fa6-solid:arrows-rotate"
                         onPress={onRefresh}

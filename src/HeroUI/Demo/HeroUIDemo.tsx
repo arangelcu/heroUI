@@ -1,8 +1,9 @@
 import {createColumnHelper} from "@tanstack/react-table";
-import React, {useCallback, useState} from "react";
-import {Card, Label, type TimeValue} from "@heroui/react";
+import React, {useState} from "react";
+import {Card, type TimeValue} from "@heroui/react";
 import {HeroUIThemes} from "../HeroUIStyles/HeroUIThemes";
-import {FetchParams, HeroUiTable, PaginationOptions,} from "../HeroUITable/HeroUITable/HeroUiTable";
+import {FetchParams, HeroUiTable} from "../HeroUITable/HeroUITable/HeroUiTable";
+import {useServerTable} from "./useServerTable";
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
 import HeroUIButton from "../HeroUIButton/HeroUIButton";
 import HeroUITimeField from "../HeroUITimeField/HeroUITimeField";
@@ -20,7 +21,7 @@ import HeroUIToggleButton from "../HeroUIToggleButton/HeroUIToggleButton";
 import HeroUIPhone from "../HeroUIPhone/HeroUIPhone";
 import HeroUICard from "../HeroUICard/HeroUICard";
 import {HeroUIAlertDialog} from "../HeroUIAlertDialog/HeroUIAlertDialog";
-import {toastQueue} from "../HeroUIProvider/HeroUIProvider";
+import {toastQueue} from "../HeroUIProvider/toastQueue";
 
 interface User {
     id: number;
@@ -79,23 +80,18 @@ const userColumns = columnHelper.columns([
 ]);
 
 // Simulated "DB" — 57 rows
+const ROLES = ["CEO", "CTO", "CMO", "Engineer"] as const;
+const STATUSES = ["Active", "Inactive", "On Leave"] as const;
+
 const ALL_USERS: User[] = Array.from({length: 57}, (_, i) => ({
     id: i + 1,
     name: `User ${i + 1}`,
-    role: ["CEO", "CTO", "CMO", "Engineer"][i % 4],
-    status: (["Active", "Inactive", "On Leave"] as const)[i % 3],
+    // Con `noUncheckedIndexedAccess` el acceso por indice es `T | undefined`,
+    // asi que el respaldo es obligatorio para el tipo (y para el dato).
+    role: ROLES[i % ROLES.length] ?? ROLES[0],
+    status: STATUSES[i % STATUSES.length] ?? STATUSES[0],
     email: `user${i + 1}@acme.com`,
 }));
-
-const initialPaginationOptions: PaginationOptions = {
-    first: 0,
-    offset: 0,
-    currentPage: 0,
-    totalElements: 0,
-    countRows: 0,
-    pageSize: 10,
-    pages: 0,
-};
 
 /** Predefined role options (same as TableFilters). */
 const ROLE_OPTIONS = [
@@ -124,47 +120,66 @@ const searchUsers = async (query: string): Promise<HeroUIComboBoxOption[]> => {
         .map((u) => ({id: String(u.id), label: u.name}));
 };
 
+/**
+ * Campos por los que se puede ordenar. Un mapa explicito evita que un id
+ * desconocido (p. ej. la columna "actions") acabe comparando "undefined".
+ */
+const SORTABLE_FIELDS: Record<string, keyof User> = {
+    name: "name",
+    role: "role",
+    status: "status",
+    email: "email",
+};
+
+/** Comparador alfabetico consciente de mayusculas y acentos. */
+const collator = new Intl.Collator("es", {sensitivity: "base", numeric: true});
+
+/**
+ * Simula una busqueda server-side: filtra, ordena y pagina.
+ * Devuelve la pagina completa, no solo las filas visibles.
+ */
+const queryUsers = async (params: FetchParams): Promise<User[]> => {
+    const {offset, pageSize, sorting, filters} = params;
+
+    let result = [...ALL_USERS];
+
+    // Antes los filtros se ignoraban: solo reseteaban la pagina.
+    const name = filters.name?.trim().toLowerCase();
+    if (name) {
+        result = result.filter((u) => u.name.toLowerCase().includes(name));
+    }
+    if (filters.role) {
+        result = result.filter((u) => u.role === filters.role);
+    }
+    if (filters.status && filters.status.length > 0) {
+        const allowed = new Set(filters.status);
+        result = result.filter((u) => allowed.has(u.status));
+    }
+
+    const sort = sorting[0];
+    const field = sort ? SORTABLE_FIELDS[sort.id] : undefined;
+
+    if (sort && field) {
+        const {desc} = sort;
+        result.sort((a, b) => {
+            const cmp = collator.compare(String(a[field]), String(b[field]));
+            return desc ? -cmp : cmp;
+        });
+    }
+
+    await new Promise((r) => setTimeout(r, 600));
+
+    return result.slice(offset, offset + pageSize);
+};
+
 function HeroUIDemo() {
     // --- Table state -------------------------------------------------------
-    const [data, setData] = useState<User[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [paginationOptions, setPaginationOptions] =
-        useState<PaginationOptions>(initialPaginationOptions);
-
-    const fetchData = useCallback(async (params: FetchParams) => {
-        setIsLoading(true);
-        try {
-            const {offset, pageSize, sorting} = params;
-
-            let result = [...ALL_USERS];
-
-            if (sorting.length > 0) {
-                const {id, desc} = sorting[0];
-                result.sort((a, b) => {
-                    const va = String(a[id as keyof User]);
-                    const vb = String(b[id as keyof User]);
-                    return desc ? vb.localeCompare(va) : va.localeCompare(vb);
-                });
-            }
-
-            const paged = result.slice(offset, offset + pageSize);
-
-            await new Promise((r) => setTimeout(r, 600));
-
-            setData(paged);
-            setPaginationOptions({
-                first: offset,
-                offset,
-                currentPage: params.currentPage,
-                totalElements: result.length,
-                countRows: paged.length,
-                pageSize,
-                pages: Math.ceil(result.length / pageSize),
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
+    // Una instancia de estado por tabla: compartirla hacia que paginar u
+    // ordenar una tabla moviera las demas. Cada instancia carga su pagina 1
+    // al montar y descarta las respuestas obsoletas.
+    const tableDefault = useServerTable<User>(queryUsers);
+    const tableSelect = useServerTable<User>(queryUsers);
+    const tableSimple = useServerTable<User>(queryUsers);
 
     // --- ComboBox #1 (single) state ---------------------------------------
     const [options1, setOptions1] = useState<HeroUIComboBoxOption[]>([]);
@@ -224,9 +239,6 @@ function HeroUIDemo() {
     const [selectedRole, setSelectedRole] = useState<string>("");
     /** Multi-selection status filter (mirrors TableFilters status). */
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-
-    // --- Sidebar state -----------------------------------------------------
-    const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
     return (
         <>
@@ -448,7 +460,9 @@ function HeroUIDemo() {
                                 </div>
 
                                 <div>
-                                    <Label> Toggle Buttons</Label>
+                                    {/* Texto de seccion, no una etiqueta: cada boton lleva su
+                                        propio ariaLabel y una <Label> suelta no etiquetaria nada. */}
+                                    <span className="block text-sm font-medium">Toggle Buttons</span>
                                     <div className="flex items-center gap-3">
                                         <HeroUIToggleButton
                                             isIconOnly
@@ -541,8 +555,9 @@ function HeroUIDemo() {
                                 </div>
 
                                 <div>
-                                    <Label> Switch</Label>
-                                    <br/>
+                                    {/* Texto de seccion: el nombre accesible del Switch lo aporta su
+                                        ariaLabel, porque HeroUI v3 no expone una etiqueta visible. */}
+                                    <span className="block text-sm font-medium">Switch</span>
                                     <HeroUISwitch
                                         ariaLabel="Enable notifications"
                                         isSelected={enabled}
@@ -603,7 +618,7 @@ function HeroUIDemo() {
                                         options={STATUS_OPTIONS}
                                         value={selectedStatuses}
                                         placeholder="Select statuses"
-                                        onChange={(keys) => setSelectedStatuses(keys as string[])}
+                                        onChange={setSelectedStatuses}
                                         isRequired
                                         requiredMessage="Please select a item"
                                         tooltip="Filter by status"
@@ -792,10 +807,10 @@ function HeroUIDemo() {
                         <div className="p-4">
                             <HeroUiTable
                                 columns={userColumns}
-                                isLoading={isLoading}
-                                data={data}
-                                paginationOptions={paginationOptions}
-                                fetchData={fetchData}
+                                isLoading={tableDefault.isLoading}
+                                data={tableDefault.data}
+                                paginationOptions={tableDefault.paginationOptions}
+                                fetchData={tableDefault.fetchData}
                                 pageSizeOptions={[5, 10, 25, 50, 100]}
                                 rowHeaderColumnId="name"
                                 filtersConfig={{
@@ -819,10 +834,10 @@ function HeroUIDemo() {
                         <div className="p-4">
                             <HeroUiTable
                                 columns={userColumns}
-                                isLoading={isLoading}
-                                data={data}
-                                paginationOptions={paginationOptions}
-                                fetchData={fetchData}
+                                isLoading={tableSelect.isLoading}
+                                data={tableSelect.data}
+                                paginationOptions={tableSelect.paginationOptions}
+                                fetchData={tableSelect.fetchData}
                                 pageSizeOptions={[5, 10, 25, 50, 100]}
                                 enableSelection
                                 getRowId={(user) => user.id}
@@ -861,10 +876,10 @@ function HeroUIDemo() {
                         <div className="p-4">
                             <HeroUiTable
                                 columns={userColumns}
-                                isLoading={isLoading}
-                                data={data}
-                                paginationOptions={paginationOptions}
-                                fetchData={fetchData}
+                                isLoading={tableSimple.isLoading}
+                                data={tableSimple.data}
+                                paginationOptions={tableSimple.paginationOptions}
+                                fetchData={tableSimple.fetchData}
                                 pageSizeOptions={[5, 10, 25, 50, 100]}
                                 enableSelection
                                 getRowId={(user) => user.id}

@@ -4,6 +4,7 @@
 
 .container {
     /* Height is provided via inline style (default: 300px) */
-    background-color: white;
+    /* Token de superficie: con `white` fijo no seguia el tema. */
+    background-color: var(--surface);
     border-radius: 20px;
 }

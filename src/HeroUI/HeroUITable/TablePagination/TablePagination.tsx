@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Input} from "@heroui/react";
 import HeroUIButton from "../../HeroUIButton/HeroUIButton";
 import HeroUISelect from "../../HeroUISelect/HeroUISelect";
@@ -57,20 +57,29 @@ const TablePagination: React.FC<TablePaginationProps> = ({
                                                              onPageChange,
                                                              onPageSizeChange,
                                                          }) => {
-    /** Local input value for the page number (kept in sync with `currentPage`). */
+    /**
+     * Borrador editable del numero de pagina, junto con la ultima pagina que
+     * recibimos como prop. Si `currentPage` cambia desde fuera, se resincroniza
+     * durante el render (patron "adjusting state when a prop changes" de React)
+     * en lugar de con un efecto, que provocaba un render en cascada.
+     */
     const [pageInput, setPageInput] = useState(String(currentPage));
+    const [lastPage, setLastPage] = useState(currentPage);
 
-    // Sync the local input whenever the page changes externally.
-    useEffect(() => {
+    if (currentPage !== lastPage) {
+        setLastPage(currentPage);
         setPageInput(String(currentPage));
-    }, [currentPage]);
+    }
 
     /**
      * Navigates to a page, clamping it to the valid range
      * and avoiding duplicate `onPageChange` calls.
      */
     const goToPage = (page: number) => {
-        const clamped = Math.min(Math.max(page, 1), totalPages);
+        // Enteros: `Number("2.5")` producia `first = 2.5 * pageSize`.
+        const whole = Math.trunc(page);
+        if (!Number.isFinite(whole)) return;
+        const clamped = Math.min(Math.max(whole, 1), totalPages);
         if (clamped !== currentPage) {
             onPageChange(clamped);
         }
@@ -82,7 +91,7 @@ const TablePagination: React.FC<TablePaginationProps> = ({
      */
     const commitPageInput = () => {
         const parsed = Number(pageInput);
-        if (!Number.isNaN(parsed)) {
+        if (pageInput.trim() !== "" && !Number.isNaN(parsed)) {
             goToPage(parsed);
         } else {
             setPageInput(String(currentPage));

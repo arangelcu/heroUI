@@ -51,7 +51,6 @@ export function HeroUIAlertDialog({
                                       onConfirm,
                                       onCancel,
                                       trigger,
-                                      triggerClassName,
                                   }: HeroUIAlertDialogProps) {
     const state = useOverlayState();
 

@@ -193,11 +193,27 @@ const HeroUIPhone: React.FC<HeroUIPhoneProps> = ({
     /** Last value emitted to the parent — avoids duplicate `onChange` calls. */
     const lastEmittedRef = useRef<string>(value);
 
+    /**
+     * Mientras el usuario tiene el foco, el prop `value` no debe pisar lo que
+     * esta escribiendo. Sin esta guarda, bajar de `minChars` emite `onChange("")`,
+     * el padre pone `value=""` y este efecto borraba el texto recien escrito.
+     */
+    const isEditingRef = useRef(false);
+
     // Sync with external `value`.
     useEffect(() => {
-        setLocalValue(value);
+        if (!isEditingRef.current) {
+            setLocalValue(value);
+        }
         lastEmittedRef.current = value;
     }, [value]);
+
+    /**
+     * El error de obligatorio no se muestra hasta que el usuario interactua: sin
+     * esto el campo nacia en rojo con su mensaje ya visible. Un numero mal formado
+     * si se avisa de inmediato, porque ya hay algo escrito.
+     */
+    const [isTouched, setIsTouched] = useState(false);
 
     /**
      * Validates the current phone value.
@@ -211,7 +227,7 @@ const HeroUIPhone: React.FC<HeroUIPhoneProps> = ({
         const trimmed = val.trim();
 
         if (isRequired && trimmed === "") {
-            return requiredMessage;
+            return isTouched ? requiredMessage : null;
         }
 
         if (trimmed !== "" && !phoneRegex.test(trimmed)) {
@@ -258,7 +274,7 @@ const HeroUIPhone: React.FC<HeroUIPhoneProps> = ({
 
     const field = (
         <TextField
-            aria-label={placeholder}
+            aria-label={label ? undefined : placeholder}
             className={`${styles.container} ${className}`.trim()}
             name={name}
             type="tel"
@@ -269,6 +285,13 @@ const HeroUIPhone: React.FC<HeroUIPhoneProps> = ({
             validationBehavior="aria"
             style={{width}}
             onChange={handleChange}
+            onFocus={() => {
+                isEditingRef.current = true;
+            }}
+            onBlur={() => {
+                isEditingRef.current = false;
+                setIsTouched(true);
+            }}
         >
             {label && <Label>{label}</Label>}
 

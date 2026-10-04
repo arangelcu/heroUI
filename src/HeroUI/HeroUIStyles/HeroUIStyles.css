@@ -1,4 +1,7 @@
-@import "tailwindcss";
+/* `@heroui/styles` ya hace `@import "tailwindcss"` (y declara las capas
+   theme/base/components/utilities), asi que importarlo aqui ademas duplicaba el
+   preflight de Tailwind en el bundle. Con esta unica linea ya funcionan los
+   `@apply` de abajo. */
 @import "@heroui/styles";
 
 @layer components {
@@ -6,21 +9,16 @@
         @apply relative grid w-full overflow-clip;
     }
 
-    .table__header {
-        @apply bg-gray-100;
-    }
-
+    /* Los slots de la tabla los pinta HeroUI con tokens del tema. Fijar aqui
+       colores de la paleta por defecto de Tailwind (bg-white, bg-gray-100)
+       anulaba los presets: la tabla quedaba blanca/gris en TODOS los temas.
+       Se dejan sin color propio para que manden los tokens. */
     .table__column {
-        @apply px-4 py-2.5 text-left text-xs font-medium text-gray-600;
-    }
-
-    .table__row {
-        @apply bg-white border-b border-gray-200;
+        @apply px-4 py-2.5 text-left text-xs font-medium text-muted;
     }
 
     .table__cell {
         @apply px-4 py-3 text-sm;
-        @apply bg-white;
     }
 
     .table__footer {
@@ -28,14 +26,19 @@
     }
 }
 
-.table-root,
-.table__scroll-container {
-    border: none !important;
-}
-
+/* `.table-root` y `.table__scroll-container` no llevan borde en HeroUI: la regla
+   anterior era un no-op y, al estar fuera de capa con !important, escapaba del
+   sistema de capas. Eliminada. */
 
 :root {
-    --loader-primary: #000;
-    --loader-secondary: #000;
-    --loader-bg: #000;
+    /* El loader usa estos tokens; con negro puro quedaba ajeno al tema. */
+    --loader-primary: var(--accent);
+    --loader-secondary: var(--muted);
+    --loader-bg: var(--surface);
+
+    /* HeroUI deja `--field-border-width` en 0px y los inputs usan ese valor como
+       border-width, asi que definir `--field-border` (color) no basta: sin ancho
+       el borde no se ve. Los presets del proyecto definen el color; aqui se le da
+       grosor. */
+    --field-border-width: var(--border-width);
 }

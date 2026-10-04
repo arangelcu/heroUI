@@ -1,12 +1,6 @@
 import React from "react";
-import {Toast, ToastQueue} from "@heroui/react";
-
-// Cola global — creada una sola vez
-const toastQueue = new ToastQueue({
-    maxVisibleToasts: 3,
-    // Workaround para el jank en Edge:
-    // wrapUpdate: (fn) => fn(),
-});
+import {Toast} from "@heroui/react";
+import {toastQueue} from "./toastQueue";
 
 export function HeroUIProvider({children}: { children: React.ReactNode }) {
     return (
@@ -16,5 +10,3 @@ export function HeroUIProvider({children}: { children: React.ReactNode }) {
         </>
     );
 }
-
-export {toastQueue};

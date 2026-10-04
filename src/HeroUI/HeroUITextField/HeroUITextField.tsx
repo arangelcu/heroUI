@@ -89,8 +89,17 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastEmittedRef = useRef<string>(value);
 
+    /**
+     * Mientras el usuario tiene el foco, el prop `value` no debe pisar lo que
+     * esta escribiendo. Sin esta guarda, bajar de `minChars` emite `onChange("")`,
+     * el padre pone `value=""` y este efecto borraba el texto recien escrito.
+     */
+    const isEditingRef = useRef(false);
+
     useEffect(() => {
-        setLocalValue(value);
+        if (!isEditingRef.current) {
+            setLocalValue(value);
+        }
         lastEmittedRef.current = value;
     }, [value]);
 
@@ -120,9 +129,16 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
      * 2. Internal validation via `handleValidate`.
      * 3. No error.
      */
+    /**
+     * El error no se muestra hasta que el usuario interactua: sin esto el campo
+     * obligatorio nacia en rojo con su mensaje ya visible.
+     */
+    const [isTouched, setIsTouched] = useState(false);
+
     const internalError = handleValidate(localValue);
     const finalIsInvalid = isInvalid || internalError !== null;
-    const errorMessage = isInvalid ? invalidMessage : internalError ?? "";
+    // El mensaje tambien respeta `isTouched` para que no aparezca al montar.
+    const errorMessage = isInvalid ? invalidMessage : (isTouched ? internalError ?? "" : "");
 
     const handleChange = (raw: string) => {
         setLocalValue(raw);
@@ -154,43 +170,78 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
         };
     }, []);
 
+    /**
+     * El nombre accesible lo aporta la `<Label>` visible cuando existe. Si se pasa
+     * `aria-label` ademas, React Aria deja de asociar la etiqueta visible al control
+     * (el `<Label>` no recibe id/htmlFor y no enfoca al hacer clic) y el lector
+     * anuncia el aria-label en lugar del texto visible. Por eso solo se usa como
+     * respaldo cuando no hay etiqueta visible.
+     */
+    const ariaLabelProps = label ? {} : {"aria-label": placeholder};
+
+    /** Props compartidos por las dos ramas de render (con y sin tooltip). */
+    const textFieldProps = {
+        ...ariaLabelProps,
+        className: `${styles.container} ${className}`.trim(),
+        name,
+        type,
+        value: localValue,
+        isDisabled,
+        isRequired,
+        isInvalid: isTouched && finalIsInvalid,
+        validationBehavior: "aria" as const,
+        style: {width},
+        onChange: handleChange,
+        onFocus: () => {
+            isEditingRef.current = true;
+        },
+        onBlur: () => {
+            isEditingRef.current = false;
+            setIsTouched(true);
+        },
+    };
+
+    /**
+     * El tooltip envuelve SOLO el InputGroup, que es un elemento real: React Aria
+     * coloca los props del trigger sobre ese nodo. Un Fragment no sirve como
+     * trigger (no es un elemento del DOM), y `Tooltip.Trigger` añadiria un
+     * <div role="button"> con tabIndex=0, es decir un tab stop de mas por campo.
+     */
+    const inputGroup = (
+        <InputGroup className="rounded-[5px]">
+            {startIcon && (
+                <InputGroup.Prefix>
+                    <Icon className="size-4 text-muted" icon={startIcon}/>
+                </InputGroup.Prefix>
+            )}
+
+            <InputGroup.Input
+                className={inputClassName}
+                placeholder={placeholder}
+            />
+
+            {endIcon && (
+                <InputGroup.Suffix>
+                    <Icon className="size-4 text-muted" icon={endIcon}/>
+                </InputGroup.Suffix>
+            )}
+        </InputGroup>
+    );
+
+    /** Mensaje de error: solo se pinta cuando el campo es invalido. */
+    const error = <FieldError>{errorMessage}</FieldError>;
+
+    /**
+     * El tooltip usa `Tooltip.Trigger` a proposito: ese wrapper es el elemento
+     * focusable (la libreria le aplica `useFocusable`), y es lo que hace que el
+     * tooltip se pueda abrir con el teclado. Pasar el campo directamente como hijo
+     * haria que solo se abriera con el raton, empeorando la accesibilidad.
+     */
     const field = (
-        <TextField
-            aria-label={placeholder}
-            className={`${styles.container} ${className}`.trim()}
-            name={name}
-            type={type}
-            value={localValue}
-            isDisabled={isDisabled}
-            isRequired={isRequired}
-            isInvalid={finalIsInvalid}
-            validationBehavior="aria"
-            style={{width}}
-            onChange={handleChange}
-        >
+        <TextField {...textFieldProps}>
             {label && <Label>{label}</Label>}
-
-            <InputGroup className="rounded-[5px]">
-                {startIcon && (
-                    <InputGroup.Prefix>
-                        <Icon className="size-4 text-muted" icon={startIcon}/>
-                    </InputGroup.Prefix>
-                )}
-
-                <InputGroup.Input
-                    className={inputClassName}
-                    placeholder={placeholder}
-                />
-
-                {endIcon && (
-                    <InputGroup.Suffix>
-                        <Icon className="size-4 text-muted" icon={endIcon}/>
-                    </InputGroup.Suffix>
-                )}
-            </InputGroup>
-
-            {/* Shows the correct message based on the source of invalidity */}
-            <FieldError>{errorMessage}</FieldError>
+            {inputGroup}
+            {error}
         </TextField>
     );
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {ComboBox, FieldError, Input, Label, ListBox, Spinner, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 
@@ -119,7 +119,10 @@ const HeroUIComboBox: React.FC<HeroUIComboBoxProps> = ({
      * The field is invalid when it's required but has no value.
      * An empty string also counts as empty.
      */
-    const isInvalid = isRequired && (!value || value === "");
+    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    const [isTouched, setIsTouched] = useState(false);
+
+    const isInvalid = isTouched && isRequired && (!value || value === "");
 
     /**
      * Wraps `onInputChange` to detect when the user clears the input.
@@ -141,7 +144,7 @@ const HeroUIComboBox: React.FC<HeroUIComboBoxProps> = ({
 
     const field = (
         <ComboBox
-            aria-label={ariaLabel}
+            aria-label={label ? undefined : ariaLabel}
             className={`rounded-[5px] ${className}`.trim()}
             style={{width}}
             selectedKey={value ?? null}
@@ -152,6 +155,7 @@ const HeroUIComboBox: React.FC<HeroUIComboBoxProps> = ({
             isRequired={isRequired}
             isInvalid={isInvalid}
             validationBehavior="aria"
+            onBlur={() => setIsTouched(true)}
             menuTrigger="focus"
             allowsEmptyCollection
         >

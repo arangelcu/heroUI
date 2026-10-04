@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {DateField, FieldError, Label, TimeField, type TimeValue, Tooltip} from "@heroui/react";
 
 /**
@@ -135,11 +135,14 @@ const HeroUITimeField: React.FC<HeroUITimeFieldProps> = ({
      * The field is invalid when it's required but has no value.
      * `null` and `undefined` both count as empty.
      */
-    const isInvalid = isRequired && (value === null || value === undefined);
+    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    const [isTouched, setIsTouched] = useState(false);
+
+    const isInvalid = isTouched && isRequired && (value === null || value === undefined);
 
     const field = (
         <TimeField
-            aria-label={ariaLabel}
+            aria-label={label ? undefined : ariaLabel}
             className={className}
             style={{width}}
             value={value}
@@ -148,6 +151,7 @@ const HeroUITimeField: React.FC<HeroUITimeFieldProps> = ({
             isRequired={isRequired}
             isInvalid={isInvalid}
             validationBehavior="aria"
+            onBlur={() => setIsTouched(true)}
         >
             {label && <Label>{label}</Label>}
 

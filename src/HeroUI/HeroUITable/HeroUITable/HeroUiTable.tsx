@@ -234,6 +234,9 @@ export function HeroUiTable<TData extends RowData>({
         manualPagination: true,
         manualSorting: true,
         rowCount: total,
+        // Sin esto TanStack llavea las filas por indice ("0".."9") mientras la
+        // seleccion usa `getRowId`: dos sistemas de identidad en paralelo.
+        getRowId: (row: TData) => String(getRowId(row)),
         onSortingChange: setSorting,
         state: {sorting, pagination: {pageIndex, pageSize}},
     });
@@ -406,10 +409,12 @@ export function HeroUiTable<TData extends RowData>({
 
                 {/* Data columns */}
                 {table.getHeaderGroups()[0]?.headers.map((header) => {
-                    const canSort =
-                        header.column.getCanSort() &&
-                        "accessorFn" in header.column.columnDef &&
-                        !!header.column.columnDef.accessorFn;
+                    // `getCanSort()` ya tiene en cuenta la feature de sorting y el
+                    // accessor. Antes se comprobaba `accessorFn` en `columnDef`, pero
+                    // TanStack v9 lo calcula sobre la instancia de la columna, no en
+                    // la definicion, asi que aquella condicion era siempre falsa y
+                    // ninguna columna llegaba a ser ordenable.
+                    const canSort = header.column.getCanSort();
                     const colDef = header.column.columnDef as any;
                     const isLast = table.getHeaderGroups()[0]?.headers.slice(-1)[0]?.id === header.id;
 
@@ -446,7 +451,7 @@ export function HeroUiTable<TData extends RowData>({
                     <Table.Row
                         key={row.id}
                         id={String(getRowId(row.original))}
-                        className="border-b border-border bg-white hover:bg-[var(--surface-secondary)]/20"
+                        className="border-b border-border bg-surface hover:bg-surface-hover"
                     >
                         {/* Selection cell */}
                         {enableSelection && (
@@ -494,6 +499,7 @@ export function HeroUiTable<TData extends RowData>({
         <>
             {filtersConfig && (
                 <TableFilters
+                    filters={filters}
                     startIcon={filtersConfig.startIcon}
                     start={filtersConfig.start}
                     end={filtersConfig.end}

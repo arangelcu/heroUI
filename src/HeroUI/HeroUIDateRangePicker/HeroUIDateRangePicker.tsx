@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {DateField, DateRangePicker, FieldError, Label, RangeCalendar, Tooltip,} from "@heroui/react";
 import type {DateValue} from "@internationalized/date";
 import {Icon} from "@iconify/react";
@@ -91,7 +91,10 @@ const HeroUIDateRangePicker: React.FC<HeroUIDateRangePickerProps> = ({
     /**
      * The field is invalid when it's required but has no value.
      */
-    const isInvalid = isRequired && !hasValue;
+    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    const [isTouched, setIsTouched] = useState(false);
+
+    const isInvalid = isTouched && isRequired && !hasValue;
 
     /**
      * Dynamic font size class applied to the DateField.Group.
@@ -102,7 +105,7 @@ const HeroUIDateRangePicker: React.FC<HeroUIDateRangePickerProps> = ({
 
     const field = (
         <DateRangePicker
-            aria-label={ariaLabel}
+            aria-label={label ? undefined : ariaLabel}
             className={className}
             style={{width}}
             value={value}
@@ -111,6 +114,7 @@ const HeroUIDateRangePicker: React.FC<HeroUIDateRangePickerProps> = ({
             isRequired={isRequired}
             isInvalid={isInvalid}
             validationBehavior="aria"
+            onBlur={() => setIsTouched(true)}
         >
             {label && <Label>{label}</Label>}
 
@@ -143,7 +147,9 @@ const HeroUIDateRangePicker: React.FC<HeroUIDateRangePickerProps> = ({
             <FieldError>{requiredMessage}</FieldError>
 
             <DateRangePicker.Popover className="rounded-[5px]">
-                <RangeCalendar aria-label={ariaLabel}>
+                {/* El calendario del popup no tiene etiqueta visible propia: conserva
+                    un nombre accesible, con la etiqueta del campo como respaldo. */}
+                <RangeCalendar aria-label={ariaLabel ?? label}>
                     <RangeCalendar.Header>
                         <RangeCalendar.YearPickerTrigger>
                             <RangeCalendar.YearPickerTriggerHeading/>

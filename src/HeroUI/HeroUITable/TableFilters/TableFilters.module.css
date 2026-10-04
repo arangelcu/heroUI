@@ -2,8 +2,6 @@
    Container
    ========================================================================== */
 
-/* TableFilters.module.css */
-/* TableFilters.module.css */
 .container {
     display: flex;
     flex-wrap: wrap;
@@ -12,8 +10,8 @@
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.50rem 1rem;
-    background-color: white;
-
+    /* Token de superficie: con `white` fijo la barra no seguia el tema. */
+    background-color: var(--surface);
 }
 
 

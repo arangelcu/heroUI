@@ -925,8 +925,6 @@
         --default: oklch(94% 0.018 22.99);
         --default-foreground: oklch(21.03% 0.0059 22.99);
 
-        /* 👇 Hover de filas de tabla — igual que Uber, bien marcado */
-        --default-100: oklch(88% 0.035 22.99);
 
         /* ---- Muted ---- */
         --muted: oklch(55.17% 0.028 22.99);
@@ -945,14 +943,10 @@
         /* ⭐ surface-secondary — coral claro (B) */
         --surface-secondary: oklch(86% 0.072 22.99);
         --surface-secondary-foreground: oklch(21.03% 0.012 22.99);
-        --surface-secondary-hover: oklch(82% 0.086 22.99);
-        --surface-secondary-hover-foreground: oklch(21.03% 0.012 22.99);
 
         /* ⭐ surface-tertiary — #E57373 coral PURO */
         --surface-tertiary: oklch(70.09% 0.1345 22.99);
         --surface-tertiary-foreground: oklch(99.11% 0 0);
-        --surface-tertiary-hover: oklch(66.5% 0.1405 22.99);
-        --surface-tertiary-hover-foreground: oklch(99.11% 0 0);
 
         /* ---- Borders & separators ---- */
         --border: oklch(85% 0.048 22.99);
@@ -1021,14 +1015,10 @@
         /* ⭐ surface-secondary — coral oscuro suave (B) */
         --surface-secondary: oklch(33% 0.060 22.99);
         --surface-secondary-foreground: oklch(99.11% 0.012 22.99);
-        --surface-secondary-hover: oklch(38% 0.076 22.99);
-        --surface-secondary-hover-foreground: oklch(99.11% 0.012 22.99);
 
         /* ⭐ surface-tertiary — #E57373 coral (más saturado en dark) */
         --surface-tertiary: oklch(62% 0.135 22.99);
         --surface-tertiary-foreground: oklch(99.11% 0 0);
-        --surface-tertiary-hover: oklch(58% 0.1405 22.99);
-        --surface-tertiary-hover-foreground: oklch(99.11% 0 0);
 
         /* ---- Borders & separators ---- */
         --border: oklch(32% 0.045 22.99);
@@ -1080,8 +1070,6 @@
         --default: oklch(94% 0.018 144.02);
         --default-foreground: oklch(21.03% 0.0059 144.02);
 
-        /* 👇 Hover de filas de tabla — igual que SMS, bien marcado */
-        --default-100: oklch(88% 0.040 144.02);
 
         /* ---- Muted ---- */
         --muted: oklch(55.17% 0.028 144.02);
@@ -1100,14 +1088,10 @@
         /* ⭐ surface-secondary — verde claro */
         --surface-secondary: oklch(86% 0.072 144.02);
         --surface-secondary-foreground: oklch(21.03% 0.012 144.02);
-        --surface-secondary-hover: oklch(82% 0.086 144.02);
-        --surface-secondary-hover-foreground: oklch(21.03% 0.012 144.02);
 
         /* ⭐ surface-tertiary — #4daf51 verde PURO */
         --surface-tertiary: oklch(66.29% 0.1518 144.02);
         --surface-tertiary-foreground: oklch(99.11% 0 0);
-        --surface-tertiary-hover: oklch(62.5% 0.158 144.02);
-        --surface-tertiary-hover-foreground: oklch(99.11% 0 0);
 
         /* ---- Borders & separators ---- */
         --border: oklch(85% 0.048 144.02);
@@ -1176,14 +1160,10 @@
         /* ⭐ surface-secondary — verde oscuro suave */
         --surface-secondary: oklch(33% 0.060 144.02);
         --surface-secondary-foreground: oklch(99.11% 0.012 144.02);
-        --surface-secondary-hover: oklch(38% 0.076 144.02);
-        --surface-secondary-hover-foreground: oklch(99.11% 0.012 144.02);
 
         /* ⭐ surface-tertiary — #4daf51 verde (más saturado en dark) */
         --surface-tertiary: oklch(58% 0.155 144.02);
         --surface-tertiary-foreground: oklch(99.11% 0 0);
-        --surface-tertiary-hover: oklch(54% 0.162 144.02);
-        --surface-tertiary-hover-foreground: oklch(99.11% 0 0);
 
         /* ---- Borders & separators ---- */
         --border: oklch(32% 0.045 144.02);

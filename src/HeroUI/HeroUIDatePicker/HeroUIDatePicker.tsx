@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {Calendar, DateField, DatePicker, FieldError, Label, Tooltip,} from "@heroui/react";
 import type {CalendarDate} from "@internationalized/date";
 import {Icon} from "@iconify/react";
@@ -122,11 +122,14 @@ const HeroUIDatePicker: React.FC<HeroUIDatePickerProps> = ({
      * The field is invalid when it's required but has no value.
      * `null` and `undefined` both count as empty.
      */
-    const isInvalid = isRequired && (value === null || value === undefined);
+    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    const [isTouched, setIsTouched] = useState(false);
+
+    const isInvalid = isTouched && isRequired && (value === null || value === undefined);
 
     const field = (
         <DatePicker
-            aria-label={ariaLabel}
+            aria-label={label ? undefined : ariaLabel}
             className={className}
             style={{width}}
             value={value}
@@ -135,6 +138,7 @@ const HeroUIDatePicker: React.FC<HeroUIDatePickerProps> = ({
             isRequired={isRequired}
             isInvalid={isInvalid}
             validationBehavior="aria"
+            onBlur={() => setIsTouched(true)}
         >
             {label && <Label>{label}</Label>}
 
@@ -160,7 +164,9 @@ const HeroUIDatePicker: React.FC<HeroUIDatePickerProps> = ({
             <FieldError>{requiredMessage}</FieldError>
 
             <DatePicker.Popover className="rounded-[5px]">
-                <Calendar aria-label={ariaLabel}>
+                {/* El calendario del popup no tiene etiqueta visible propia: conserva
+                    un nombre accesible, con la etiqueta del campo como respaldo. */}
+                <Calendar aria-label={ariaLabel ?? label}>
                     {/* Header with year picker trigger + nav buttons */}
                     <Calendar.Header>
                         <Calendar.YearPickerTrigger>
