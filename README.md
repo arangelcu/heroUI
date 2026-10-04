@@ -1,4 +1,4 @@
-# mi-app
+# icore-rcm-fe
 
 Demo de componentes sobre **HeroUI v3 + React 19 + TanStack Table v9**, con una capa
 propia de wrappers en `src/HeroUI/`.

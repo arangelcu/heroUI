@@ -4,6 +4,7 @@ import HeroUIIconButton from "../../HeroUIIConButton/HeroUIIconButton";
 import HeroUISelect from "../../HeroUISelect/HeroUISelect";
 import HeroUITextField from "../../HeroUITextField/HeroUITextField";
 import {Icon} from "@iconify/react";
+import {ROLE_OPTIONS, STATUS_OPTIONS} from "./filterOptions";
 
 export interface FilterValues {
     name?: string;
@@ -33,19 +34,6 @@ interface TableFiltersProps {
     namePlaceholder?: string;
     className?: string;
 }
-
-const ROLE_OPTIONS = [
-    {id: "CEO", label: "CEO"},
-    {id: "CTO", label: "CTO"},
-    {id: "CMO", label: "CMO"},
-    {id: "Engineer", label: "Engineer"},
-];
-
-const STATUS_OPTIONS = [
-    {id: "Active", label: "Active"},
-    {id: "Inactive", label: "Inactive"},
-    {id: "On Leave", label: "On Leave"},
-];
 
 const TableFilters: React.FC<TableFiltersProps> = ({
                                                        filters,

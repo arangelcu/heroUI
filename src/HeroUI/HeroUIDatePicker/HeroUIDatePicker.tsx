@@ -2,22 +2,8 @@ import React, {useState} from "react";
 import {Calendar, DateField, DatePicker, FieldError, Label, Tooltip,} from "@heroui/react";
 import type {CalendarDate} from "@internationalized/date";
 import {Icon} from "@iconify/react";
+import type {HeroUITooltipConfig} from "../types";
 
-/**
- * Configuration for the tooltip shown on the date picker.
- */
-export interface HeroUITooltipConfig {
-    /** Tooltip content. Accepts a string or ReactNode. */
-    text: React.ReactNode;
-    /** Tooltip placement relative to the field. Defaults to `"top"`. */
-    placement?: "top" | "bottom" | "left" | "right";
-    /** Shows or hides the tooltip arrow. Defaults to `false`. */
-    showArrow?: boolean;
-    /** Delay in ms before showing the tooltip. Defaults to `0`. */
-    delay?: number;
-    /** Additional CSS classes for the tooltip content. */
-    className?: string;
-}
 
 interface HeroUIDatePickerProps {
     /** Aria label for accessibility. Defaults to `"Date picker"`. */

@@ -1,25 +1,8 @@
 import React from "react";
 import {Switch, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
+import type {HeroUITooltipConfig} from "../types";
 
-/**
- * Configuration for the tooltip shown on the switch.
- *
- * Can be provided either as a plain string (shorthand for just the text)
- * or as this full object for finer control.
- */
-export interface HeroUITooltipConfig {
-    /** Tooltip content. Accepts a string or ReactNode. */
-    text: React.ReactNode;
-    /** Tooltip placement relative to the switch. Defaults to `"top"`. */
-    placement?: "top" | "bottom" | "left" | "right";
-    /** Shows or hides the tooltip arrow. Defaults to `false`. */
-    showArrow?: boolean;
-    /** Delay in ms before showing the tooltip. Defaults to `0`. */
-    delay?: number;
-    /** Additional CSS classes for the tooltip content. */
-    className?: string;
-}
 
 /**
  * Configuration for the icons inside the switch thumb.

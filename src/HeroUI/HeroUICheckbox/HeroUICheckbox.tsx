@@ -1,13 +1,7 @@
 import React from "react";
 import {Checkbox, Tooltip} from "@heroui/react";
+import type {HeroUITooltipConfig} from "../types";
 
-export interface HeroUITooltipConfig {
-    text: React.ReactNode;
-    placement?: "top" | "bottom" | "left" | "right";
-    showArrow?: boolean;
-    delay?: number;
-    className?: string;
-}
 
 interface HeroUICheckboxProps {
     ariaLabel?: string;

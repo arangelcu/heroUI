@@ -2,16 +2,8 @@ import React, {useEffect, useRef, useState} from "react";
 import {FieldError, InputGroup, Label, TextField, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import styles from "./HeroUITextField.module.css";
+import type {HeroUITooltipConfig} from "../types";
 
-type TooltipPlacement = "top" | "bottom" | "left" | "right";
-
-export interface HeroUITooltipConfig {
-    text: React.ReactNode;
-    placement?: TooltipPlacement;
-    showArrow?: boolean;
-    delay?: number;
-    className?: string;
-}
 
 interface HeroUITextFieldProps {
     name?: string;

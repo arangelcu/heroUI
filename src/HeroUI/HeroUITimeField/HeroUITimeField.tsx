@@ -1,29 +1,7 @@
 import React, {useState} from "react";
 import {DateField, FieldError, Label, TimeField, type TimeValue, Tooltip} from "@heroui/react";
+import type {HeroUITooltipConfig} from "../types";
 
-/**
- * Valid tooltip placements for HeroUI v3.
- * Uses hyphens (not spaces) as required by React Aria.
- */
-type TooltipPlacement = "top" | "bottom" | "left" | "right";
-
-/**
- * Configuration for the tooltip shown on the time field.
- *
- * Accepts either a plain string (shorthand) or this full object.
- */
-export interface HeroUITooltipConfig {
-    /** Tooltip content. Accepts a string or ReactNode. */
-    text: React.ReactNode;
-    /** Tooltip placement relative to the field. Defaults to `"top"`. */
-    placement?: TooltipPlacement;
-    /** Shows or hides the tooltip arrow. Defaults to `false`. */
-    showArrow?: boolean;
-    /** Delay in ms before showing the tooltip. Defaults to `0`. */
-    delay?: number;
-    /** Additional CSS classes for the tooltip content. */
-    className?: string;
-}
 
 /**
  * Props for `HeroUITimeField`.

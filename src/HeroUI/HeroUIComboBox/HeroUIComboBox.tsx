@@ -1,24 +1,8 @@
 import React, {useState} from "react";
 import {ComboBox, FieldError, Input, Label, ListBox, Spinner, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
+import type {HeroUITooltipConfig} from "../types";
 
-type TooltipPlacement = "top" | "bottom" | "left" | "right";
-
-/**
- * Configuration for the tooltip that wraps the ComboBox.
- */
-export interface HeroUITooltipConfig {
-    /** Tooltip content. Accepts a string or ReactNode. */
-    text: React.ReactNode;
-    /** Tooltip placement relative to the trigger. Defaults to `"top"`. */
-    placement?: TooltipPlacement;
-    /** Shows or hides the tooltip arrow. Defaults to `false`. */
-    showArrow?: boolean;
-    /** Delay in ms before showing the tooltip. Defaults to `0`. */
-    delay?: number;
-    /** Additional CSS classes for the tooltip content. */
-    className?: string;
-}
 
 /**
  * Single option rendered inside the ComboBox `ListBox`.

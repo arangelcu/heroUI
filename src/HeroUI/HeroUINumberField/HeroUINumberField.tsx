@@ -1,14 +1,8 @@
 import React, {useState} from "react";
 import {FieldError, Label, NumberField, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
+import type {HeroUITooltipConfig} from "../types";
 
-export interface HeroUITooltipConfig {
-    text: React.ReactNode;
-    placement?: "top" | "bottom" | "left" | "right";
-    showArrow?: boolean;
-    delay?: number;
-    className?: string;
-}
 
 interface HeroUINumberFieldProps {
     ariaLabel?: string;

@@ -2,7 +2,7 @@ import React from "react";
 import {Button, useTheme} from "@heroui/react";
 
 /**
- * Presets definidos en `HeroUIThemes.module.css`.
+ * Presets definidos en `HeroUIThemes.css`.
  *
  * Deben coincidir con los bloques `[data-theme="..."]` de ese archivo: antes solo
  * se ofrecian tres botones (light/sms/rcm) y los otros doce presets viajaban en el

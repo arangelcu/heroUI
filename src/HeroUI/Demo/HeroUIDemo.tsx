@@ -4,6 +4,7 @@ import {Card, type TimeValue} from "@heroui/react";
 import {HeroUIThemes} from "../HeroUIStyles/HeroUIThemes";
 import {FetchParams, HeroUiTable} from "../HeroUITable/HeroUITable/HeroUiTable";
 import {useServerTable} from "./useServerTable";
+import {ROLE_OPTIONS, STATUS_OPTIONS,} from "../HeroUITable/TableFilters/filterOptions";
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
 import HeroUIButton from "../HeroUIButton/HeroUIButton";
 import HeroUITimeField from "../HeroUITimeField/HeroUITimeField";
@@ -92,21 +93,6 @@ const ALL_USERS: User[] = Array.from({length: 57}, (_, i) => ({
     status: STATUSES[i % STATUSES.length] ?? STATUSES[0],
     email: `user${i + 1}@acme.com`,
 }));
-
-/** Predefined role options (same as TableFilters). */
-const ROLE_OPTIONS = [
-    {id: "CEO", label: "CEO"},
-    {id: "CTO", label: "CTO"},
-    {id: "CMO", label: "CMO"},
-    {id: "Engineer", label: "Engineer"},
-];
-
-/** Predefined status options (same as TableFilters). */
-const STATUS_OPTIONS = [
-    {id: "Active", label: "Active"},
-    {id: "Inactive", label: "Inactive"},
-    {id: "On Leave", label: "On Leave"},
-];
 
 /**
  * Simula una búsqueda server-side.
@@ -618,7 +604,9 @@ function HeroUIDemo() {
                                         options={STATUS_OPTIONS}
                                         value={selectedStatuses}
                                         placeholder="Select statuses"
-                                        onChange={setSelectedStatuses}
+                                        // El onChange declara la union string | string[]; en
+                                        // modo multiple el valor es siempre string[].
+                                        onChange={(keys) => setSelectedStatuses(keys as string[])}
                                         isRequired
                                         requiredMessage="Please select a item"
                                         tooltip="Filter by status"

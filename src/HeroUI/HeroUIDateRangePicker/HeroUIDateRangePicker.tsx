@@ -2,21 +2,13 @@ import React, {useState} from "react";
 import {DateField, DateRangePicker, FieldError, Label, RangeCalendar, Tooltip,} from "@heroui/react";
 import type {DateValue} from "@internationalized/date";
 import {Icon} from "@iconify/react";
+import type {HeroUITooltipConfig} from "../types";
 
 interface RangeValue<T> {
     start: T;
     end: T;
 }
 
-type TooltipPlacement = "top" | "bottom" | "left" | "right";
-
-export interface HeroUITooltipConfig {
-    text: React.ReactNode;
-    placement?: TooltipPlacement;
-    showArrow?: boolean;
-    delay?: number;
-    className?: string;
-}
 
 interface HeroUIDateRangePickerProps {
     ariaLabel?: string;

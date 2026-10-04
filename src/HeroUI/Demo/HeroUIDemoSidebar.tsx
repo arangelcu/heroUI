@@ -88,7 +88,9 @@ export default function HeroUIDemoSidebar({
 
     return (
         <aside
-            className="fixed left-0 bottom-0 z-30 flex flex-col bg-surface-secondary/40 backdrop-blur-sm transition-[width] duration-200 ease-out hidden"
+            /* El `hidden` que tenia esta clase impedia que el sidebar se viera
+               alguna vez, aunque el componente estaba completo. */
+            className="fixed left-0 bottom-0 z-30 flex flex-col bg-surface-secondary/40 backdrop-blur-sm transition-[width] duration-200 ease-out"
             style={{
                 top: `${topOffset}px`,
                 width: `${width}px`,

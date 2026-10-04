@@ -2,31 +2,8 @@ import React, {useEffect, useRef, useState} from "react";
 import {FieldError, InputGroup, Label, TextField, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import styles from "./HeroUIPhone.module.css";
+import type {HeroUITooltipConfig} from "../types";
 
-/**
- * Valid tooltip placements for HeroUI v3.
- */
-type TooltipPlacement =
-    | "top"
-    | "bottom"
-    | "left"
-    | "right";
-
-/**
- * Configuration for the tooltip shown on the phone field.
- */
-export interface HeroUITooltipConfig {
-    /** Text or content displayed inside the tooltip */
-    text: React.ReactNode;
-    /** Placement of the tooltip relative to the field */
-    placement?: TooltipPlacement;
-    /** Whether to render a small arrow pointing at the field */
-    showArrow?: boolean;
-    /** Delay (ms) before the tooltip appears */
-    delay?: number;
-    /** Extra classes for the tooltip content */
-    className?: string;
-}
 
 /**
  * Props for `HeroUIPhone`.

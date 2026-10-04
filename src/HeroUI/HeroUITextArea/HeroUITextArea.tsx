@@ -1,16 +1,7 @@
 import React, {useState} from "react";
 import {FieldError, Label, TextArea, TextField, Tooltip} from "@heroui/react";
+import type {HeroUITooltipConfig} from "../types";
 
-/**
- * Configuration for the tooltip that wraps the text area.
- */
-export interface HeroUITooltipConfig {
-    text: React.ReactNode;
-    placement?: "top" | "bottom" | "left" | "right";
-    showArrow?: boolean;
-    delay?: number;
-    className?: string;
-}
 
 interface HeroUITextAreaProps {
     ariaLabel?: string;
