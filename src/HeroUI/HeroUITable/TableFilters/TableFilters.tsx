@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-// @ts-ignore
+import React, {useState} from "react";
 import styles from "./TableFilters.module.css";
 import HeroUIIconButton from "../../HeroUIIConButton/HeroUIIconButton";
 import HeroUISelect from "../../HeroUISelect/HeroUISelect";
 import HeroUITextField from "../../HeroUITextField/HeroUITextField";
-import { Icon } from "@iconify/react"; // 👈 Aseguramos la importación del componente de íconos
+import {Icon} from "@iconify/react"; // 👈 Aseguramos la importación del componente de íconos
 
 export interface FilterValues {
     name?: string;
@@ -34,16 +33,16 @@ interface TableFiltersProps {
 }
 
 const ROLE_OPTIONS = [
-    { id: "CEO", label: "CEO" },
-    { id: "CTO", label: "CTO" },
-    { id: "CMO", label: "CMO" },
-    { id: "Engineer", label: "Engineer" },
+    {id: "CEO", label: "CEO"},
+    {id: "CTO", label: "CTO"},
+    {id: "CMO", label: "CMO"},
+    {id: "Engineer", label: "Engineer"},
 ];
 
 const STATUS_OPTIONS = [
-    { id: "Active", label: "Active" },
-    { id: "Inactive", label: "Inactive" },
-    { id: "On Leave", label: "On Leave" },
+    {id: "Active", label: "Active"},
+    {id: "Inactive", label: "Inactive"},
+    {id: "On Leave", label: "On Leave"},
 ];
 
 const TableFilters: React.FC<TableFiltersProps> = ({
@@ -67,7 +66,7 @@ const TableFilters: React.FC<TableFiltersProps> = ({
         key: K,
         value: FilterValues[K] | undefined
     ) => {
-        const next = { ...filters, [key]: value };
+        const next = {...filters, [key]: value};
         setFilters(next);
         onFilterChange?.(next);
     };
@@ -97,7 +96,7 @@ const TableFilters: React.FC<TableFiltersProps> = ({
                         {startIcon && (
                             <Icon
                                 icon={startIcon}
-                                style={{ color: "var(--surface-tertiary)" }}
+                                style={{color: "var(--surface-tertiary)"}}
                                 className="text-sm flex-shrink-0"
                             />
                         )}

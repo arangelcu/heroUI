@@ -1,6 +1,6 @@
 import {createColumnHelper} from "@tanstack/react-table";
 import React, {useCallback, useState} from "react";
-import {Card, Label} from "@heroui/react";
+import {Card, Label, type TimeValue} from "@heroui/react";
 import {HeroUIThemes} from "../HeroUIStyles/HeroUIThemes";
 import {FetchParams, HeroUiTable, PaginationOptions,} from "../HeroUITable/HeroUITable/HeroUiTable";
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
@@ -20,7 +20,7 @@ import HeroUIToggleButton from "../HeroUIToggleButton/HeroUIToggleButton";
 import HeroUIPhone from "../HeroUIPhone/HeroUIPhone";
 import HeroUICard from "../HeroUICard/HeroUICard";
 import {HeroUIAlertDialog} from "../HeroUIAlertDialog/HeroUIAlertDialog";
-import { toastQueue } from "../HeroUIProvider/HeroUIProvider";
+import {toastQueue} from "../HeroUIProvider/HeroUIProvider";
 
 interface User {
     id: number;
@@ -210,7 +210,7 @@ function HeroUIDemo() {
     const [number, setNumber] = useState('');
     const [text, setText] = useState('');
     const [phone, setPhone] = useState('');
-    const [timeValue, setTimeValue] = useState(null);
+    const [timeValue, setTimeValue] = useState<TimeValue | null>(null);
     const [liked, setLiked] = useState(false);
     const [bookmarked, setBookmarked] = useState(false);
     const [numberValue, setNumberValue] = useState<number | undefined>(undefined);
@@ -252,7 +252,8 @@ function HeroUIDemo() {
                                 {/* --- Solid tones --- */}
                                 <HeroUIIconButton icon="fa6-solid:circle-info" tooltip="Info" tone="info"/>
                                 <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="Success" tone="success"/>
-                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="Warning" tone="warning"/>
+                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="Warning"
+                                                  tone="warning"/>
                                 <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="Danger" tone="danger"/>
                                 <HeroUIIconButton icon="fa6-solid:mug-hot" tooltip="Brown" tone="brown"/>
                                 <HeroUIIconButton icon="fa6-solid:sun" tooltip="Yellow" tone="yellow"/>
@@ -260,29 +261,40 @@ function HeroUIDemo() {
 
                                 {/* --- Soft tones --- */}
                                 <HeroUIIconButton icon="fa6-solid:circle-info" tooltip="Info soft" tone="info-soft"/>
-                                <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="Success soft" tone="success-soft"/>
-                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="Warning soft" tone="warning-soft"/>
-                                <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="Danger soft" tone="danger-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="Success soft"
+                                                  tone="success-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="Warning soft"
+                                                  tone="warning-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="Danger soft"
+                                                  tone="danger-soft"/>
                                 <HeroUIIconButton icon="fa6-solid:mug-hot" tooltip="Brown soft" tone="brown-soft"/>
                                 <HeroUIIconButton icon="fa6-solid:sun" tooltip="Yellow soft" tone="yellow-soft"/>
                                 <HeroUIIconButton icon="fa6-solid:circle" tooltip="Gray soft" tone="gray-soft"/>
 
                                 {/* --- White + color tones --- */}
                                 <HeroUIIconButton icon="fa6-solid:circle-info" tooltip="White Info" tone="white-info"/>
-                                <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="White Success" tone="white-success"/>
-                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="White Warning" tone="white-warning"/>
-                                <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="White Danger" tone="white-danger"/>
+                                <HeroUIIconButton icon="fa6-solid:circle-check" tooltip="White Success"
+                                                  tone="white-success"/>
+                                <HeroUIIconButton icon="fa6-solid:triangle-exclamation" tooltip="White Warning"
+                                                  tone="white-warning"/>
+                                <HeroUIIconButton icon="fa6-solid:circle-xmark" tooltip="White Danger"
+                                                  tone="white-danger"/>
                                 <HeroUIIconButton icon="fa6-solid:mug-hot" tooltip="White Brown" tone="white-brown"/>
                                 <HeroUIIconButton icon="fa6-solid:sun" tooltip="White Yellow" tone="white-yellow"/>
                                 <HeroUIIconButton icon="fa6-solid:circle" tooltip="White Gray" tone="white-gray"/>
 
                                 {/* --- White + theme --- */}
                                 <HeroUIIconButton icon="fa6-solid:moon" tooltip="White" tone="white"/>
-                                <HeroUIIconButton icon="fa6-solid:heart" tooltip="White + Primary" tone="white-primary"/>
-                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="White + Secondary" tone="white-secondary"/>
-                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="White + Tertiary" tone="white-tertiary"/>
-                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="Secondary soft" tone="white-secondary-soft"/>
-                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="Tertiary soft" tone="white-tertiary-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:heart" tooltip="White + Primary"
+                                                  tone="white-primary"/>
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="White + Secondary"
+                                                  tone="white-secondary"/>
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="White + Tertiary"
+                                                  tone="white-tertiary"/>
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="Secondary soft"
+                                                  tone="white-secondary-soft"/>
+                                <HeroUIIconButton icon="fa6-solid:palette" tooltip="Tertiary soft"
+                                                  tone="white-tertiary-soft"/>
                             </>)
                         }}
                     >
@@ -291,48 +303,75 @@ function HeroUIDemo() {
                             {/* --- Solid tones --- */}
                             <div className="flex flex-wrap gap-2 items-center">
                                 <span className="text-xs font-semibold text-muted w-16">Solid</span>
-                                <HeroUIButton icon="fa6-solid:circle-info" tone="info" tooltip="Solid info button">Info</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:circle-check" tone="success" tooltip="Solid success button">Success</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:triangle-exclamation" tone="warning" tooltip="Solid warning button">Warning</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:circle-xmark" tone="danger" tooltip="Solid danger button">Danger</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:mug-hot" tone="brown" tooltip="Solid brown button">Brown</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:sun" tone="yellow" tooltip="Solid yellow button">Yellow</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:circle" tone="gray" tooltip="Solid gray button">Gray</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle-info" tone="info"
+                                              tooltip="Solid info button">Info</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle-check" tone="success"
+                                              tooltip="Solid success button">Success</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:triangle-exclamation" tone="warning"
+                                              tooltip="Solid warning button">Warning</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle-xmark" tone="danger"
+                                              tooltip="Solid danger button">Danger</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:mug-hot" tone="brown"
+                                              tooltip="Solid brown button">Brown</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:sun" tone="yellow"
+                                              tooltip="Solid yellow button">Yellow</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle" tone="gray"
+                                              tooltip="Solid gray button">Gray</HeroUIButton>
                             </div>
 
                             {/* --- Soft tones --- */}
                             <div className="flex flex-wrap gap-2 items-center">
                                 <span className="text-xs font-semibold text-muted w-16">Soft</span>
-                                <HeroUIButton icon="fa6-solid:circle-info" tone="info-soft" tooltip="Soft info button">Info soft</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:circle-check" tone="success-soft" tooltip="Soft success button">Success soft</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:triangle-exclamation" tone="warning-soft" tooltip="Soft warning button">Warning soft</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:circle-xmark" tone="danger-soft" tooltip="Soft danger button">Danger soft</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:mug-hot" tone="brown-soft" tooltip="Soft brown button">Brown soft</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:sun" tone="yellow-soft" tooltip="Soft yellow button">Yellow soft</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:circle" tone="gray-soft" tooltip="Soft gray button">Gray soft</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle-info" tone="info-soft" tooltip="Soft info button">Info
+                                    soft</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle-check" tone="success-soft"
+                                              tooltip="Soft success button">Success soft</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:triangle-exclamation" tone="warning-soft"
+                                              tooltip="Soft warning button">Warning soft</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle-xmark" tone="danger-soft"
+                                              tooltip="Soft danger button">Danger soft</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:mug-hot" tone="brown-soft" tooltip="Soft brown button">Brown
+                                    soft</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:sun" tone="yellow-soft" tooltip="Soft yellow button">Yellow
+                                    soft</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle" tone="gray-soft" tooltip="Soft gray button">Gray
+                                    soft</HeroUIButton>
                             </div>
 
                             {/* --- White + color tones --- */}
                             <div className="flex flex-wrap gap-2 items-center">
                                 <span className="text-xs font-semibold text-muted w-16">White</span>
-                                <HeroUIButton icon="fa6-solid:circle-info" tone="white-info" tooltip="White info button">White Info</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:circle-check" tone="white-success" tooltip="White success button">White Success</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:triangle-exclamation" tone="white-warning" tooltip="White warning button">White Warning</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:circle-xmark" tone="white-danger" tooltip="White danger button">White Danger</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:mug-hot" tone="white-brown" tooltip="White brown button">White Brown</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:sun" tone="white-yellow" tooltip="White yellow button">White Yellow</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:circle" tone="white-gray" tooltip="White gray button">White Gray</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle-info" tone="white-info"
+                                              tooltip="White info button">White Info</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle-check" tone="white-success"
+                                              tooltip="White success button">White Success</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:triangle-exclamation" tone="white-warning"
+                                              tooltip="White warning button">White Warning</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle-xmark" tone="white-danger"
+                                              tooltip="White danger button">White Danger</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:mug-hot" tone="white-brown" tooltip="White brown button">White
+                                    Brown</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:sun" tone="white-yellow" tooltip="White yellow button">White
+                                    Yellow</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:circle" tone="white-gray" tooltip="White gray button">White
+                                    Gray</HeroUIButton>
                             </div>
 
                             {/* --- White + theme --- */}
                             <div className="flex flex-wrap gap-2 items-center">
                                 <span className="text-xs font-semibold text-muted w-16">Theme</span>
-                                <HeroUIButton icon="fa6-solid:moon" tone="white" tooltip="White button">White</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:heart" tone="white-primary" tooltip="White with primary color">White + Primary</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:palette" tone="white-secondary" tooltip="White with secondary color">White + Secondary</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:palette" tone="white-tertiary" tooltip="White with tertiary color">White + Tertiary</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:palette" tone="white-secondary-soft" tooltip="Secondary soft tone">White + Secondary Soft</HeroUIButton>
-                                <HeroUIButton icon="fa6-solid:palette" tone="white-tertiary-soft" tooltip="Tertiary soft tone">White + Tertiary Soft</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:moon" tone="white"
+                                              tooltip="White button">White</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:heart" tone="white-primary"
+                                              tooltip="White with primary color">White + Primary</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:palette" tone="white-secondary"
+                                              tooltip="White with secondary color">White + Secondary</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:palette" tone="white-tertiary"
+                                              tooltip="White with tertiary color">White + Tertiary</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:palette" tone="white-secondary-soft"
+                                              tooltip="Secondary soft tone">White + Secondary Soft</HeroUIButton>
+                                <HeroUIButton icon="fa6-solid:palette" tone="white-tertiary-soft"
+                                              tooltip="Tertiary soft tone">White + Tertiary Soft</HeroUIButton>
                             </div>
 
                         </div>
@@ -626,7 +665,7 @@ function HeroUIDemo() {
                                                 <HeroUIButton
                                                     tone="info"
                                                     icon={'fa6-solid:circle-info'}
-                                                    tooltip="Info Alert"  >
+                                                    tooltip="Info Alert">
                                                     Alert
                                                 </HeroUIButton>
                                             </>
@@ -647,7 +686,7 @@ function HeroUIDemo() {
                                                 <HeroUIButton
                                                     icon={'fa6-solid:triangle-exclamation'}
                                                     tone="warning"
-                                                    tooltip="Confirm Alert"  >
+                                                    tooltip="Confirm Alert">
                                                     Alert
                                                 </HeroUIButton>
                                             </>
@@ -668,7 +707,7 @@ function HeroUIDemo() {
                                                 <HeroUIButton
                                                     icon={'fa6-solid:circle-xmark'}
                                                     tone="danger"
-                                                    tooltip="Danger Alert"  >
+                                                    tooltip="Danger Alert">
                                                     Alert
                                                 </HeroUIButton>
                                             </>

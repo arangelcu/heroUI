@@ -1,8 +1,7 @@
 import React from "react";
-import { Button, ButtonProps, Tooltip } from "@heroui/react";
-import { Icon } from "@iconify/react";
-import { tv, type VariantProps } from "tailwind-variants";
-// @ts-ignore
+import {Button, ButtonProps, Tooltip} from "@heroui/react";
+import {Icon} from "@iconify/react";
+import {tv, type VariantProps} from "tailwind-variants";
 import styles from "./HeroUIIconButton.module.css";
 
 /* -------------------------------------------------------------------------- */
@@ -96,6 +95,7 @@ type IconButtonTones = VariantProps<typeof iconButtonTones>;
 
 /* -------------------------------------------------------------------------- */
 /*                                 Props                                      */
+
 /* -------------------------------------------------------------------------- */
 
 interface HeroUIIconButtonProps
@@ -131,7 +131,7 @@ const HeroUIIconButton = ({
                     ? styles.appearancePagination
                     : "";
 
-    const toneClass = iconButtonTones({ tone });
+    const toneClass = iconButtonTones({tone});
 
     /* When a custom tone is used, force variant="ghost" so HeroUI's native
        variant styles don't fight our tone background. */
@@ -145,14 +145,14 @@ const HeroUIIconButton = ({
             variant={resolvedVariant}
             {...rest}
         >
-            <Icon className={iconClassName} icon={icon} />
+            <Icon className={iconClassName} icon={icon}/>
         </Button>
     );
 
     if (!tooltip) return button;
 
     const config: HeroUITooltipConfig =
-        typeof tooltip === "string" ? { text: tooltip } : tooltip;
+        typeof tooltip === "string" ? {text: tooltip} : tooltip;
 
     const {
         text,
@@ -170,7 +170,7 @@ const HeroUIIconButton = ({
                 placement={placement}
                 showArrow={showArrow}
             >
-                {showArrow && <Tooltip.Arrow />}
+                {showArrow && <Tooltip.Arrow/>}
                 <p>{text}</p>
             </Tooltip.Content>
         </Tooltip>

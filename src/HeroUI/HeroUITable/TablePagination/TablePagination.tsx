@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import {Input} from "@heroui/react";
 import HeroUIButton from "../../HeroUIButton/HeroUIButton";
 import HeroUISelect from "../../HeroUISelect/HeroUISelect";
-// @ts-ignore
 import styles from "./TablePagination.module.css";
 
 /**

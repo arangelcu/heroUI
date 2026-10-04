@@ -1,6 +1,5 @@
 import React from "react";
-import {DateField, FieldError, Label, TimeField, Tooltip} from "@heroui/react";
-import type {TimeValue} from "@internationalized/date";
+import {DateField, FieldError, Label, TimeField, type TimeValue, Tooltip} from "@heroui/react";
 
 /**
  * Valid tooltip placements for HeroUI v3.

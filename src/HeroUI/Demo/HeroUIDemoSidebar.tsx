@@ -4,6 +4,7 @@ import {tv} from "tailwind-variants";
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
+
 /* -------------------------------------------------------------------------- */
 
 export interface NavItem {
@@ -50,6 +51,7 @@ const iconTile = tv({
 
 /* -------------------------------------------------------------------------- */
 /*                              Sidebar props                                 */
+
 /* -------------------------------------------------------------------------- */
 
 interface SidebarProps {
@@ -74,14 +76,14 @@ interface SidebarProps {
 /* -------------------------------------------------------------------------- */
 
 export default function HeroUIDemoSidebar({
-                                    expanded,
-                                    onExpandedChange,
-                                    activeKey,
-                                    onSelect,
-                                    topOffset = 60,
-                                    railWidth = 64,
-                                    expandedWidth = 260,
-                                }: SidebarProps) {
+                                              expanded,
+                                              onExpandedChange,
+                                              activeKey,
+                                              onSelect,
+                                              topOffset = 60,
+                                              railWidth = 64,
+                                              expandedWidth = 260,
+                                          }: SidebarProps) {
     const width = expanded ? expandedWidth : railWidth;
 
     return (
@@ -133,7 +135,7 @@ export default function HeroUIDemoSidebar({
                         >
                             {/* Icon tile — mismo estilo que el título del toolbar */}
                             <div className={iconTile({variant: isActive ? "primary" : "active"})}>
-                                <Icon icon={item.icon} className="size-4" />
+                                <Icon icon={item.icon} className="size-4"/>
                             </div>
 
                             {/* Label (solo visible en expanded) */}
@@ -154,7 +156,8 @@ export default function HeroUIDemoSidebar({
                     aria-label="Profile"
                     className="flex items-center gap-3 rounded-[8px] p-1 transition-colors hover:bg-surface/60"
                 >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-tertiary text-xs font-semibold text-surface-tertiary-foreground">
+                    <div
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-tertiary text-xs font-semibold text-surface-tertiary-foreground">
                         SMS
                     </div>
                     {expanded && (

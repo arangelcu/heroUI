@@ -17,4 +17,4 @@ export function HeroUIProvider({children}: { children: React.ReactNode }) {
     );
 }
 
-export { toastQueue };
+export {toastQueue};

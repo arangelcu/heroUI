@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {FieldError, InputGroup, Label, TextField, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
-// @ts-ignore
 import styles from "./HeroUIPhone.module.css";
 
 /**

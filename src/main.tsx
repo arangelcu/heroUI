@@ -1,11 +1,11 @@
 import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
-import {HeroUIProvider} from "./HeroUI/HeroUIProvider/HeroUIProvider.tsx";
+import {HeroUIProvider} from './HeroUI/HeroUIProvider/HeroUIProvider'
 import './HeroUI/HeroUIStyles/HeroUIStyles.css'
 import './HeroUI/HeroUIStyles/HeroUIThemes.Module.css'
-import App from './App.js'
+import App from './App'
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <HeroUIProvider>
             <App/>

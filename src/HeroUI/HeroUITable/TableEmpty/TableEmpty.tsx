@@ -1,7 +1,6 @@
 import React from "react";
 import {EmptyState} from "@heroui/react";
 import {Icon} from "@iconify/react";
-// @ts-ignore
 import styles from "./TableEmpty.module.css";
 
 /**

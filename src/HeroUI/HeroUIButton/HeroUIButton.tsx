@@ -1,8 +1,7 @@
 import React from "react";
-import { Button, ButtonProps, Tooltip } from "@heroui/react";
-import { Icon } from "@iconify/react";
-import { tv, type VariantProps } from "tailwind-variants";
-// @ts-ignore
+import {Button, ButtonProps, Tooltip} from "@heroui/react";
+import {Icon} from "@iconify/react";
+import {tv, type VariantProps} from "tailwind-variants";
 import styles from "./HeroUIButton.module.css";
 
 /* -------------------------------------------------------------------------- */
@@ -88,6 +87,7 @@ type ButtonTones = VariantProps<typeof buttonTones>;
 
 /* -------------------------------------------------------------------------- */
 /*                                 Props                                      */
+
 /* -------------------------------------------------------------------------- */
 
 interface HeroUIButtonProps extends Omit<ButtonProps, "children">, ButtonTones {
@@ -126,7 +126,7 @@ const HeroUIButton = ({
                     ? styles.appearanceHeader
                     : "";
 
-    const toneClass = buttonTones({ tone });
+    const toneClass = buttonTones({tone});
 
     const resolvedVariant = tone && tone !== "default" ? "ghost" : variant;
 
@@ -138,11 +138,11 @@ const HeroUIButton = ({
             {...rest}
         >
             {icon && iconPosition === "start" && (
-                <Icon className={iconClassName} icon={icon} />
+                <Icon className={iconClassName} icon={icon}/>
             )}
             {children}
             {icon && iconPosition === "end" && (
-                <Icon className={iconClassName} icon={icon} />
+                <Icon className={iconClassName} icon={icon}/>
             )}
         </Button>
     );
@@ -150,7 +150,7 @@ const HeroUIButton = ({
     if (!tooltip) return button;
 
     const config: HeroUITooltipConfig =
-        typeof tooltip === "string" ? { text: tooltip } : tooltip;
+        typeof tooltip === "string" ? {text: tooltip} : tooltip;
 
     const {
         text,
@@ -168,7 +168,7 @@ const HeroUIButton = ({
                 placement={placement}
                 showArrow={showArrow}
             >
-                {showArrow && <Tooltip.Arrow />}
+                {showArrow && <Tooltip.Arrow/>}
                 <p>{text}</p>
             </Tooltip.Content>
         </Tooltip>
