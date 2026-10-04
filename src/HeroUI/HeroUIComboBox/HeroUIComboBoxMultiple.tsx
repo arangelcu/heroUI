@@ -6,7 +6,7 @@ import {HeroUIComboBoxOption} from "./HeroUIComboBox";
 
 export type {HeroUIComboBoxOption};
 
-/** Donde se colocan las etiquetas de lo seleccionado. */
+/** Where the chips of what is selected are placed. */
 export type HeroUIComboBoxChipsPlacement = "below" | "above";
 
 interface HeroUIComboBoxMultipleProps {
@@ -19,8 +19,8 @@ interface HeroUIComboBoxMultipleProps {
     /**
      * Currently selected option ids.
      *
-     * Se normaliza a un array nuevo al emitir, para que el padre pueda comparar
-     * por referencia.
+     * A fresh array is emitted on every change, so the parent can compare by
+     * reference.
      */
     value?: readonly string[];
     /** Fired with the full list of selected ids whenever the selection changes. */
@@ -34,17 +34,18 @@ interface HeroUIComboBoxMultipleProps {
     onInputChange?: (value: string) => void;
     /** Input placeholder. Defaults to `"Type to search..."`. */
     placeholder?: string;
-    /** ComboBox width. Defaults to `"195px"`, igual que el resto de campos. */
+    /** ComboBox width. Defaults to `"195px"`, same as the rest of the fields. */
     width?: string | number;
     /** Additional CSS classes for the ComboBox. */
     className?: string;
     /** Additional CSS classes for the selected-items row. */
     chipsClassName?: string;
     /**
-     * Donde se pintan las etiquetas de lo seleccionado.
+     * Where the chips of what is selected are painted.
      *
-     * Van **fuera** del campo, en su propia fila: meterlas dentro de un campo de
-     * 195px obliga a que ocupen el ancho y el buscador acaba debajo, que se ve peor.
+     * They go **outside** the field, in their own row: putting them inside a 195px
+     * field forces them to take the full width and the search input ends up below,
+     * which looks worse.
      * @default "below"
      */
     chipsPlacement?: HeroUIComboBoxChipsPlacement;
@@ -78,45 +79,45 @@ interface HeroUIComboBoxMultipleProps {
 /**
  * `HeroUIComboBoxMultiple`
  *
- * ComboBox de **seleccion multiple** sobre HeroUI v3, hermano de `HeroUIComboBox`.
+ * **Multiple-selection** ComboBox built on HeroUI v3, sibling of `HeroUIComboBox`.
  *
- * ### Como se muestran los seleccionados
+ * ### How the selected items are shown
  *
- * Las etiquetas van **en su propia fila, fuera del campo** (`chipsPlacement`), no
- * dentro. Se probo a meterlas dentro y con un campo de 195px no es viable: las
- * etiquetas ocupan todo el ancho y el buscador tiene que bajar a otra linea, con lo
- * que el campo se ve mas alto y desordenado. El campo queda identico al del combo
- * simple y debajo aparecen las etiquetas.
+ * The chips go **in their own row, outside the field** (`chipsPlacement`), not inside.
+ * Putting them inside was tried and with a 195px field it is not viable: the chips take
+ * the full width and the search input has to drop to another line, which makes the field
+ * look taller and messy. The field stays identical to the one of the single combo and
+ * the chips appear below it.
  *
- * ### Comportamiento
- * - Seleccion multiple: elegir una opcion la **suma**; volver a pulsarla la quita.
- * - `ListBox` con `selectionMode="multiple"` muestra un check por opcion.
- * - La lista **permanece abierta** tras elegir, para poder marcar varias seguidas
- *   (se cierra con `Escape` o pulsando fuera).
- * - Cada etiqueta lleva una `x` para quitarla sin abrir el popup.
- * - El buscador es asincrono: el padre recibe `onInputChange` y sirve `options`.
- * - Validacion de obligatorio como el resto de campos: el error aparece tras el
- *   primer `onBlur`, no al montar.
+ * ### Behaviour
+ * - Multiple selection: picking an option **adds** it; picking it again removes it.
+ * - `ListBox` with `selectionMode="multiple"` shows a check per option.
+ * - The list **stays open** after picking, so several can be ticked in a row (it closes
+ *   with `Escape` or by clicking outside).
+ * - Every chip carries an `x` to remove it without opening the popover.
+ * - The search input is async: the parent receives `onInputChange` and serves `options`.
+ * - Required validation like the rest of the fields: the error appears after the first
+ *   `onBlur`, not on mount.
  *
- * ### Estado
+ * ### State
  *
- * Usa la API vigente (`value` + `onChange`, de `ValueBase`). `selectedKey` y
- * `onSelectionChange` estan **deprecados** en react-stately. Nota: el
- * `HeroUIComboBox` de seleccion simple todavia usa los deprecados.
+ * It uses the current API (`value` + `onChange`, from `ValueBase`). `selectedKey` and
+ * `onSelectionChange` are **deprecated** in react-stately. Note: the single-selection
+ * `HeroUIComboBox` still uses the deprecated ones.
  *
- * ### Ejemplo
+ * ### Example
  * ```tsx
  * const [selected, setSelected] = useState<string[]>([]);
  *
  * <HeroUIComboBoxMultiple
- *   label="Equipos"
+ *   label="Teams"
  *   options={options}
  *   value={selected}
  *   onChange={setSelected}
- *   onInputChange={buscar}
+ *   onInputChange={search}
  *   isRequired
- *   requiredMessage="Elige al menos un equipo"
- *   tooltip="Puedes seleccionar varios"
+ *   requiredMessage="Pick at least one team"
+ *   tooltip="You can select several"
  * />
  * ```
  */
@@ -141,21 +142,21 @@ const HeroUIComboBoxMultiple: React.FC<HeroUIComboBoxMultipleProps> = ({
                                                                            isRequired = false,
                                                                            requiredMessage = "This field is required",
                                                                        }) => {
-    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    /** The required error only shows after the first onBlur, not on mount. */
     const [isTouched, setIsTouched] = useState(false);
 
-    /** Ids seleccionados normalizados a array mutable. */
+    /** Selected ids normalised to a mutable array. */
     const selectedIds = useMemo(() => (value ? [...value] : []), [value]);
 
     const isInvalid = isTouched && isRequired && selectedIds.length === 0;
 
-    /** Las `Key` de react-aria son `string | number`: se comparan como string. */
+    /** react-aria `Key`s are `string | number`: they are compared as strings. */
     const selectedKeys = useMemo(
         () => selectedIds.map((id) => String(id)),
         [selectedIds]
     );
 
-    /** Para resolver la etiqueta de cada id a partir de las opciones cargadas. */
+    /** To resolve the label of every id from the loaded options. */
     const optionsById = useMemo(() => {
         const map = new Map<string, HeroUIComboBoxOption>();
         options.forEach((opt) => map.set(String(opt.id), opt));
@@ -163,10 +164,10 @@ const HeroUIComboBoxMultiple: React.FC<HeroUIComboBoxMultipleProps> = ({
     }, [options]);
 
     /**
-     * Etiquetas a pintar, resueltas desde `value`.
+     * Chips to paint, resolved from `value`.
      *
-     * No se usa `ComboBox.Value` porque su render prop solo puede dibujar dentro
-     * del campo; como las etiquetas van fuera, se resuelven aqui.
+     * `ComboBox.Value` is not used because its render prop can only draw inside the
+     * field; since the chips go outside, they are resolved here.
      */
     const chips = useMemo(
         () => selectedIds.map((id) => ({
@@ -177,14 +178,14 @@ const HeroUIComboBoxMultiple: React.FC<HeroUIComboBoxMultipleProps> = ({
     );
 
     /**
-     * Emite siempre un array nuevo, para que el padre pueda comparar por
-     * referencia sin miedo a mutaciones.
+     * Always emits a fresh array, so the parent can compare by reference without
+     * worrying about mutations.
      */
     const emit = useCallback((keys: Iterable<React.Key>) => {
         onChange?.([...keys].map(String));
     }, [onChange]);
 
-    /** Quita una opcion desde la `x` del chip. */
+    /** Removes an option from the `x` of the chip. */
     const removeOption = useCallback((id: string) => {
         emit(selectedKeys.filter((key) => key !== id));
     }, [emit, selectedKeys]);
@@ -207,7 +208,7 @@ const HeroUIComboBoxMultiple: React.FC<HeroUIComboBoxMultipleProps> = ({
                             aria-label={`Quitar ${text}`}
                             className="ms-0.5 inline-flex size-3.5 shrink-0 items-center justify-center rounded-full text-muted hover:text-foreground"
                             onClick={(event) => {
-                                // Sin esto el clic llegaria al input y abriria el popup.
+                                // Without this the click would reach the input and open the popover.
                                 event.stopPropagation();
                                 event.preventDefault();
                                 removeOption(id);
@@ -222,11 +223,11 @@ const HeroUIComboBoxMultiple: React.FC<HeroUIComboBoxMultipleProps> = ({
     );
 
     const field = (
-        /* El contenedor toma el MISMO ancho que el campo via variable CSS, para que
-           la fila de etiquetas haga wrap a esos 195px. Con `max-w-full` solo, el
-           limite era el de la columna que lo contiene (211px en el demo) y los chips
-           se estiraban mas alla del campo. `w-fit` evita que el wrapper se estire
-           cuando hay mas sitio del necesario. */
+        /* The container takes the SAME width as the field through a CSS variable, so the
+           chip row wraps at those 195px. With `max-w-full` alone, the limit was the one
+           of the column containing it (211px in the demo) and the chips stretched beyond
+           the field. `w-fit` stops the wrapper from stretching when there is more room
+           than needed. */
         <div
             className="w-fit"
             style={{width, maxWidth: "100%", ["--combo-width" as string]: typeof width === "number" ? `${width}px` : width}}

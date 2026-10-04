@@ -8,10 +8,13 @@ import {tv} from "tailwind-variants";
 /* -------------------------------------------------------------------------- */
 
 export interface NavItem {
+    /** Iconify name of the item icon */
     icon: string;
+    /** Visible label of the item, also used as its key */
     label: string;
 }
 
+/** Static navigation entries rendered by the sidebar. */
 const NAV_ITEMS: NavItem[] = [
     {icon: "fa6-solid:house", label: "Home"},
     {icon: "fa6-solid:magnifying-glass", label: "Search"},
@@ -27,15 +30,16 @@ const NAV_ITEMS: NavItem[] = [
 /*                                Variants                                    */
 /* -------------------------------------------------------------------------- */
 
+/** Square tile that wraps each icon; its tones encode the item state. */
 const iconTile = tv({
     base: "flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] transition-transform",
     variants: {
         variant: {
-            /** Idéntico al ícono del título del toolbar (coral + ícono blanco) */
+            /** Identical to the toolbar title icon (coral + white icon) */
             primary: "bg-surface-tertiary text-surface-tertiary-foreground",
-            /** Activo suave: coral translúcido con ícono coral */
+            /** Soft active: translucent coral with a coral icon */
             active: "bg-surface-tertiary/25 text-surface-tertiary",
-            /** Inactivo: coral muy tenue */
+            /** Inactive: very faint coral */
             subtle: "bg-surface-tertiary/10 text-surface-tertiary",
         },
         interactive: {
@@ -75,6 +79,12 @@ interface SidebarProps {
 /*                                 Component                                  */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * `HeroUIDemoSidebar`
+ *
+ * Collapsible navigation rail for the demo: an icon rail when collapsed and a rail
+ * plus labels when expanded.
+ */
 export default function HeroUIDemoSidebar({
                                               expanded,
                                               onExpandedChange,
@@ -88,8 +98,8 @@ export default function HeroUIDemoSidebar({
 
     return (
         <aside
-            /* El `hidden` que tenia esta clase impedia que el sidebar se viera
-               alguna vez, aunque el componente estaba completo. */
+            /* The `hidden` in this class prevented the sidebar from ever being
+               visible, even though the component was complete. */
             className="fixed left-0 bottom-0 z-30 flex flex-col bg-surface-secondary/40 backdrop-blur-sm transition-[width] duration-200 ease-out"
             style={{
                 top: `${topOffset}px`,
@@ -135,12 +145,12 @@ export default function HeroUIDemoSidebar({
                                 isActive ? "bg-surface/70" : "hover:bg-surface/60",
                             ].join(" ")}
                         >
-                            {/* Icon tile — mismo estilo que el título del toolbar */}
+                            {/* Icon tile - same style as the toolbar title */}
                             <div className={iconTile({variant: isActive ? "primary" : "active"})}>
                                 <Icon icon={item.icon} className="size-4"/>
                             </div>
 
-                            {/* Label (solo visible en expanded) */}
+                            {/* Label (only visible when expanded) */}
                             {expanded && (
                                 <span className="truncate text-sm text-foreground">
                                     {item.label}

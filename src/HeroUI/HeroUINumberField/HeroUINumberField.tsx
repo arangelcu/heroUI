@@ -4,19 +4,43 @@ import {Icon} from "@iconify/react";
 import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
+/**
+ * Props for `HeroUINumberField`.
+ */
 interface HeroUINumberFieldProps {
+    /** Aria label for accessibility. Defaults to `"Number field"`. */
     ariaLabel?: string;
+    /** Optional visible label rendered above the field via the `Label` component. */
     label?: React.ReactNode;
+    /** Controlled numeric value. `undefined` means no value. */
     value?: number;
+    /** Fired when the value changes. Receives the new value or `undefined`. */
     onChange?: (value: number | undefined) => void;
+    /** Minimum allowed value. Defaults to `0`. */
     minValue?: number;
+    /** Maximum allowed value. Defaults to `100`. */
     maxValue?: number;
+    /** Increment/decrement step. Defaults to `1`. */
     step?: number;
+    /** Field width. Defaults to `"195px"`. */
     width?: string | number;
+    /** Additional CSS classes for the root NumberField component. */
     className?: string;
+    /** Disables the field. Defaults to `false`. */
     isDisabled?: boolean;
+    /**
+     * Marks the field as required.
+     * When `true` and the value is empty, `isInvalid` becomes `true`
+     * and the `FieldError` is displayed.
+     * @default false
+     */
     isRequired?: boolean;
+    /**
+     * Custom error message shown when the field is required and empty.
+     * @default "This field is required"
+     */
     requiredMessage?: string;
+    /** Optional tooltip. Accepts a string or a full config object. */
     tooltip?: string | HeroUITooltipConfig;
 }
 
@@ -56,7 +80,7 @@ const HeroUINumberField: React.FC<HeroUINumberFieldProps> = ({
      * Backspace, and `undefined` when the value is externally cleared.
      * Both cases must be treated as "empty" for validation.
      */
-    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    /** The required error only shows after the first onBlur, not on mount. */
     const [isTouched, setIsTouched] = useState(false);
 
     const isInvalid =

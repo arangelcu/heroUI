@@ -108,7 +108,7 @@ const HeroUIDatePicker: React.FC<HeroUIDatePickerProps> = ({
      * The field is invalid when it's required but has no value.
      * `null` and `undefined` both count as empty.
      */
-    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    /** The required error only shows after the first onBlur, not on mount. */
     const [isTouched, setIsTouched] = useState(false);
 
     const isInvalid = isTouched && isRequired && (value === null || value === undefined);
@@ -150,8 +150,8 @@ const HeroUIDatePicker: React.FC<HeroUIDatePickerProps> = ({
             <FieldError>{requiredMessage}</FieldError>
 
             <DatePicker.Popover className="rounded-[5px]">
-                {/* El calendario del popup no tiene etiqueta visible propia: conserva
-                    un nombre accesible, con la etiqueta del campo como respaldo. */}
+                {/* The popup calendar has no visible label of its own: it keeps
+                    an accessible name, with the field label as fallback. */}
                 <Calendar aria-label={ariaLabel ?? label}>
                     {/* Header with year picker trigger + nav buttons */}
                     <Calendar.Header>

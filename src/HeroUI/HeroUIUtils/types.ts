@@ -1,40 +1,40 @@
 import type React from "react";
 
 /**
- * Tipos compartidos por los wrappers de `src/HeroUI`.
+ * Types shared by the wrappers in `src/HeroUI`.
  *
- * Antes cada componente declaraba su propia copia de `HeroUITooltipConfig`: eran
- * 15 declaraciones con 9 variantes distintas (unas con un alias `TooltipPlacement`,
- * otras con el literal en linea, con comentarios divergentes). Al vivir aqui, la
- * forma del tooltip no puede volver a separarse.
+ * Each component used to declare its own copy of `HeroUITooltipConfig`: that was
+ * 15 declarations with 9 different variants (some with a `TooltipPlacement` alias,
+ * others with the inline literal, with diverging comments). By living here, the
+ * shape of the tooltip cannot drift apart again.
  */
 
-/** Sitios donde se puede situar un tooltip o un popup. */
+/** Places where a tooltip or a popup can be positioned. */
 export type TooltipPlacement = "top" | "bottom" | "left" | "right";
 
 /**
- * Configuracion del tooltip de un componente.
+ * Tooltip configuration of a component.
  *
- * Todos los wrappers aceptan `tooltip` como `string` (atajo para `{text}`) o como
- * este objeto.
+ * Every wrapper accepts `tooltip` as a `string` (shorthand for `{text}`) or as
+ * this object.
  */
 export interface HeroUITooltipConfig {
-    /** Contenido del tooltip. */
+    /** Tooltip content. */
     text: React.ReactNode;
-    /** Posicion respecto al control. Por defecto `"top"`. */
+    /** Position relative to the control. Defaults to `"top"`. */
     placement?: TooltipPlacement;
-    /** Muestra u oculta la flecha. Por defecto `false`. */
+    /** Shows or hides the arrow. Defaults to `false`. */
     showArrow?: boolean;
-    /** Retardo en ms antes de mostrarlo. Por defecto `0`. */
+    /** Delay in ms before showing it. Defaults to `0`. */
     delay?: number;
-    /** Clases extra para el contenido del tooltip. */
+    /** Extra classes for the tooltip content. */
     className?: string;
 }
 
-/** Una opcion de un `HeroUISelect` o `HeroUIComboBox`. */
+/** An option of a `HeroUISelect` or `HeroUIComboBox`. */
 export interface HeroUISelectOption {
-    /** Identificador unico de la opcion. */
+    /** Unique identifier of the option. */
     id: string;
-    /** Texto visible de la opcion. */
+    /** Visible text of the option. */
     label: string;
 }

@@ -1,11 +1,13 @@
 import type {HeroUISelectOption} from "../../HeroUIUtils/types";
 
 /**
- * Listas de opciones de los filtros de `HeroUITable`.
+ * Option lists for the `HeroUITable` filters.
  *
- * Antes estaban copiadas literalmente en `HeroUITable` y en el demo: al anadir una
- * opcion en un sitio y no en el otro, el filtro y el listado se desincronizaban.
+ * They used to be copied literally into `HeroUITable` and into the demo: adding an
+ * option in one place and not in the other desynchronized the filter and the list.
  */
+
+/** Role options shared by the table filter, the demo selects, and the forms. */
 export const ROLE_OPTIONS: HeroUISelectOption[] = [
     {id: "CEO", label: "CEO"},
     {id: "CTO", label: "CTO"},
@@ -13,6 +15,7 @@ export const ROLE_OPTIONS: HeroUISelectOption[] = [
     {id: "Engineer", label: "Engineer"},
 ];
 
+/** Status options shared by the table filter, the demo selects, and the forms. */
 export const STATUS_OPTIONS: HeroUISelectOption[] = [
     {id: "Active", label: "Active"},
     {id: "Inactive", label: "Inactive"},

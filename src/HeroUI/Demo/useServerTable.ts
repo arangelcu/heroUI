@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from "react";
 import type {FetchParams, PaginationOptions} from "../HeroUITable/HeroUITable/HeroUiTable";
 
+/** Pagination state used until the first response arrives. */
 const initialPaginationOptions: PaginationOptions = {
     first: 0,
     offset: 0,
@@ -11,22 +12,27 @@ const initialPaginationOptions: PaginationOptions = {
     pages: 0,
 };
 
+/** State returned by `useServerTable` for a single table instance. */
 export interface ServerTable<TData> {
+    /** Rows of the page that was fetched last */
     data: TData[];
+    /** Whether a request is in flight */
     isLoading: boolean;
+    /** Pagination state reported by the fetcher */
     paginationOptions: PaginationOptions;
+    /** Requests a page; fires the fetcher and stores the result */
     fetchData: (params: FetchParams) => void;
 }
 
 /**
- * Estado de tabla server-side, aislado por instancia.
+ * Server-side table state, isolated per instance.
  *
- * Cada tabla necesita su propio `data` / `isLoading` / `paginationOptions`:
- * compartirlos hace que paginar una tabla mueva las demás, y que dos peticiones
- * simultáneas se sobrescriban según cuál responda última.
+ * Every table needs its own `data` / `isLoading` / `paginationOptions`: sharing
+ * them makes paginating one table move the others, and makes two simultaneous
+ * requests overwrite each other depending on which one answers last.
  *
- * Cada petición lleva un `requestId`: solo la última puede escribir estado, así
- * que una respuesta lenta no pisa a una más reciente.
+ * Every request carries a `requestId`: only the latest one can write state, so a
+ * slow response does not overwrite a more recent one.
  */
 export function useServerTable<TData>(
     fetcher: (params: FetchParams) => Promise<TData[]>,
@@ -36,17 +42,17 @@ export function useServerTable<TData>(
     const [paginationOptions, setPaginationOptions] =
         useState<PaginationOptions>(initialPaginationOptions);
 
-    // El fetcher vive en un ref para que la identidad del callback del padre no
-    // forme parte de las dependencias de ningun efecto.
+    // The fetcher lives in a ref so that the identity of the parent callback is not
+    // part of any effect dependency list.
     const fetcherRef = useRef(fetcher);
     const requestIdRef = useRef(0);
 
     /**
-     * Aplica una respuesta. Devuelve `false` si la respuesta ya es obsoleta.
-     * La cancelacion se gestiona con el `requestId` del propio efecto de pedido,
-     * sin un flag de "montado": un flag puesto a `false` en la limpieza bloquearia
-     * para siempre las escrituras si el ref sobrevive al ciclo de montaje doble
-     * de StrictMode, y ese fue justo el fallo que dejo las tablas vacias.
+     * Applies a response. Returns `false` when the response is already stale.
+     * Cancellation is handled with the `requestId` of the request effect itself,
+     * without a "mounted" flag: a flag set to `false` on cleanup would block writes
+     * forever if the ref survives the double mount cycle of StrictMode, and that
+     * was exactly the bug that left the tables empty.
      */
     const applyResult = useCallback((rows: TData[], params: FetchParams, requestId: number) => {
         if (requestId !== requestIdRef.current) return false;
@@ -65,7 +71,7 @@ export function useServerTable<TData>(
         return true;
     }, []);
 
-    /** Peticion desde un manejador de evento: marca la carga de inmediato. */
+    /** Request from an event handler: it flags loading immediately. */
     const fetchData = useCallback((params: FetchParams) => {
         const requestId = ++requestIdRef.current;
 
@@ -78,12 +84,12 @@ export function useServerTable<TData>(
             });
     }, [applyResult]);
 
-    // Mantiene el ref al dia sin escribirlo durante el render.
+    // Keeps the ref up to date without writing it during render.
     useEffect(() => {
         fetcherRef.current = fetcher;
     }, [fetcher]);
 
-    // Carga inicial: cada tabla pide su primera pagina al montarse.
+    // Initial load: every table requests its first page on mount.
     useEffect(() => {
         const requestId = ++requestIdRef.current;
         const params: FetchParams = {

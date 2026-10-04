@@ -13,17 +13,18 @@ export interface HeroUISelectOption {
     label: string;
 }
 
-/** Modo de seleccion del `HeroUISelect`. */
+/** Selection mode of `HeroUISelect`. */
 export type HeroUISelectionMode = "single" | "multiple";
 
 /**
- * Props de `HeroUISelect`.
+ * Props for `HeroUISelect`.
  *
- * `value`/`onChange` usan una union (`string | string[]`) en lugar de un tipo
- * condicional sobre `selectionMode`: TypeScript no infiere el parametro desde la
- * prop en JSX (la interfaz trae valor por defecto, que desactiva esa inferencia),
- * asi que un consumidor que pase el modo como variable acabaria con el tipo
- * equivocado. El precio son dos cast en los puntos de uso, documentados alli.
+ * `value`/`onChange` use a union (`string | string[]`) instead of a conditional
+ * type over `selectionMode`: TypeScript does not infer the parameter from the
+ * prop in JSX (the interface carries a default value, which disables that
+ * inference), so a consumer that passes the mode as a variable would end up
+ * with the wrong type. The price is two casts at the usage sites, documented
+ * there.
  */
 interface HeroUISelectProps {
     /** Accessible label (for screen readers) */
@@ -144,12 +145,12 @@ const HeroUISelect: React.FC<HeroUISelectProps> = ({
     /** Whether the select allows multiple selections. */
     const isMultiple = selectionMode === "multiple";
 
-    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    /** The required error only shows after the first onBlur, not on mount. */
     const [isTouched, setIsTouched] = useState(false);
 
     /**
-     * `value` depende de `M` y dentro del cuerpo `M` no se estrecha, asi que se
-     * ensancha una sola vez aqui y el resto del componente usa `currentValue`.
+     * `value` depends on `M` and inside the body `M` is not narrowed, so it is
+     * widened once here and the rest of the component uses `currentValue`.
      */
     const currentValue = value as string | string[] | undefined;
 
@@ -169,8 +170,8 @@ const HeroUISelect: React.FC<HeroUISelectProps> = ({
      * - Single mode → `string` (empty string when cleared).
      * - Multiple mode → `string[]`.
      *
-     * Igual que `value`: el tipo de `onChange` depende de `M`, y dentro del
-     * cuerpo `M` no se estrecha, asi que se ensancha aqui una sola vez.
+     * Same as `value`: the type of `onChange` depends on `M`, and inside the
+     * body `M` is not narrowed, so it is widened once here.
      */
     const handleChange = (key: unknown) => {
         if (isMultiple) {

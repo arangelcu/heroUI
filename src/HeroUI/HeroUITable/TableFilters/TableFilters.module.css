@@ -10,7 +10,7 @@
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.50rem 1rem;
-    /* Token de superficie: con `white` fijo la barra no seguia el tema. */
+    /* Surface token: with a hardcoded `white` the bar did not follow the theme. */
     background-color: var(--surface);
 }
 

@@ -58,10 +58,10 @@ const TablePagination: React.FC<TablePaginationProps> = ({
                                                              onPageSizeChange,
                                                          }) => {
     /**
-     * Borrador editable del numero de pagina, junto con la ultima pagina que
-     * recibimos como prop. Si `currentPage` cambia desde fuera, se resincroniza
-     * durante el render (patron "adjusting state when a prop changes" de React)
-     * en lugar de con un efecto, que provocaba un render en cascada.
+     * Editable draft of the page number, together with the last page received as a
+     * prop. When `currentPage` changes from the outside, it is resynchronized during
+     * render (the "adjusting state when a prop changes" pattern from React) instead
+     * of with an effect, which caused a cascading render.
      */
     const [pageInput, setPageInput] = useState(String(currentPage));
     const [lastPage, setLastPage] = useState(currentPage);
@@ -76,7 +76,7 @@ const TablePagination: React.FC<TablePaginationProps> = ({
      * and avoiding duplicate `onPageChange` calls.
      */
     const goToPage = (page: number) => {
-        // Enteros: `Number("2.5")` producia `first = 2.5 * pageSize`.
+        // Integers: `Number("2.5")` used to produce `first = 2.5 * pageSize`.
         const whole = Math.trunc(page);
         if (!Number.isFinite(whole)) return;
         const clamped = Math.min(Math.max(whole, 1), totalPages);

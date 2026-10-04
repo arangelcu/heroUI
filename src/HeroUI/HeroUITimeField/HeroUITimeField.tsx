@@ -13,14 +13,14 @@ import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
  * - Configurable width and disabled state
  *
  * ### HeroUI v3 Notes
- * - **Component renamed**: `TimeInput` (v2) → `TimeField` (v3) [citation:1].
+ * - **Component renamed**: `TimeInput` (v2) → `TimeField` (v3).
  * - **Compound components required**: Must use `DateField.Group`,
- *   `DateField.Input` (render prop), and `DateField.Segment` [citation:1].
+ *   `DateField.Input` (render prop), and `DateField.Segment`.
  * - **Label**: Rendered via the separate `<Label>` component as a child.
- * - **FieldError**: Must be a sibling inside `TimeField` [citation:2].
+ * - **FieldError**: Must be a sibling inside `TimeField`.
  * - **Tooltip**: Must wrap the trigger in `Tooltip.Trigger`.
  * - **Props removed**: `color`, `size`, `radius`, `labelPlacement`,
- *   `startContent`/`endContent` (use `DateField.Prefix`/`DateField.Suffix`) [citation:1].
+ *   `startContent`/`endContent` (use `DateField.Prefix`/`DateField.Suffix`).
  */
 interface HeroUITimeFieldProps {
     /** Aria label for accessibility. Defaults to `"Time field"`. */
@@ -64,7 +64,7 @@ interface HeroUITimeFieldProps {
  * ### Required validation
  * When `isRequired` is `true` and the value is `null`, the field shows
  * a `FieldError` below the input. The error disappears automatically
- * as soon as a valid time is selected [citation:2][citation:6].
+ * as soon as a valid time is selected.
  *
  * ### Structure
  * ```
@@ -113,7 +113,7 @@ const HeroUITimeField: React.FC<HeroUITimeFieldProps> = ({
      * The field is invalid when it's required but has no value.
      * `null` and `undefined` both count as empty.
      */
-    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    /** The required error only shows after the first onBlur, not on mount. */
     const [isTouched, setIsTouched] = useState(false);
 
     const isInvalid = isTouched && isRequired && (value === null || value === undefined);

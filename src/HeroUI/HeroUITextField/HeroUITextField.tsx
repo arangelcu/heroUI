@@ -5,24 +5,63 @@ import styles from "./HeroUITextField.module.css";
 import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
+/**
+ * Props for `HeroUITextField`.
+ */
 interface HeroUITextFieldProps {
+    /** Field name (used for form submission). */
     name?: string;
+    /** Native input type. Defaults to `"text"`. Use `"email"` to enable email validation. */
     type?: string;
+    /** Optional visible label rendered above the field via the `Label` component. */
     label?: React.ReactNode;
+    /** Controlled text value. */
     value?: string;
+    /** Debounced callback fired when the value changes. */
     onChange?: (value: string) => void;
+    /** Placeholder text shown when the field is empty. */
     placeholder?: string;
+    /** Field width. Defaults to `"195px"`. */
     width?: string | number;
+    /** Additional CSS classes for the root TextField component. */
     className?: string;
+    /** Additional CSS classes for the inner input element. */
     inputClassName?: string;
+    /** Optional Iconify icon name rendered as a prefix. */
     startIcon?: string;
+    /** Optional Iconify icon name rendered as a suffix. */
     endIcon?: string;
+    /** Disables the field. Defaults to `false`. */
     isDisabled?: boolean;
+    /**
+     * Marks the field as required.
+     * When `true` and the value is empty, the `FieldError` shows
+     * `requiredMessage`.
+     * @default false
+     */
     isRequired?: boolean;
+    /**
+     * Custom error message shown when the field is required and empty.
+     * @default "This field is required"
+     */
     requiredMessage?: string;
+    /**
+     * Custom error message shown when `type` is `"email"` and the value
+     * is not a valid email address.
+     * @default "Please enter a valid email address"
+     */
     invalidEmailMessage?: string;
+    /**
+     * Debounce delay (ms) before firing `onChange`.
+     * @default 300
+     */
     debounceMs?: number;
+    /**
+     * Minimum number of characters required to fire `onChange` with the real value.
+     * @default 3
+     */
     minChars?: number;
+    /** Optional tooltip. Accepts a string or a full config object. */
     tooltip?: string | HeroUITooltipConfig;
 
     /**
@@ -82,9 +121,10 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
     const lastEmittedRef = useRef<string>(value);
 
     /**
-     * Mientras el usuario tiene el foco, el prop `value` no debe pisar lo que
-     * esta escribiendo. Sin esta guarda, bajar de `minChars` emite `onChange("")`,
-     * el padre pone `value=""` y este efecto borraba el texto recien escrito.
+     * While the user has focus, the `value` prop must not overwrite what they
+     * are typing. Without this guard, dropping below `minChars` emits
+     * `onChange("")`, the parent sets `value=""`, and this effect erased the
+     * text just typed.
      */
     const isEditingRef = useRef(false);
 
@@ -122,14 +162,14 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
      * 3. No error.
      */
     /**
-     * El error no se muestra hasta que el usuario interactua: sin esto el campo
-     * obligatorio nacia en rojo con su mensaje ya visible.
+     * The error is not shown until the user interacts: without this the
+     * required field started out red with its message already visible.
      */
     const [isTouched, setIsTouched] = useState(false);
 
     const internalError = handleValidate(localValue);
     const finalIsInvalid = isInvalid || internalError !== null;
-    // El mensaje tambien respeta `isTouched` para que no aparezca al montar.
+    // The message also respects `isTouched` so it does not appear on mount.
     const errorMessage = isInvalid ? invalidMessage : (isTouched ? internalError ?? "" : "");
 
     const handleChange = (raw: string) => {
@@ -163,15 +203,16 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
     }, []);
 
     /**
-     * El nombre accesible lo aporta la `<Label>` visible cuando existe. Si se pasa
-     * `aria-label` ademas, React Aria deja de asociar la etiqueta visible al control
-     * (el `<Label>` no recibe id/htmlFor y no enfoca al hacer clic) y el lector
-     * anuncia el aria-label en lugar del texto visible. Por eso solo se usa como
-     * respaldo cuando no hay etiqueta visible.
+     * The accessible name comes from the visible `<Label>` when it exists. If
+     * `aria-label` is also passed, React Aria stops associating the visible
+     * label with the control (the `<Label>` gets no id/htmlFor and does not
+     * focus on click) and the reader announces the aria-label instead of the
+     * visible text. That is why it is only used as a fallback when there is no
+     * visible label.
      */
     const ariaLabelProps = label ? {} : {"aria-label": placeholder};
 
-    /** Props compartidos por las dos ramas de render (con y sin tooltip). */
+    /** Props shared by both render branches (with and without tooltip). */
     const textFieldProps = {
         ...ariaLabelProps,
         className: `${styles.container} ${className}`.trim(),
@@ -194,10 +235,11 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
     };
 
     /**
-     * El tooltip envuelve SOLO el InputGroup, que es un elemento real: React Aria
-     * coloca los props del trigger sobre ese nodo. Un Fragment no sirve como
-     * trigger (no es un elemento del DOM), y `Tooltip.Trigger` añadiria un
-     * <div role="button"> con tabIndex=0, es decir un tab stop de mas por campo.
+     * The tooltip wraps ONLY the InputGroup, which is a real element: React Aria
+     * places the trigger props on that node. A Fragment does not work as a
+     * trigger (it is not a DOM element), and `Tooltip.Trigger` would add a
+     * `<div role="button">` with tabIndex=0, that is, one extra tab stop per
+     * field.
      */
     const inputGroup = (
         <InputGroup className="rounded-[5px]">
@@ -220,14 +262,15 @@ const HeroUITextField: React.FC<HeroUITextFieldProps> = ({
         </InputGroup>
     );
 
-    /** Mensaje de error: solo se pinta cuando el campo es invalido. */
+    /** Error message: only rendered when the field is invalid. */
     const error = <FieldError>{errorMessage}</FieldError>;
 
     /**
-     * El tooltip usa `Tooltip.Trigger` a proposito: ese wrapper es el elemento
-     * focusable (la libreria le aplica `useFocusable`), y es lo que hace que el
-     * tooltip se pueda abrir con el teclado. Pasar el campo directamente como hijo
-     * haria que solo se abriera con el raton, empeorando la accesibilidad.
+     * The tooltip uses `Tooltip.Trigger` on purpose: that wrapper is the
+     * focusable element (the library applies `useFocusable` to it), and it is
+     * what makes the tooltip open with the keyboard. Passing the field directly
+     * as a child would make it open only with the mouse, making accessibility
+     * worse.
      */
     const field = (
         <TextField {...textFieldProps}>

@@ -2,11 +2,11 @@ import React from "react";
 import {Button, useTheme} from "@heroui/react";
 
 /**
- * Presets definidos en `HeroUIThemes.css`.
+ * Presets defined in `HeroUIThemes.css`.
  *
- * Deben coincidir con los bloques `[data-theme="..."]` de ese archivo: antes solo
- * se ofrecian tres botones (light/sms/rcm) y los otros doce presets viajaban en el
- * bundle sin ninguna forma de activarlos.
+ * They must match the `[data-theme="..."]` blocks of that file: it used to offer
+ * only three buttons (light/sms/rcm) and the other twelve presets shipped in the
+ * bundle with no way of activating them.
  */
 const THEMES = [
     "light",
@@ -14,11 +14,18 @@ const THEMES = [
     "rcm",
 ] as const;
 
+/** `data-theme` value that activates dark mode. */
 const DARK_THEME = "dark";
 
+/**
+ * `HeroUIThemes`
+ *
+ * Theme switcher: one button per preset declared in `THEMES`, which applies the
+ * matching `data-theme` to the document through `useTheme`.
+ */
 export function HeroUIThemes() {
-    // `theme` es la intencion guardada ("dark" o el nombre del preset);
-    // `resolvedTheme` es lo que acaba aplicado al DOM.
+    // `theme` is the stored intention ("dark" or the preset name);
+    // `resolvedTheme` is what ends up applied to the DOM.
     const {theme, resolvedTheme, setTheme} = useTheme("rcm");
 
     const isDark = theme === DARK_THEME;

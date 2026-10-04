@@ -4,19 +4,34 @@ import type {DateValue} from "@internationalized/date";
 import {Icon} from "@iconify/react";
 import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
+/**
+ * Simple start/end pair used as the value of the range picker.
+ */
 interface RangeValue<T> {
+    /** Range start value. */
     start: T;
+    /** Range end value. */
     end: T;
 }
 
 
+/**
+ * Props for `HeroUIDateRangePicker`.
+ */
 interface HeroUIDateRangePickerProps {
+    /** Aria label for accessibility. Defaults to `"Date range picker"`. */
     ariaLabel?: string;
+    /** Optional visible label rendered above the field via the `Label` component. */
     label?: React.ReactNode;
+    /** Controlled range value. `null` means no range selected. */
     value?: RangeValue<DateValue> | null;
+    /** Fired when the range changes. Receives the new value or `null`. */
     onChange?: (value: RangeValue<DateValue> | null) => void;
+    /** Field width. Defaults to `"195px"`. */
     width?: string | number;
+    /** Additional CSS classes for the root DateRangePicker component. */
     className?: string;
+    /** Disables the field. Defaults to `false`. */
     isDisabled?: boolean;
     /**
      * Marks the field as required.
@@ -30,6 +45,7 @@ interface HeroUIDateRangePickerProps {
      * @default "This field is required"
      */
     requiredMessage?: string;
+    /** Optional tooltip. Accepts a string or a full config object. */
     tooltip?: string | HeroUITooltipConfig;
 }
 
@@ -83,7 +99,7 @@ const HeroUIDateRangePicker: React.FC<HeroUIDateRangePickerProps> = ({
     /**
      * The field is invalid when it's required but has no value.
      */
-    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    /** The required error only shows after the first onBlur, not on mount. */
     const [isTouched, setIsTouched] = useState(false);
 
     const isInvalid = isTouched && isRequired && !hasValue;
@@ -139,8 +155,8 @@ const HeroUIDateRangePicker: React.FC<HeroUIDateRangePickerProps> = ({
             <FieldError>{requiredMessage}</FieldError>
 
             <DateRangePicker.Popover className="rounded-[5px]">
-                {/* El calendario del popup no tiene etiqueta visible propia: conserva
-                    un nombre accesible, con la etiqueta del campo como respaldo. */}
+                {/* The popup calendar has no visible label of its own: it keeps
+                    an accessible name, with the field label as fallback. */}
                 <RangeCalendar aria-label={ariaLabel ?? label}>
                     <RangeCalendar.Header>
                         <RangeCalendar.YearPickerTrigger>

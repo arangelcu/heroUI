@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import {Card, type TimeValue} from "@heroui/react";
 import {HeroUIThemes} from "../HeroUIStyles/HeroUIThemes";
 import {FetchParams, HeroUiTable} from "../HeroUITable/HeroUITable/HeroUiTable";
+import {createRowHighlighter, toneHighlight} from "../HeroUIUtils/rowHighlights";
 import {useServerTable} from "./useServerTable";
 import {ROLE_OPTIONS, STATUS_OPTIONS,} from "../HeroUITable/TableFilters/filterOptions";
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
@@ -10,6 +11,8 @@ import HeroUIButton from "../HeroUIButton/HeroUIButton";
 import HeroUITimeField from "../HeroUITimeField/HeroUITimeField";
 import HeroUIComboBox, {HeroUIComboBoxOption} from "../HeroUIComboBox/HeroUIComboBox";
 import HeroUIComboBoxMultiple from "../HeroUIComboBox/HeroUIComboBoxMultiple";
+import HeroUIReactSelectMultiple from "../HeroUIReactSelectMultiple/HeroUIReactSelectMultiple";
+import HeroUIReactSelectSingle from "../HeroUIReactSelectSingle/HeroUIReactSelectSingle";
 import HeroUICheckbox from "../HeroUICheckbox/HeroUICheckbox";
 import HeroUIDateField from "../HeroUIDateField/HeroUIDateField";
 import HeroUIDatePicker from "../HeroUIDatePicker/HeroUIDatePicker";
@@ -38,8 +41,42 @@ const handleView = (user: User) => console.log("View", user);
 const handleEdit = (user: User) => console.log("Edit", user);
 const handleDelete = (user: User) => console.log("Delete", user);
 
+// --- Row highlighting configuration ----------------------------------------
+/**
+ * Declarative row-highlight configuration, shared by every table in this demo.
+ *
+ * This is the place to change the colours: edit the palette and all three tables
+ * follow, because they all use the two highlighters built from it. Nothing else in the
+ * demo (or in `HeroUiTable`) knows about the colours.
+ *
+ * `toneHighlight` resolves the theme tokens, so the highlight follows the active preset
+ * and works in dark mode as well.
+ */
+const ROW_TONES = {
+    danger: toneHighlight("danger"),
+    warning: toneHighlight("warning"),
+    accent: toneHighlight("accent"),
+} as const;
+
+/** Which tone each `status` gets. `undefined` keeps the default row look. */
+const STATUS_TONES: Record<User["status"], keyof typeof ROW_TONES | undefined> = {
+    Active: undefined,
+    Inactive: "danger",
+    "On Leave": "warning",
+};
+
+/**
+ * Reusable rule: highlights by `status`. Built once and shared by the three tables, so
+ * the colours above are the single place to change them.
+ */
+const highlightByStatus = createRowHighlighter<User>({
+    tones: ROW_TONES,
+    toneFor: (user) => STATUS_TONES[user.status],
+});
+
 const columnHelper = createColumnHelper<any, User>();
 
+/** Column definitions of the demo table: name, role, status, email, and actions. */
 const userColumns = columnHelper.columns([
     columnHelper.accessor("name", {header: "Name", minWidth: 160, defaultWidth: "1fr"} as any),
     columnHelper.accessor("role", {header: "Role", minWidth: 150, defaultWidth: "1fr"} as any),
@@ -88,15 +125,15 @@ const STATUSES = ["Active", "Inactive", "On Leave"] as const;
 const ALL_USERS: User[] = Array.from({length: 57}, (_, i) => ({
     id: i + 1,
     name: `User ${i + 1}`,
-    // Con `noUncheckedIndexedAccess` el acceso por indice es `T | undefined`,
-    // asi que el respaldo es obligatorio para el tipo (y para el dato).
+    // With `noUncheckedIndexedAccess` the indexed access is `T | undefined`,
+    // so the fallback is required for the type (and for the data).
     role: ROLES[i % ROLES.length] ?? ROLES[0],
     status: STATUSES[i % STATUSES.length] ?? STATUSES[0],
     email: `user${i + 1}@acme.com`,
 }));
 
 /**
- * Simula una búsqueda server-side.
+ * Simulates a server-side search.
  */
 const searchUsers = async (query: string): Promise<HeroUIComboBoxOption[]> => {
     await new Promise((r) => setTimeout(r, 300));
@@ -108,8 +145,8 @@ const searchUsers = async (query: string): Promise<HeroUIComboBoxOption[]> => {
 };
 
 /**
- * Campos por los que se puede ordenar. Un mapa explicito evita que un id
- * desconocido (p. ej. la columna "actions") acabe comparando "undefined".
+ * Fields the table can be sorted by. An explicit map prevents an unknown id
+ * (e.g. the "actions" column) from ending up comparing "undefined".
  */
 const SORTABLE_FIELDS: Record<string, keyof User> = {
     name: "name",
@@ -118,19 +155,19 @@ const SORTABLE_FIELDS: Record<string, keyof User> = {
     email: "email",
 };
 
-/** Comparador alfabetico consciente de mayusculas y acentos. */
+/** Alphabetical comparator aware of case and accents. */
 const collator = new Intl.Collator("es", {sensitivity: "base", numeric: true});
 
 /**
- * Simula una busqueda server-side: filtra, ordena y pagina.
- * Devuelve la pagina completa, no solo las filas visibles.
+ * Simulates a server-side search: filters, sorts, and paginates.
+ * Returns the whole page, not only the visible rows.
  */
 const queryUsers = async (params: FetchParams): Promise<User[]> => {
     const {offset, pageSize, sorting, filters} = params;
 
     let result = [...ALL_USERS];
 
-    // Antes los filtros se ignoraban: solo reseteaban la pagina.
+    // The filters used to be ignored: they only reset the page.
     const name = filters.name?.trim().toLowerCase();
     if (name) {
         result = result.filter((u) => u.name.toLowerCase().includes(name));
@@ -159,11 +196,12 @@ const queryUsers = async (params: FetchParams): Promise<User[]> => {
     return result.slice(offset, offset + pageSize);
 };
 
+/** Grid of demo cards that showcase every HeroUI wrapper in the project. */
 function HeroUIDemo() {
     // --- Table state -------------------------------------------------------
-    // Una instancia de estado por tabla: compartirla hacia que paginar u
-    // ordenar una tabla moviera las demas. Cada instancia carga su pagina 1
-    // al montar y descarta las respuestas obsoletas.
+    // One state instance per table: sharing it moved the other tables when one
+    // was paginated or sorted. Every instance loads its page 1 on mount and
+    // discards stale responses.
     const tableDefault = useServerTable<User>(queryUsers);
     const tableSelect = useServerTable<User>(queryUsers);
     const tableSimple = useServerTable<User>(queryUsers);
@@ -206,8 +244,8 @@ function HeroUIDemo() {
     };
 
     // --- ComboBox #2 (multiple) state -------------------------------------
-    // Reutiliza el mismo store simulado (`searchUsers`) que el combo simple: las
-    // opciones buscadas se comparten y cada combo mantiene su propia seleccion.
+    // Reuses the same simulated store (`searchUsers`) as the single combo: the
+    // searched options are shared and each combo keeps its own selection.
     const [options2, setOptions2] = useState<HeroUIComboBoxOption[]>([]);
     const [selected2, setSelected2] = useState<string[]>([]);
     const [inputValue2, setInputValue2] = useState("");
@@ -231,10 +269,69 @@ function HeroUIDemo() {
 
     const handleSelectionChange2 = (ids: string[]) => {
         setSelected2(ids);
-        // Tras elegir se limpia el buscador: las etiquetas ya se ven dentro del
-        // campo, asi que dejar el texto de la ultima opcion solo estorba.
+        // After picking, the search input is cleared: the labels are already visible
+        // inside the field, so leaving the text of the last option only gets in the way.
         setInputValue2("");
     };
+
+    // --- ComboBox #3 (multiple with react-select) state --------------------
+    // Same simulated store (`searchUsers`) as the two combos above.
+    const [options3, setOptions3] = useState<HeroUIComboBoxOption[]>([]);
+    const [selected3, setSelected3] = useState<string[]>([]);
+    const [inputValue3, setInputValue3] = useState("");
+    const [loading3, setLoading3] = useState(false);
+
+    const handleInputChange3 = async (query: string) => {
+        setInputValue3(query);
+
+        if (query.length < 3) {
+            setOptions3([]);
+            return;
+        }
+
+        setLoading3(true);
+        try {
+            setOptions3(await searchUsers(query));
+        } finally {
+            setLoading3(false);
+        }
+    };
+
+    const handleSelectionChange3 = (ids: string[]) => {
+        setSelected3(ids);
+    };
+
+    // --- Select #4 (single with react-select) state ------------------------
+    // Same simulated store (`searchUsers`) as the combos above.
+    const [options4, setOptions4] = useState<HeroUIComboBoxOption[]>([]);
+    const [selected4, setSelected4] = useState("");
+    const [inputValue4, setInputValue4] = useState("");
+    const [loading4, setLoading4] = useState(false);
+
+    const handleInputChange4 = async (query: string) => {
+        setInputValue4(query);
+
+        if (query.length < 3) {
+            setOptions4([]);
+            return;
+        }
+
+        setLoading4(true);
+        try {
+            setOptions4(await searchUsers(query));
+        } finally {
+            setLoading4(false);
+        }
+    };
+
+    const handleSelectionChange4 = (id: string) => {
+        setSelected4(id);
+    };
+
+    // --- Select #5 (single, without a search input) state -------------------
+    // Static list: `isSearchable={false}` cannot depend on an asynchronous
+    // search, because there is no text to type.
+    const [selected5, setSelected5] = useState("");
 
     // --- New components demo state ----------------------------------------
     const [checked, setChecked] = useState(false);
@@ -478,8 +575,8 @@ function HeroUIDemo() {
                                 </div>
 
                                 <div>
-                                    {/* Texto de seccion, no una etiqueta: cada boton lleva su
-                                        propio ariaLabel y una <Label> suelta no etiquetaria nada. */}
+                                    {/* Section text, not a label: every button carries its
+                                        own ariaLabel and a loose <Label> would not label anything. */}
                                     <span className="block text-sm font-medium">Toggle Buttons</span>
                                     <div className="flex items-center gap-3">
                                         <HeroUIToggleButton
@@ -573,8 +670,8 @@ function HeroUIDemo() {
                                 </div>
 
                                 <div>
-                                    {/* Texto de seccion: el nombre accesible del Switch lo aporta su
-                                        ariaLabel, porque HeroUI v3 no expone una etiqueta visible. */}
+                                    {/* Section text: the accessible name of the Switch is provided
+                                        by its ariaLabel, because HeroUI v3 does not expose a visible label. */}
                                     <span className="block text-sm font-medium">Switch</span>
                                     <HeroUISwitch
                                         ariaLabel="Enable notifications"
@@ -621,12 +718,73 @@ function HeroUIDemo() {
                                         placeholder="Type to search..."
                                         isRequired
                                         requiredMessage="Please select at least one user"
-                                        // Las etiquetas van en su propia fila, bajo el campo.
+                                        // The labels go in their own row, below the field.
                                         chipsPlacement="below"
                                     />
 
                                     <p className="text-xs mt-2">
                                         Selected ids: {selected2.length > 0 ? selected2.join(", ") : "(none)"}
+                                    </p>
+                                </div>
+
+                                <div className="min-w-0">
+                                    <HeroUIReactSelectMultiple
+                                        ariaLabel="Search users (react-select multiple)"
+                                        options={options3}
+                                        value={selected3}
+                                        label="React-select multiple example"
+                                        onChange={handleSelectionChange3}
+                                        inputValue={inputValue3}
+                                        onInputChange={handleInputChange3}
+                                        isLoading={loading3}
+                                        tooltip="Selección múltiple con react-select: los chips se renderizan dentro del campo"
+                                        placeholder="Type to search..."
+                                        isRequired
+                                        requiredMessage="Please select at least one user"
+                                    />
+
+                                    <p className="text-xs mt-2">
+                                        Selected ids: {selected3.length > 0 ? selected3.join(", ") : "(none)"}
+                                    </p>
+                                </div>
+
+                                <div className="min-w-0">
+                                    <HeroUIReactSelectSingle
+                                        ariaLabel="Search users (react-select single)"
+                                        options={options4}
+                                        value={selected4}
+                                        label="React-select single example"
+                                        onChange={handleSelectionChange4}
+                                        inputValue={inputValue4}
+                                        onInputChange={handleInputChange4}
+                                        isLoading={loading4}
+                                        tooltip="Selección simple con react-select; la x limpia la selección"
+                                        placeholder="Type to search..."
+                                        isRequired
+                                        requiredMessage="Please select a user"
+                                    />
+
+                                    <p className="text-xs mt-2">
+                                        Selected id: {selected4 || "(none)"}
+                                    </p>
+                                </div>
+
+                                <div className="min-w-0">
+                                    {/* Second variant of the same component: without a search input,
+                                        with the static list of roles (isSearchable={false}). */}
+                                    <HeroUIReactSelectSingle
+                                        ariaLabel="Role without search (react-select single)"
+                                        options={ROLE_OPTIONS}
+                                        value={selected5}
+                                        label="React-select single (no search)"
+                                        onChange={setSelected5}
+                                        isSearchable={false}
+                                        isClearable
+                                        tooltip="Sin buscador: la lista de opciones es estática"
+                                    />
+
+                                    <p className="text-xs mt-2">
+                                        Selected id: {selected5 || "(none)"}
                                     </p>
                                 </div>
 
@@ -659,8 +817,8 @@ function HeroUIDemo() {
                                         options={STATUS_OPTIONS}
                                         value={selectedStatuses}
                                         placeholder="Select statuses"
-                                        // El onChange declara la union string | string[]; en
-                                        // modo multiple el valor es siempre string[].
+                                        // The onChange declares the union string | string[]; in
+                                        // multiple mode the value is always string[].
                                         onChange={(keys) => setSelectedStatuses(keys as string[])}
                                         isRequired
                                         requiredMessage="Please select a item"
@@ -856,6 +1014,10 @@ function HeroUIDemo() {
                                 fetchData={tableDefault.fetchData}
                                 pageSizeOptions={[5, 10, 25, 50, 100]}
                                 rowHeaderColumnId="name"
+                                // Shared declarative rule: `Inactive` -> danger, `On Leave` ->
+                                // warning. The colours live in `ROW_TONES` above, so every
+                                // table that uses this highlighter changes with them.
+                                getRowStyle={highlightByStatus}
                                 filtersConfig={{
                                     start: <h2 className="text-lg font-semibold"></h2>,
                                     enableFiltersBtn: true,

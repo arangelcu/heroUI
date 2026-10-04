@@ -3,12 +3,12 @@
    ========================================================================== */
 
 .overlay {
-    /* 9999 lo ponia por encima de modales y toasts; el loader vive dentro de la
-       tabla, asi que basta con 1. */
+    /* 9999 put it above modals and toasts; the loader lives inside the table, so 1
+       is enough. */
     z-index: 1;
     width: 100%;
     height: 100%;
-    /* Token de superficie: con `white` fijo el overlay no seguia el tema. */
+    /* Surface token: with a hardcoded `white` the overlay did not follow the theme. */
     background-color: var(--loader-bg, var(--surface));
     border-radius: 20px;
     position: relative;
@@ -29,8 +29,8 @@
     display: inline-block;
     overflow: hidden;
     background: none;
-    /* Centrado con flex del contenedor: antes estaba en top:25%/left:45%, que
-       no centra el spinner. */
+    /* Centred by the container flex: it used to be at top:25%/left:45%, which does
+       not centre the spinner. */
     position: relative;
 }
 
@@ -55,8 +55,8 @@
     top: 19px;
     left: 19px;
     border-radius: 50%;
-    /* El borde se define por color abajo; `border: 10px solid #000` era residuo
-       y quedaba pisado. */
+    /* The border is defined by colour below; `border: 10px solid #000` was leftover
+       and got overridden. */
     border-width: 10px;
     border-style: solid;
     border-color: var(--loader-primary) transparent var(--loader-primary) transparent;

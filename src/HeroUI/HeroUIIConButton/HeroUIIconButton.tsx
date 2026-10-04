@@ -18,10 +18,10 @@ import {iconButtonOnlyTones, sharedTones} from "../HeroUIUtils/tones";
 /**
  * Custom tone variants layered on top of HeroUI's Button.
  *
- * Solid  → fondo fuerte, texto/ícono en contraste.
- * Soft   → fondo translúcido del mismo color, texto del color.
- * White  → fondo blanco con ícono en negro.
- * WhitePrimary → fondo blanco con ícono en el color primario del tema.
+ * Solid  → strong background with contrasting text/icon.
+ * Soft   → translucent background of the same color, text in that color.
+ * White  → white background with a black icon.
+ * WhitePrimary → white background with the icon in the theme's primary color.
  */
 const iconButtonTones = tv({
     base: "rounded-[5px] transition-colors",
@@ -43,12 +43,22 @@ type IconButtonTones = VariantProps<typeof iconButtonTones>;
 
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Props for `HeroUIIconButton`.
+ *
+ * Icon-only button built on HeroUI's `Button`, with custom tone variants,
+ * optional appearance presets, and an optional tooltip.
+ */
 interface HeroUIIconButtonProps
     extends Omit<ButtonProps, "isIconOnly" | "children">,
         IconButtonTones {
+    /** Iconify icon name rendered inside the button. */
     icon: string;
+    /** Additional CSS classes for the icon. Defaults to `"size-4"`. */
     iconClassName?: string;
+    /** Visual preset applied on top of the tone. Defaults to `"default"`. */
     appearance?: "default" | "surface" | "header" | "pagination";
+    /** Optional tooltip. Accepts a string or a full config object. */
     tooltip?: string | HeroUITooltipConfig;
 }
 

@@ -1,44 +1,73 @@
-/* `@heroui/styles` ya hace `@import "tailwindcss"` (y declara las capas
-   theme/base/components/utilities), asi que importarlo aqui ademas duplicaba el
-   preflight de Tailwind en el bundle. Con esta unica linea ya funcionan los
-   `@apply` de abajo. */
+/* `@heroui/styles` already does `@import "tailwindcss"` (and declares the
+   theme/base/components/utilities layers), so importing it here as well duplicated
+   Tailwind's preflight in the bundle. With this single line the `@apply` rules below
+   already work. */
 @import "@heroui/styles";
 
 @layer components {
+    /* Positioning context of the table: full width, clipped overflow. */
     .table-root {
         @apply relative grid w-full overflow-clip;
     }
 
-    /* Los slots de la tabla los pinta HeroUI con tokens del tema. Fijar aqui
-       colores de la paleta por defecto de Tailwind (bg-white, bg-gray-100)
-       anulaba los presets: la tabla quedaba blanca/gris en TODOS los temas.
-       Se dejan sin color propio para que manden los tokens. */
+    /* The table slots are painted by HeroUI with theme tokens. Hard-coding colors
+       from the default Tailwind palette here (bg-white, bg-gray-100) overrode the
+       presets: the table ended up white/gray in EVERY theme. They are left without a
+       color of their own so that the tokens win. */
     .table__column {
         @apply px-4 py-2.5 text-left text-xs font-medium text-muted;
     }
 
+    /* Body cell: regular text, with a slimmer vertical padding than the header
+       (`py-2` = 8px against `py-2.5` = 10px). Row height is driven by the tallest
+       child (the 32px action icon buttons), so 8px keeps rows around 49px instead of
+       57px: the same look, a more compact table. This is the ONLY place where the
+       vertical spacing of a cell is defined.
+
+       `bg-transparent` is load-bearing: HeroUI paints the cell itself with
+       `bg-surface`, which sits ON TOP of the row and hides any background set on the
+       `<tr>`. With the cells transparent the row paints the surface (see
+       `.table__row` below) and per-row styling (`getRowStyle` / `getRowClassName`)
+       becomes visible. Without this, a custom row background looks like it did
+       nothing. */
     .table__cell {
-        @apply px-4 py-3 text-sm;
+        @apply bg-transparent px-4 py-2 text-sm;
     }
 
+    /* Base look of a row (HeroUI already puts this class on every `<tr>`).
+       It lives in the components layer on purpose: Tailwind utilities sit in a later
+       layer, so the classes returned by `getRowClassName` always win over these. If
+       the base background were a utility in the JSX instead, a custom `bg-*` would
+       lose against it and per-row styling would look broken. */
+    .table__row {
+        @apply border-b border-border bg-surface;
+    }
+
+    /* Kept in the same layer for the same reason: a custom background must survive
+       the hover instead of being replaced by the default one. */
+    .table__row:hover {
+        @apply bg-surface-hover;
+    }
+
+    /* Footer row that hosts the pagination bar. */
     .table__footer {
         @apply flex items-center px-4 py-2.5;
     }
 }
 
-/* `.table-root` y `.table__scroll-container` no llevan borde en HeroUI: la regla
-   anterior era un no-op y, al estar fuera de capa con !important, escapaba del
-   sistema de capas. Eliminada. */
+/* `.table-root` and `.table__scroll-container` carry no border in HeroUI: the
+   previous rule was a no-op and, being outside a layer with !important, it escaped
+   the layer system. Removed. */
 
 :root {
-    /* El loader usa estos tokens; con negro puro quedaba ajeno al tema. */
+    /* The loader uses these tokens; with pure black it looked foreign to the theme. */
     --loader-primary: var(--accent);
     --loader-secondary: var(--muted);
     --loader-bg: var(--surface);
 
-    /* HeroUI deja `--field-border-width` en 0px y los inputs usan ese valor como
-       border-width, asi que definir `--field-border` (color) no basta: sin ancho
-       el borde no se ve. Los presets del proyecto definen el color; aqui se le da
-       grosor. */
+    /* HeroUI leaves `--field-border-width` at 0px and the inputs use that value as
+       border-width, so defining `--field-border` (color) is not enough: with no width
+       the border is not visible. The project presets define the color; here it is
+       given thickness. */
     --field-border-width: var(--border-width);
 }

@@ -99,13 +99,13 @@ const HeroUIComboBox: React.FC<HeroUIComboBoxProps> = ({
                                                            isRequired = false,
                                                            requiredMessage = "This field is required",
                                                        }) => {
+    /** The required error only shows after the first onBlur, not on mount. */
+    const [isTouched, setIsTouched] = useState(false);
+
     /**
      * The field is invalid when it's required but has no value.
      * An empty string also counts as empty.
      */
-    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
-    const [isTouched, setIsTouched] = useState(false);
-
     const isInvalid = isTouched && isRequired && (!value || value === "");
 
     /**

@@ -940,11 +940,11 @@
         --surface: oklch(100% 0.006 22.99);
         --surface-foreground: oklch(21.03% 0.012 22.99);
 
-        /* ⭐ surface-secondary — coral claro (B) */
+        /* surface-secondary - light coral (B) */
         --surface-secondary: oklch(86% 0.072 22.99);
         --surface-secondary-foreground: oklch(21.03% 0.012 22.99);
 
-        /* ⭐ surface-tertiary — #E57373 coral PURO */
+        /* surface-tertiary - PURE #E57373 coral */
         --surface-tertiary: oklch(70.09% 0.1345 22.99);
         --surface-tertiary-foreground: oklch(99.11% 0 0);
 
@@ -965,12 +965,12 @@
         --field-foreground: oklch(21.03% 0.012 22.99);
         --field-placeholder: oklch(55.17% 0.028 22.99);
 
-        /* ---- Accent (mismo coral, un poco más saturado para CTAs) ---- */
+        /* ---- Accent (same coral, a bit more saturated for CTAs) ---- */
         --accent: oklch(70.09% 0.1345 22.99);
         --accent-foreground: oklch(99.11% 0 0);
         --focus: oklch(70.09% 0.1345 22.99);
 
-        /* ---- Semánticos ---- */
+        /* ---- Semantic ---- */
         --success: oklch(73.29% 0.1992 148.02);
         --success-foreground: oklch(21.03% 0.0059 148.02);
         --warning: oklch(78.19% 0.1631 69.51);
@@ -1012,11 +1012,11 @@
         --surface: oklch(21.03% 0.025 22.99);
         --surface-foreground: oklch(99.11% 0.012 22.99);
 
-        /* ⭐ surface-secondary — coral oscuro suave (B) */
+        /* surface-secondary - soft dark coral (B) */
         --surface-secondary: oklch(33% 0.060 22.99);
         --surface-secondary-foreground: oklch(99.11% 0.012 22.99);
 
-        /* ⭐ surface-tertiary — #E57373 coral (más saturado en dark) */
+        /* surface-tertiary - #E57373 coral (more saturated in dark) */
         --surface-tertiary: oklch(62% 0.135 22.99);
         --surface-tertiary-foreground: oklch(99.11% 0 0);
 
@@ -1042,7 +1042,7 @@
         --accent-foreground: oklch(15% 0.03 22.99);
         --focus: oklch(70.09% 0.1345 22.99);
 
-        /* ---- Semánticos ---- */
+        /* ---- Semantic ---- */
         --success: oklch(73.29% 0.1992 148.02);
         --success-foreground: oklch(21.03% 0.0059 148.02);
         --warning: oklch(78.19% 0.1631 69.51);
@@ -1085,11 +1085,11 @@
         --surface: oklch(100% 0.006 144.02);
         --surface-foreground: oklch(21.03% 0.012 144.02);
 
-        /* ⭐ surface-secondary — verde claro */
+        /* surface-secondary - light green */
         --surface-secondary: oklch(86% 0.072 144.02);
         --surface-secondary-foreground: oklch(21.03% 0.012 144.02);
 
-        /* ⭐ surface-tertiary — #4daf51 verde PURO */
+        /* surface-tertiary - PURE #4daf51 green */
         --surface-tertiary: oklch(66.29% 0.1518 144.02);
         --surface-tertiary-foreground: oklch(99.11% 0 0);
 
@@ -1110,12 +1110,12 @@
         --field-foreground: oklch(21.03% 0.012 144.02);
         --field-placeholder: oklch(55.17% 0.028 144.02);
 
-        /* ---- Accent (mismo verde, un poco más saturado para CTAs) ---- */
+        /* ---- Accent (same green, a bit more saturated for CTAs) ---- */
         --accent: oklch(66.29% 0.1518 144.02);
         --accent-foreground: oklch(99.11% 0 0);
         --focus: oklch(66.29% 0.1518 144.02);
 
-        /* ---- Semánticos ---- */
+        /* ---- Semantic ---- */
         --success: oklch(73.29% 0.1992 148.02);
         --success-foreground: oklch(21.03% 0.0059 148.02);
         --warning: oklch(78.19% 0.1631 69.51);
@@ -1157,11 +1157,11 @@
         --surface: oklch(21.03% 0.025 144.02);
         --surface-foreground: oklch(99.11% 0.012 144.02);
 
-        /* ⭐ surface-secondary — verde oscuro suave */
+        /* surface-secondary - soft dark green */
         --surface-secondary: oklch(33% 0.060 144.02);
         --surface-secondary-foreground: oklch(99.11% 0.012 144.02);
 
-        /* ⭐ surface-tertiary — #4daf51 verde (más saturado en dark) */
+        /* surface-tertiary - #4daf51 green (more saturated in dark) */
         --surface-tertiary: oklch(58% 0.155 144.02);
         --surface-tertiary-foreground: oklch(99.11% 0 0);
 
@@ -1187,7 +1187,7 @@
         --accent-foreground: oklch(15% 0.03 144.02);
         --focus: oklch(66.29% 0.1518 144.02);
 
-        /* ---- Semánticos ---- */
+        /* ---- Semantic ---- */
         --success: oklch(73.29% 0.1992 148.02);
         --success-foreground: oklch(21.03% 0.0059 148.02);
         --warning: oklch(78.19% 0.1631 69.51);

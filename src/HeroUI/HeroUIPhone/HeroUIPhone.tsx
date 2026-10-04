@@ -171,9 +171,10 @@ const HeroUIPhone: React.FC<HeroUIPhoneProps> = ({
     const lastEmittedRef = useRef<string>(value);
 
     /**
-     * Mientras el usuario tiene el foco, el prop `value` no debe pisar lo que
-     * esta escribiendo. Sin esta guarda, bajar de `minChars` emite `onChange("")`,
-     * el padre pone `value=""` y este efecto borraba el texto recien escrito.
+     * While the user has focus, the `value` prop must not overwrite what they
+     * are typing. Without this guard, dropping below `minChars` emits
+     * `onChange("")`, the parent sets `value=""`, and this effect erased the
+     * text just typed.
      */
     const isEditingRef = useRef(false);
 
@@ -186,9 +187,9 @@ const HeroUIPhone: React.FC<HeroUIPhoneProps> = ({
     }, [value]);
 
     /**
-     * El error de obligatorio no se muestra hasta que el usuario interactua: sin
-     * esto el campo nacia en rojo con su mensaje ya visible. Un numero mal formado
-     * si se avisa de inmediato, porque ya hay algo escrito.
+     * The required error is not shown until the user interacts: without this
+     * the field started out red with its message already visible. A malformed
+     * number is flagged immediately, because there is already something written.
      */
     const [isTouched, setIsTouched] = useState(false);
 

@@ -28,12 +28,14 @@ const features = tableFeatures({
 });
 
 // --- Sorting bridge --------------------------------------------------------
+/** Converts the TanStack sorting state into a HeroUI `SortDescriptor`. */
 function toSortDescriptor(sorting: SortingState): SortDescriptor | undefined {
     const first = sorting[0];
     if (!first) return undefined;
     return {column: first.id, direction: first.desc ? "descending" : "ascending"};
 }
 
+/** Converts a HeroUI `SortDescriptor` back into the TanStack sorting state. */
 function toSortingState(descriptor: SortDescriptor): SortingState {
     return [{desc: descriptor.direction === "descending", id: descriptor.column as string}];
 }
@@ -65,11 +67,17 @@ export interface PaginationOptions {
  * with pagination, sorting, or filters.
  */
 export interface FetchParams {
+    /** Offset of the first row to request */
     first: number;
+    /** Same as `first`, kept for clarity in API contracts */
     offset: number;
+    /** Page index to request (0-based) */
     currentPage: number;
+    /** Number of rows per page */
     pageSize: number;
+    /** Current sorting state */
     sorting: SortingState;
+    /** Current filter values */
     filters: FilterValues;
 }
 
@@ -94,6 +102,7 @@ export interface TableFiltersConfig {
     enableFilterStatus?: boolean;
     /** Placeholder for the name filter */
     namePlaceholder?: string;
+    /** Iconify name of the icon rendered at the start of the header */
     startIcon?: string;
 }
 
@@ -137,6 +146,37 @@ interface HeroUITanStackTableProps<TData extends RowData> {
     // Resizable
     /** Enable column resizing with drag handles */
     enableColumnResizing?: boolean;
+
+    // Per-row styling
+    /**
+     * Extra CSS classes for a row, decided from its own data.
+     *
+     * Use it to highlight rows that match a condition, e.g. a row whose `status` is
+     * `"Inactive"`. Utilities passed here win over the table's base row look, so they
+     * are enough for a background or a border color; combine with `getRowStyle` when
+     * the value has to be computed at runtime.
+     *
+     * ```tsx
+     * getRowClassName={(user) => (user.status === "Inactive" ? "bg-danger-soft" : undefined)}
+     * ```
+     */
+    getRowClassName?: (row: TData) => string | undefined;
+    /**
+     * Inline styles for a row, decided from its own data.
+     *
+     * Inline styles beat every stylesheet rule, so this is the reliable way to set a
+     * value that comes from the data itself (a color stored in the record, a theme
+     * token resolved at runtime...).
+     *
+     * ```tsx
+     * getRowStyle={(user) =>
+     *     user.status === "Inactive"
+     *         ? {backgroundColor: "var(--danger-soft)", borderColor: "var(--danger)"}
+     *         : undefined
+     * }
+     * ```
+     */
+    getRowStyle?: (row: TData) => React.CSSProperties | undefined;
 
     // Filters
     /**
@@ -212,6 +252,8 @@ export function HeroUiTable<TData extends RowData>({
                                                        onSelectionChange,
                                                        getRowId = (row: any) => row.id,
                                                        enableColumnResizing = false,
+                                                       getRowClassName,
+                                                       getRowStyle,
                                                        filtersConfig,
                                                        onFiltersChange,
                                                    }: HeroUITanStackTableProps<TData>) {
@@ -234,8 +276,8 @@ export function HeroUiTable<TData extends RowData>({
         manualPagination: true,
         manualSorting: true,
         rowCount: total,
-        // Sin esto TanStack llavea las filas por indice ("0".."9") mientras la
-        // seleccion usa `getRowId`: dos sistemas de identidad en paralelo.
+        // Without this TanStack keys the rows by index ("0".."9") while the
+        // selection uses `getRowId`: two identity systems running in parallel.
         getRowId: (row: TData) => String(getRowId(row)),
         onSortingChange: setSorting,
         state: {sorting, pagination: {pageIndex, pageSize}},
@@ -409,11 +451,11 @@ export function HeroUiTable<TData extends RowData>({
 
                 {/* Data columns */}
                 {table.getHeaderGroups()[0]?.headers.map((header) => {
-                    // `getCanSort()` ya tiene en cuenta la feature de sorting y el
-                    // accessor. Antes se comprobaba `accessorFn` en `columnDef`, pero
-                    // TanStack v9 lo calcula sobre la instancia de la columna, no en
-                    // la definicion, asi que aquella condicion era siempre falsa y
-                    // ninguna columna llegaba a ser ordenable.
+                    // `getCanSort()` already accounts for the sorting feature and the
+                    // accessor. It used to check `accessorFn` on `columnDef`, but
+                    // TanStack v9 computes it on the column instance, not on the
+                    // definition, so that condition was always false and no column
+                    // ever became sortable.
                     const canSort = header.column.getCanSort();
                     const colDef = header.column.columnDef as any;
                     const isLast = table.getHeaderGroups()[0]?.headers.slice(-1)[0]?.id === header.id;
@@ -424,7 +466,10 @@ export function HeroUiTable<TData extends RowData>({
                             allowsSorting={canSort}
                             id={header.id}
                             isRowHeader={header.id === rowHeaderColumnId}
-                            className="px-4 py-3 text-left font-semibold text-default-foreground"
+                            // Vertical padding comes from `.table__column` in HeroUIStyles.css:
+                            // a `py-*` utility here would win over that @layer components rule
+                            // and silently split the spacing across two places.
+                            className="px-4 text-left font-semibold text-default-foreground"
                             defaultWidth={colDef.defaultWidth}
                             minWidth={colDef.minWidth}
                             style={
@@ -451,7 +496,11 @@ export function HeroUiTable<TData extends RowData>({
                     <Table.Row
                         key={row.id}
                         id={String(getRowId(row.original))}
-                        className="border-b border-border bg-surface hover:bg-surface-hover"
+                        // The base look (border, background, hover) comes from
+                        // `.table__row` in HeroUIStyles.css, so whatever the consumer
+                        // returns here is free to override it.
+                        className={getRowClassName?.(row.original)}
+                        style={getRowStyle?.(row.original)}
                     >
                         {/* Selection cell */}
                         {enableSelection && (
@@ -477,7 +526,9 @@ export function HeroUiTable<TData extends RowData>({
                         {row.getAllCells().map((cell) => (
                             <Table.Cell
                                 key={cell.id}
-                                className="px-4 py-3 text-muted"
+                                // Same as the header: vertical padding lives in
+                                // `.table__cell` so there is a single place to tune row height.
+                                className="px-4 text-muted"
                                 style={
                                     !enableColumnResizing && cell.column.columnDef.size
                                         ? {width: `${cell.column.getSize()}px`}

@@ -1,0 +1,362 @@
+/* ==========================================================================
+   Shared styles for the components built on react-select
+   --------------------------------------------------------------------------
+   Used by `HeroUIReactSelectMultiple` and `HeroUIReactSelectSingle`, which share
+   the `classNamePrefix` ("hrui-select") and therefore these classes.
+
+   **Global** CSS, not a module: react-select generates its classes from
+   `classNamePrefix` (`.hrui-select__control`, etc.), so the selectors have to be
+   those literal names. With `.module.css` Vite would hash them and they would not
+   match anything.
+
+   react-select is mounted with `unstyled`, that is, without any of its own styles:
+   the whole look is provided by this file using the HeroUI theme tokens
+   (--field-*, --surface, --accent...), so the field follows the HeroUIThemes
+   presets just like the rest.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Container: positioning reference for the menu
+   -------------------------------------------------------------------------- */
+
+.hrui-select__container {
+    position: relative;
+    width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Control: mimics the HeroUI field (border, background, radius, and focus)
+   -------------------------------------------------------------------------- */
+
+.hrui-select__control {
+    display: flex;
+    align-items: center;
+    min-height: 2.25rem;
+    width: 100%;
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: var(--border-width, 1px);
+    border-color: var(--field-border);
+    background-color: var(--field-background, var(--surface));
+    color: var(--field-foreground);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+
+/* Hover: only the border color changes. */
+.hrui-select__control:hover {
+    border-color: var(--field-border-hover, var(--field-border));
+}
+
+/* Same focus highlight as the HeroUI fields.
+   `box-shadow` is used and not `outline` because the base react-select styles declare
+   `outline: 0 !important` on the control class (checked in its source), and that
+   `!important` beats even an inline style: an outline would never be visible. HeroUI
+   already uses a ring (`ring-2`, which is a box-shadow) for focus, so it also looks
+   the same. */
+.hrui-select__control--is-focused,
+.hrui-select__control:focus-within {
+    border-color: var(--field-border-focus, var(--accent));
+    box-shadow: 0 0 0 2px var(--focus, var(--accent));
+}
+
+/* Disabled state: dimmed, with a not-allowed cursor. */
+.hrui-select__control--is-disabled {
+    opacity: var(--disabled-opacity, 0.5);
+    cursor: not-allowed;
+}
+
+/* Invalid state. It replicates the `invalid-field-ring` utility of HeroUI, which the
+   other fields use: 1px in --danger without focus and 2px with focus.
+   `data-invalid` is set by the component itself on its wrapper, because react-select's
+   `aria-invalid` prop ends up on its inner <input> and is no use for targeting the
+   control. It is drawn with box-shadow for the reason explained above (react-select's
+   `!important` on `outline`). */
+[data-invalid="true"] .hrui-select__control {
+    box-shadow: 0 0 0 1px var(--danger);
+}
+
+[data-invalid="true"] .hrui-select__control--is-focused,
+[data-invalid="true"] .hrui-select__control:focus-within {
+    box-shadow: 0 0 0 2px var(--danger);
+}
+
+/* Error message. It replicates HeroUI's `.field-error`: collapsed to height 0 and
+   opacity 0, and it expands when the field is invalid. */
+.hrui-select__error {
+    height: 0;
+    padding: 0 0.25rem;
+    overflow: hidden;
+    color: var(--danger);
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    overflow-wrap: break-word;
+    opacity: 0;
+    transition: opacity 150ms ease, height 350ms ease;
+}
+
+[data-invalid="true"] .hrui-select__error {
+    height: auto;
+    opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Value area: this is where the chips go, INSIDE the field
+   -------------------------------------------------------------------------- */
+
+.hrui-select__value-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Chip for each selected option
+   --------------------------------------------------------------------------
+   The base tokens of HeroUI's `.chip` (`--default` / `--default-foreground`) are
+   replicated so that the color matches the ones of the HeroUI multiple combo, but
+   the **radius is 5px**, not the HeroUI pill (`rounded-2xl`, 1rem): that way the
+   chip stays square like the menu items and like the rest of the fields in the
+   project, which use `rounded-[5px]`.
+   -------------------------------------------------------------------------- */
+
+.hrui-select__multi-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    max-width: 100%;
+    height: 1.25rem;
+    padding: 0 0.375rem;
+    border-radius: 5px;
+    background-color: var(--default);
+    color: var(--default-foreground);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1;
+}
+
+/* Label of the chip: truncated with an ellipsis when it exceeds the max width. */
+.hrui-select__multi-value__label {
+    max-width: 6rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0;
+    color: inherit;
+}
+
+.hrui-select__multi-value__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.875rem;
+    height: 0.875rem;
+    margin-inline-start: 0.125rem;
+    /* Small radius and not a circle: inside a square chip, the round hover
+       highlight clashed. */
+    border-radius: 3px;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+/* Hover of the remove button: it takes the chip foreground color. */
+.hrui-select__multi-value__remove:hover {
+    color: var(--default-foreground);
+    background-color: color-mix(in oklab, var(--default-foreground) 15%, transparent);
+}
+
+/* --------------------------------------------------------------------------
+   Search input and placeholder
+   -------------------------------------------------------------------------- */
+
+.hrui-select__input-container {
+    display: inline-grid;
+    grid-template-columns: 0 min-content;
+    margin: 0;
+    padding: 0;
+    color: inherit;
+}
+
+/* The input grows with its text: same technique as the HeroUI combo */
+.hrui-select__input-container::after {
+    content: attr(data-value) " ";
+    visibility: hidden;
+    white-space: pre;
+    grid-area: 1 / 2;
+    font: inherit;
+}
+
+/* The input itself inherits the typography and has no browser chrome of its own. */
+.hrui-select__input {
+    grid-area: 1 / 2;
+    min-width: 2px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    outline: none;
+    box-shadow: none;
+}
+
+/* Placeholder text, muted unless the theme overrides it. */
+.hrui-select__placeholder {
+    color: var(--field-placeholder, var(--muted));
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Single value (single selection)
+   -------------------------------------------------------------------------- */
+
+.hrui-select__single-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--field-foreground);
+    grid-area: 1 / 1 / 2 / 3;
+}
+
+/* Disabled single value: dimmed with the same opacity token as the control. */
+.hrui-select__single-value--is-disabled {
+    opacity: var(--disabled-opacity, 0.5);
+}
+
+/* --------------------------------------------------------------------------
+   Indicators on the right
+   -------------------------------------------------------------------------- */
+
+.hrui-select__indicators {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 0 0 auto;
+}
+
+/* Dropdown arrow indicator. */
+.hrui-select__indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+/* Hover of an indicator: it brightens up to the field foreground. */
+.hrui-select__indicator:hover {
+    color: var(--field-foreground);
+}
+
+/* The `x` that clears the selection (isClearable) */
+.hrui-select__clear-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+/* Hover of the clear button: it uses the danger color to signal removal. */
+.hrui-select__clear-indicator:hover {
+    color: var(--danger);
+}
+
+/* The input container in single selection does not need the width-by-characters
+   trick: the value already takes its slot and the search input stays flexible. */
+.hrui-select__container--single .hrui-select__input-container {
+    display: inline-block;
+    flex: 1 1 auto;
+    min-width: 2px;
+}
+
+.hrui-select__container--single .hrui-select__input {
+    grid-area: auto;
+    width: 100%;
+}
+
+.hrui-select__container--single .hrui-select__input-container::after {
+    content: none;
+}
+
+/* react-select's separator between indicators is hidden. */
+.hrui-select__indicator-separator {
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Dropdown menu
+   -------------------------------------------------------------------------- */
+
+.hrui-select__menu {
+    position: absolute;
+    z-index: 50;
+    width: 100%;
+    margin-top: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: var(--border-width, 1px);
+    border-color: var(--border);
+    background-color: var(--overlay, var(--surface));
+    color: var(--overlay-foreground, var(--field-foreground));
+    box-shadow: var(--overlay-shadow, 0 8px 24px rgb(0 0 0 / 0.12));
+    font-size: 0.875rem;
+}
+
+/* Scrollable list of options, with a capped height. */
+.hrui-select__menu-list {
+    max-height: 15rem;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.hrui-select__option {
+    padding: 0.375rem 0.5rem;
+    /* Same radius as the chips and as the rest of the fields: `rounded-[5px]`. */
+    border-radius: 5px;
+    cursor: pointer;
+    color: var(--field-foreground);
+}
+
+/* Highlighted option (keyboard or pointer). */
+.hrui-select__option--is-focused {
+    background-color: var(--surface-hover, color-mix(in oklab, var(--surface) 92%, var(--surface-foreground) 8%));
+}
+
+/* Already selected option: soft accent tint. */
+.hrui-select__option--is-selected {
+    background-color: color-mix(in oklab, var(--accent) 20%, transparent);
+}
+
+/* Disabled option: dimmed and not clickable. */
+.hrui-select__option--is-disabled {
+    opacity: var(--disabled-opacity, 0.5);
+    cursor: not-allowed;
+}
+
+/* Feedback messages shown when there are no options or while loading. */
+.hrui-select__no-options-message,
+.hrui-select__loading-message,
+.hrui-select__menu-notice {
+    padding: 0.75rem;
+    text-align: center;
+    color: var(--muted);
+}
+
+/* Heading of an option group inside the menu. */
+.hrui-select__group-heading {
+    padding: 0.25rem 0.5rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}

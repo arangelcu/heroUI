@@ -85,7 +85,7 @@ const HeroUIDateField: React.FC<HeroUIDateFieldProps> = ({
      * The field is invalid when it's required but has no value.
      * `null` and `undefined` both count as empty.
      */
-    /** El error de obligatorio se muestra tras el primer onBlur, no al montar. */
+    /** The required error only shows after the first onBlur, not on mount. */
     const [isTouched, setIsTouched] = useState(false);
 
     const isInvalid = isTouched && isRequired && (value === null || value === undefined);
