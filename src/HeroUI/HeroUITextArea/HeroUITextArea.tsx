@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {FieldError, Label, TextArea, TextField, Tooltip} from "@heroui/react";
-import type {HeroUITooltipConfig} from "../types";
+import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
 interface HeroUITextAreaProps {

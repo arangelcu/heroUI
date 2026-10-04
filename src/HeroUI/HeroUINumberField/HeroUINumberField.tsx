@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {FieldError, Label, NumberField, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
-import type {HeroUITooltipConfig} from "../types";
+import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
 interface HeroUINumberFieldProps {

@@ -1,7 +1,7 @@
 import React from "react";
 import {ToggleButton, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
-import type {HeroUITooltipConfig} from "../types";
+import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
 /**

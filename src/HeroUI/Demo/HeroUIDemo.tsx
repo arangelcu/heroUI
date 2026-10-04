@@ -9,6 +9,7 @@ import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
 import HeroUIButton from "../HeroUIButton/HeroUIButton";
 import HeroUITimeField from "../HeroUITimeField/HeroUITimeField";
 import HeroUIComboBox, {HeroUIComboBoxOption} from "../HeroUIComboBox/HeroUIComboBox";
+import HeroUIComboBoxMultiple from "../HeroUIComboBox/HeroUIComboBoxMultiple";
 import HeroUICheckbox from "../HeroUICheckbox/HeroUICheckbox";
 import HeroUIDateField from "../HeroUIDateField/HeroUIDateField";
 import HeroUIDatePicker from "../HeroUIDatePicker/HeroUIDatePicker";
@@ -202,6 +203,37 @@ function HeroUIDemo() {
         }
         const opt = options1.find((o) => o.id === id);
         setInputValue1(opt ? opt.label : "");
+    };
+
+    // --- ComboBox #2 (multiple) state -------------------------------------
+    // Reutiliza el mismo store simulado (`searchUsers`) que el combo simple: las
+    // opciones buscadas se comparten y cada combo mantiene su propia seleccion.
+    const [options2, setOptions2] = useState<HeroUIComboBoxOption[]>([]);
+    const [selected2, setSelected2] = useState<string[]>([]);
+    const [inputValue2, setInputValue2] = useState("");
+    const [loading2, setLoading2] = useState(false);
+
+    const handleInputChange2 = async (query: string) => {
+        setInputValue2(query);
+
+        if (query.length < 3) {
+            setOptions2([]);
+            return;
+        }
+
+        setLoading2(true);
+        try {
+            setOptions2(await searchUsers(query));
+        } finally {
+            setLoading2(false);
+        }
+    };
+
+    const handleSelectionChange2 = (ids: string[]) => {
+        setSelected2(ids);
+        // Tras elegir se limpia el buscador: las etiquetas ya se ven dentro del
+        // campo, asi que dejar el texto de la ultima opcion solo estorba.
+        setInputValue2("");
     };
 
     // --- New components demo state ----------------------------------------
@@ -573,6 +605,29 @@ function HeroUIDemo() {
                                     <p className="text-xs mt-1">Selected id: {selected1 || "(none)"}</p>
                                     <p className="text-xs">Selected
                                         label: {options1.find((o) => o.id === selected1)?.label || "(none)"}</p>
+                                </div>
+
+                                <div className="min-w-0">
+                                    <HeroUIComboBoxMultiple
+                                        ariaLabel="Search users (multiple)"
+                                        options={options2}
+                                        value={selected2}
+                                        label="Combo multiple example"
+                                        onChange={handleSelectionChange2}
+                                        inputValue={inputValue2}
+                                        onInputChange={handleInputChange2}
+                                        isLoading={loading2}
+                                        tooltip="Selecciona varios usuarios; las etiquetas aparecen debajo del campo"
+                                        placeholder="Type to search..."
+                                        isRequired
+                                        requiredMessage="Please select at least one user"
+                                        // Las etiquetas van en su propia fila, bajo el campo.
+                                        chipsPlacement="below"
+                                    />
+
+                                    <p className="text-xs mt-2">
+                                        Selected ids: {selected2.length > 0 ? selected2.join(", ") : "(none)"}
+                                    </p>
                                 </div>
 
                                 <div>

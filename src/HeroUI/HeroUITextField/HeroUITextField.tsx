@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {FieldError, InputGroup, Label, TextField, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import styles from "./HeroUITextField.module.css";
-import type {HeroUITooltipConfig} from "../types";
+import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
 interface HeroUITextFieldProps {

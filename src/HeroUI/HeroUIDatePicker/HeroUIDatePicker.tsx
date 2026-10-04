@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Calendar, DateField, DatePicker, FieldError, Label, Tooltip,} from "@heroui/react";
 import type {CalendarDate} from "@internationalized/date";
 import {Icon} from "@iconify/react";
-import type {HeroUITooltipConfig} from "../types";
+import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
 interface HeroUIDatePickerProps {

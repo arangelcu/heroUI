@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {DateField, FieldError, Label, Tooltip} from "@heroui/react";
 import type {DateValue} from "@internationalized/date";
-import type {HeroUITooltipConfig} from "../types";
+import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
 interface HeroUIDateFieldProps {

@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {DateField, DateRangePicker, FieldError, Label, RangeCalendar, Tooltip,} from "@heroui/react";
 import type {DateValue} from "@internationalized/date";
 import {Icon} from "@iconify/react";
-import type {HeroUITooltipConfig} from "../types";
+import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 interface RangeValue<T> {
     start: T;

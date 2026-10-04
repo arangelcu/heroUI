@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {DateField, FieldError, Label, TimeField, type TimeValue, Tooltip} from "@heroui/react";
-import type {HeroUITooltipConfig} from "../types";
+import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
 /**

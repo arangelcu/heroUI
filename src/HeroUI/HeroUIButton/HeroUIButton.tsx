@@ -3,8 +3,8 @@ import {Button, ButtonProps, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import {tv, type VariantProps} from "tailwind-variants";
 import styles from "./HeroUIButton.module.css";
-import type {HeroUITooltipConfig} from "../types";
-import {buttonOnlyTones, sharedTones} from "../tones";
+import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
+import {buttonOnlyTones, sharedTones} from "../HeroUIUtils/tones";
 
 /* -------------------------------------------------------------------------- */
 /*                               Tooltip types                                */

@@ -35,11 +35,13 @@ src/
   main.tsx                     # monta <StrictMode> + provider de toasts + estilos
   App.tsx
   HeroUI/
+    types.ts                   # tipos compartidos (tooltip, opciones)
+    tones.ts                   # tonos de color compartidos por los botones
     HeroUIProvider/            # Toast.Provider + cola global (toastQueue.ts)
     HeroUIStyles/
       HeroUIStyles.css         # importa @heroui/styles + ajustes de la tabla
       HeroUIThemes.tsx         # selector de temas
-      HeroUIThemes.Module.css  # presets [data-theme="..."]  (NO es un CSS Module)
+      HeroUIThemes.css         # presets [data-theme="..."]  (NO es un CSS Module)
     HeroUI<Tipo>/              # wrappers por componente, con su .module.css
     HeroUITable/               # tabla server-side + filtros, loader, paginación
     Demo/                      # demo que compone todo
@@ -54,6 +56,36 @@ Cada wrapper sigue el mismo contrato:
   no hay `label`**, de forma que la etiqueta visible quede asociada al control.
 - `tooltip` acepta `string` o `{text, placement, showArrow, delay}`.
 - Los mensajes de "obligatorio" aparecen **tras el primer `onBlur`**, no al montar.
+
+### ComboBox
+
+Dos variantes, ambas con búsqueda asíncrona: el padre recibe `onInputChange` y
+sirve `options`.
+
+| | Selección | Valor |
+|---|---|---|
+| `HeroUIComboBox` | una | `value: string` |
+| `HeroUIComboBoxMultiple` | varias | `value: readonly string[]` |
+
+`HeroUIComboBoxMultiple` pinta **las etiquetas de lo seleccionado dentro del
+propio campo** (no fuera, como en los ejemplos de la documentación de HeroUI),
+sobre el `ComboBox.Value` de react-aria, y cada etiqueta lleva una `x` para
+quitarla. Como con varias etiquetas un campo estrecho las apila una por línea,
+para uso real conviene `fullWidth` o un `width` mayor.
+
+```tsx
+const [selected, setSelected] = useState<string[]>([]);
+
+<HeroUIComboBoxMultiple
+  label="Usuarios"
+  options={options}
+  value={selected}
+  onChange={setSelected}
+  onInputChange={buscar}
+  fullWidth
+  isRequired
+/>
+```
 
 ### Tabla (`HeroUiTable`)
 

@@ -1,6 +1,6 @@
 import React from "react";
 import {Checkbox, Tooltip} from "@heroui/react";
-import type {HeroUITooltipConfig} from "../types";
+import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
 interface HeroUICheckboxProps {
