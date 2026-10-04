@@ -26,7 +26,7 @@ import HeroUIToggleButton from "../HeroUIToggleButton/HeroUIToggleButton";
 import HeroUIPhone from "../HeroUIPhone/HeroUIPhone";
 import HeroUICard from "../HeroUICard/HeroUICard";
 import {HeroUIAlertDialog} from "../HeroUIAlertDialog/HeroUIAlertDialog";
-import {toastQueue} from "../HeroUIProvider/toastQueue";
+import {snackbar} from "../HeroUISnackbar/snackbarQueue";
 
 interface User {
     id: number;
@@ -931,17 +931,17 @@ function HeroUIDemo() {
                                     />
                                 </div>
 
-                                {/* ---------- Toast trigger buttons ---------- */}
+                                {/* ---------- Snackbar trigger buttons ---------- */}
                                 <div className="w-[195px] grid grid-cols-2">
 
                                     <HeroUIButton
                                         tone="info"
                                         icon={'fa6-solid:circle-info'}
                                         onPress={() =>
-                                            toastQueue.add({
+                                            snackbar({
                                                 title: "Information",
                                                 description: "Please review before continuing.",
-                                                variant: "default",
+                                                tone: "info",
                                             })
                                         }
                                     >
@@ -952,10 +952,10 @@ function HeroUIDemo() {
                                         tone="success"
                                         icon="fa6-solid:circle-check"
                                         onPress={() =>
-                                            toastQueue.add({
+                                            snackbar({
                                                 title: "Success",
                                                 description: "Your changes have been saved.",
-                                                variant: "success",
+                                                tone: "success",
                                             })
                                         }
                                     >
@@ -966,10 +966,10 @@ function HeroUIDemo() {
                                         tone="warning"
                                         icon="fa6-solid:triangle-exclamation"
                                         onPress={() =>
-                                            toastQueue.add({
+                                            snackbar({
                                                 title: "Warning",
                                                 description: "Please review before continuing.",
-                                                variant: "warning",
+                                                tone: "warning",
                                             })
                                         }
                                     >
@@ -980,14 +980,31 @@ function HeroUIDemo() {
                                         tone="danger"
                                         icon="fa6-solid:circle-xmark"
                                         onPress={() =>
-                                            toastQueue.add({
+                                            snackbar({
                                                 title: "Error",
                                                 description: "Something went wrong.",
-                                                variant: "danger",
+                                                tone: "danger",
                                             })
                                         }
                                     >
                                         Toast
+                                    </HeroUIButton>
+
+                                    {/* Example with an action and no auto-dismiss: the two things
+                                        a Material snackbar allows that a plain toast does not. */}
+                                    <HeroUIButton
+                                        tone="default"
+                                        icon="fa6-solid:rotate-left"
+                                        onPress={() =>
+                                            snackbar({
+                                                title: "Item deleted",
+                                                tone: "default",
+                                                persist: true,
+                                                action: {label: "Undo", onPress: () => snackbar({title: "Restored", tone: "success"})},
+                                            })
+                                        }
+                                    >
+                                        Undo
                                     </HeroUIButton>
                                 </div>
                             </div>

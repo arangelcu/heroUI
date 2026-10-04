@@ -32,11 +32,11 @@ No existe `npm run dev`: el script de desarrollo se llama **`start`**.
 
 ```
 src/
-  main.tsx                     # monta <StrictMode> + provider de toasts + estilos
+  main.tsx                     # monta <StrictMode> + provider de notificaciones + estilos
   App.tsx
   HeroUI/
-    HeroUIProvider/            # Toast.Provider + cola global (toastQueue.ts)
-    HeroUIUtils/               # compartidos: types.ts, tones.ts, reactSelect.css
+    HeroUIProvider/            # providers de la app (monta los snackbars)
+    HeroUIUtils/               # compartidos: types.ts, tones.ts, rowHighlights.ts, reactSelect.css
     HeroUIStyles/
       HeroUIStyles.css         # importa @heroui/styles + ajustes de la tabla
       HeroUIThemes.tsx         # selector de temas
@@ -44,6 +44,7 @@ src/
     HeroUI<Tipo>/              # wrappers por componente, con su .module.css
     HeroUIReactSelectMultiple/ # combo multiple sobre react-select
     HeroUIReactSelectSingle/   # select simple sobre react-select
+    HeroUISnackbar/            # notificaciones sobre notistack
     HeroUITable/               # tabla server-side + filtros, loader, paginación
     Demo/                      # demo que compone todo
       useServerTable.ts        # estado de tabla por instancia
@@ -230,3 +231,45 @@ Disponibles: `light`, `sky`, `lavender`, `mint`, `netflix`, `uber`, `spotify`,
 Los colores deben salir de los tokens de HeroUI (`--surface`, `--accent`,
 `--field-border`…). Evita colores fijos como `white` o la paleta por defecto de
 Tailwind: anulan el sistema de temas.
+
+## Notificaciones (`HeroUISnackbar`)
+
+Las notificaciones van con **notistack** y viven en `HeroUIUtils/../HeroUISnackbar/`:
+
+| Archivo | Qué es |
+|---|---|
+| `HeroUISnackbar.tsx` | `HeroUISnackbarProvider` (monta notistack) y el contenido de cada variante |
+| `snackbarQueue.tsx` | `snackbar()`, `closeSnackbar` y `useSnackbar` — lo que importan los consumidores |
+
+```tsx
+import {snackbar} from "../HeroUISnackbar/snackbarQueue";
+
+snackbar({title: "Success", description: "Your changes have been saved.", tone: "success"});
+
+// Con acción y sin autocierre, lo que permite un snackbar y no un toast simple:
+snackbar({title: "Item deleted", persist: true, action: {label: "Undo", onPress: undo}});
+```
+
+Salen **arriba a la derecha**, que es donde aparecía el toast de HeroUI al que sustituyen
+(`placement="top end"`). Se cambia con `anchorOrigin` en `HeroUISnackbarProvider`;
+notistack deriva de ahí el orden del apilado y la dirección del deslizamiento.
+
+**Se eligió notistack 3.x** porque es la primera línea que **no depende de MUI** (usa
+`goober`): no añade un segundo sistema de diseño junto a HeroUI, y su rango de peers
+acepta React 19. La v1 y la v2 sí se construían sobre `@mui/material`.
+
+Cosas que conviene saber de la integración:
+
+- **El contenido custom debe reenviar la `ref`** (`forwardRef`). notistack la clona en el
+  elemento para medir la transición y, si no acaba en un nodo del DOM, lanza
+  `notistack - Custom snackbar is not refForwarding` y **no muestra nada**.
+- **El `z-index` hay que subirlo a mano.** notistack deja su contenedor en `1400`, por
+  debajo de los overlays de HeroUI (`--z-index-overlay: 100000`), así que un snackbar
+  lanzado desde un modal quedaba tapado. Se sube a `--z-index-toast`.
+- Notistack **no trae botón de cerrar** en su contenido (solo icono, mensaje y acción):
+  el de `HeroUISnackbarContent` es propio.
+- Los tonos usan el vocabulario del proyecto (`danger`, no `error`); la traducción a las
+  variantes de notistack está en `snackbarQueue.tsx`.
+
+Se quitó el `Toast.Provider` de HeroUI junto con su `toastQueue.ts` para que la app tenga
+**una sola** forma de notificar.

@@ -1,0 +1,142 @@
+/* ==========================================================================
+   HeroUISnackbar
+   --------------------------------------------------------------------------
+   notistack renders the notifications; everything here exists so they look like
+   the rest of the project instead of the Material defaults (a dark #323232
+   card). It is expressed with theme tokens, so the snackbars follow
+   `HeroUIThemes` and work in every preset, light or dark.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Container
+   --------------------------------------------------------------------------
+   notistack pins its container at `z-index: 1400`, which is BELOW the HeroUI
+   overlays (`--z-index-overlay: 100000`): a snackbar fired from a modal or an
+   alert dialog would be hidden behind it. It is raised to the toast layer, which
+   is where these notifications belong.
+
+   `!important` is required, not laziness: notistack injects its own rule with
+   goober at runtime, so its stylesheet lands after this one and wins by order.
+   -------------------------------------------------------------------------- */
+
+.container {
+    z-index: var(--z-index-toast, 100001) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Card
+   -------------------------------------------------------------------------- */
+
+.snackbar {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    width: 100%;
+    padding: 0.625rem 0.625rem 0.625rem 0.875rem;
+    border-radius: 5px;
+    border: var(--border-width, 1px) solid var(--snackbar-tone, var(--border));
+    background-color: color-mix(in oklab, var(--snackbar-tone, var(--surface)) 12%, var(--surface));
+    color: var(--field-foreground);
+    box-shadow: var(--overlay-shadow, 0 8px 24px rgb(0 0 0 / 0.14));
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+/* Tones.
+   The border, the background mix and the icon colour all read from
+   `--snackbar-tone`, so a variant only has to set that single variable. */
+.default {
+    --snackbar-tone: var(--default-foreground);
+}
+
+.info {
+    --snackbar-tone: var(--accent);
+}
+
+.success {
+    --snackbar-tone: var(--success);
+}
+
+.warning {
+    --snackbar-tone: var(--warning);
+}
+
+.danger {
+    --snackbar-tone: var(--danger);
+}
+
+/* --------------------------------------------------------------------------
+   Content: icon + title + description
+   -------------------------------------------------------------------------- */
+
+.content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.icon {
+    flex: 0 0 auto;
+    margin-top: 0.125rem;
+    color: var(--snackbar-tone);
+}
+
+.text {
+    min-width: 0;
+}
+
+.title {
+    font-weight: 600;
+    overflow-wrap: break-word;
+}
+
+.description {
+    color: var(--muted);
+    overflow-wrap: break-word;
+}
+
+/* --------------------------------------------------------------------------
+   Action and close button
+   -------------------------------------------------------------------------- */
+
+.action {
+    flex: 0 0 auto;
+    align-self: center;
+}
+
+.actionButton {
+    padding: 0.25rem 0.625rem;
+    border-radius: 5px;
+    border: var(--border-width, 1px) solid var(--border);
+    background-color: var(--surface);
+    color: var(--field-foreground);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1rem;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+}
+
+.actionButton:hover {
+    background-color: var(--surface-hover, var(--surface-secondary));
+}
+
+.close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 5px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 150ms ease, background-color 150ms ease;
+}
+
+.close:hover {
+    color: var(--field-foreground);
+    background-color: color-mix(in oklab, var(--field-foreground) 10%, transparent);
+}

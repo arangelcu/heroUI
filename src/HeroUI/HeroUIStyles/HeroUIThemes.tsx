@@ -4,12 +4,25 @@ import {Button, useTheme} from "@heroui/react";
 /**
  * Presets defined in `HeroUIThemes.css`.
  *
- * They must match the `[data-theme="..."]` blocks of that file: it used to offer
- * only three buttons (light/sms/rcm) and the other twelve presets shipped in the
- * bundle with no way of activating them.
+ * They must match the `[data-theme="..."]` blocks of that file. The list used to have
+ * only three entries (light/sms/rcm) while twelve other presets shipped in the bundle
+ * with no way of activating them, and `DARK_THEME` was dead code because no button ever
+ * set it. `light` is not a block in the CSS: it is the base theme, so selecting it just
+ * drops the preset.
  */
 const THEMES = [
     "light",
+    "sky",
+    "lavender",
+    "mint",
+    "netflix",
+    "uber",
+    "spotify",
+    "coinbase",
+    "airbnb",
+    "discord",
+    "rabbit",
+    "rose",
     "sms",
     "rcm",
 ] as const;
@@ -52,6 +65,20 @@ export function HeroUIThemes() {
                         </Button>
                     );
                 })}
+
+                {/*
+                 * Dark is a separate mode rather than another preset: it is the `.dark`
+                 * variant of whichever preset is active, and `useTheme` stores the
+                 * intention as "dark".
+                 */}
+                <Button
+                    className="rounded-[5px]"
+                    variant={isDark ? "primary" : "ghost"}
+                    aria-pressed={isDark}
+                    onPress={() => setTheme(DARK_THEME)}
+                >
+                    {DARK_THEME.toUpperCase()}
+                </Button>
             </div>
         </div>
     );

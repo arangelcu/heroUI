@@ -11,7 +11,7 @@
     transition: background-color 0.15s ease;
 }
 
-/* Hover ultra sutil — tinte suave sobre el fondo */
+/* Very subtle hover: a soft tint over the background. */
 .appearanceHeader:hover:not(:disabled) {
     background-color: color-mix(
             in srgb,
