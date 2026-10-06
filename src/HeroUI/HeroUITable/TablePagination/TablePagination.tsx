@@ -1,161 +1,168 @@
 import React, {useState} from "react";
-import {Input} from "@heroui/react";
-import HeroUIButton from "../../HeroUIButton/HeroUIButton";
-import HeroUISelect from "../../HeroUISelect/HeroUISelect";
+import {Icon} from "@iconify/react";
 import styles from "./TablePagination.module.css";
 
 /**
- * Props for `TablePagination`.
+ * Pagination slice of the TanStack Table instance this footer drives.
  *
- * A footer pagination bar with Previous / Next buttons, a page indicator,
- * and a "rows per page" selector.
+ * Declared as the minimum the footer needs instead of importing the whole
+ * `Table` type: the footer only navigates and asks for counts, so any TanStack
+ * table with the `rowPaginationFeature` enabled satisfies it.
  */
+export interface TablePaginationApi {
+    /** Total number of pages (`options.pageCount` or `rowCount / pageSize`). */
+    getPageCount: () => number;
+    /** Total number of rows (`options.rowCount` when the server owns it). */
+    getRowCount: () => number;
+    /** Whether the current page index can move backwards. */
+    getCanPreviousPage: () => boolean;
+    /** Whether the current page index can move forwards. */
+    getCanNextPage: () => boolean;
+    /** Moves one page backwards. */
+    previousPage: () => void;
+    /** Moves one page forwards. */
+    nextPage: () => void;
+    /** Jumps to a zero-based page index. */
+    setPageIndex: (pageIndex: number) => void;
+    /** Changes how many rows fit on a page. */
+    setPageSize: (pageSize: number) => void;
+}
+
 interface TablePaginationProps {
-    /** Current page (1-based, for display) */
-    currentPage: number;
-    /** Total number of pages */
-    totalPages: number;
-    /** Current page size (rows per page) */
+    /** TanStack Table instance driving the page count and the navigation. */
+    table: TablePaginationApi;
+    /**
+     * Zero-based page index on screen.
+     *
+     * It comes from the server state (`PaginationOptions.currentPage`) and not
+     * from the table, because with `manualPagination` the server is the only
+     * source of truth for which page is loaded.
+     */
+    pageIndex: number;
+    /** Rows per page currently loaded. */
     pageSize: number;
-    /** Available page size options */
-    pageSizeOptions: number[];
-    /** Called when the user changes the page (receives a 1-based page) */
-    onPageChange: (page: number) => void;
-    /** Called when the user changes the page size */
-    onPageSizeChange: (size: number) => void;
+    /** Options of the "rows per page" selector. */
+    pageSizeOptions?: number[];
+    /** Disables the controls while a request is in flight. */
+    isLoading?: boolean;
 }
 
 /**
  * `TablePagination`
  *
- * A fully controlled pagination bar designed to sit below a table.
+ * Pagination footer shared by `HeroUiTable` and `HeroUIReactTable`.
  *
- * ### Features
- * - Previous / Next buttons with disabled states
- * - Editable page input (press Enter or blur to jump)
- * - "Page X of Y" indicator
- * - "Rows per page" selector
- * - Uses `HeroUIButton` and `HeroUISelect` for consistent styling
+ * ### What it does not do
  *
- * ### Example
- * ```tsx
- * <TablePagination
- *   currentPage={1}
- *   totalPages={10}
- *   pageSize={10}
- *   pageSizeOptions={[5, 10, 25, 50, 100]}
- *   onPageChange={(page) => setPage(page)}
- *   onPageSizeChange={(size) => setPageSize(size)}
- * />
- * ```
+ * It never slices or sorts anything: with `manualPagination` the rows already
+ * come paginated from the server. All the numbers (`pageCount`, `rowCount`,
+ * `canPrevious`, `canNext`) and the navigation itself are delegated to the
+ * TanStack Table instance through `table`, so both tables paginate exactly the
+ * same way and there is no second pagination implementation to keep in sync.
+ *
+ * The look follows `HeroUIReactTable`'s footer (plain markup painted with the
+ * theme tokens) so a `HeroUiTable` and a plain table side by side are
+ * indistinguishable.
+ *
+ * ### Page input
+ *
+ * The number is a draft: it is committed on `Enter` or blur, clamped to the
+ * valid range, and re-synchronised when `pageIndex` changes from the outside.
+ * Adjusting it during render (instead of in an effect) is the React pattern for
+ * "adjusting state when a prop changes" and avoids a second render.
  */
 const TablePagination: React.FC<TablePaginationProps> = ({
-                                                             currentPage,
-                                                             totalPages,
+                                                             table,
+                                                             pageIndex,
                                                              pageSize,
-                                                             pageSizeOptions,
-                                                             onPageChange,
-                                                             onPageSizeChange,
+                                                             pageSizeOptions = [5, 10, 20, 50, 100],
+                                                             isLoading = false,
                                                          }) => {
-    /**
-     * Editable draft of the page number, together with the last page received as a
-     * prop. When `currentPage` changes from the outside, it is resynchronized during
-     * render (the "adjusting state when a prop changes" pattern from React) instead
-     * of with an effect, which caused a cascading render.
-     */
-    const [pageInput, setPageInput] = useState(String(currentPage));
-    const [lastPage, setLastPage] = useState(currentPage);
+    /** Draft of the page number, kept as text so partial input is allowed. */
+    const [pageDraft, setPageDraft] = useState(() => String(pageIndex + 1));
+    const [lastPageIndex, setLastPageIndex] = useState(pageIndex);
 
-    if (currentPage !== lastPage) {
-        setLastPage(currentPage);
-        setPageInput(String(currentPage));
+    if (pageIndex !== lastPageIndex) {
+        setLastPageIndex(pageIndex);
+        setPageDraft(String(pageIndex + 1));
     }
 
-    /**
-     * Navigates to a page, clamping it to the valid range
-     * and avoiding duplicate `onPageChange` calls.
-     */
+    const pageCount = Math.max(1, table.getPageCount());
+    const rowCount = table.getRowCount();
+
+    /** Commits a one-based page number, clamped to the known page count. */
     const goToPage = (page: number) => {
-        // Integers: `Number("2.5")` used to produce `first = 2.5 * pageSize`.
         const whole = Math.trunc(page);
         if (!Number.isFinite(whole)) return;
-        const clamped = Math.min(Math.max(whole, 1), totalPages);
-        if (clamped !== currentPage) {
-            onPageChange(clamped);
-        }
+        const clamped = Math.min(Math.max(whole, 1), pageCount);
+        table.setPageIndex(clamped - 1);
     };
 
-    /**
-     * Commits the current input value.
-     * Falls back to the current page if the input is not a number.
-     */
-    const commitPageInput = () => {
-        const parsed = Number(pageInput);
-        if (pageInput.trim() !== "" && !Number.isNaN(parsed)) {
-            goToPage(parsed);
-        } else {
-            setPageInput(String(currentPage));
+    /** Applies the typed page number, or restores the current one when invalid. */
+    const commitPageDraft = () => {
+        const parsed = parseInt(pageDraft, 10);
+        if (Number.isNaN(parsed)) {
+            setPageDraft(String(pageIndex + 1));
+            return;
         }
+        goToPage(parsed);
     };
-
-    /** Options for the "rows per page" selector. */
-    const pageSizeSelectOptions = pageSizeOptions.map((size) => ({
-        id: String(size),
-        label: `${size} rows`,
-    }));
 
     return (
-        <div className={styles.bar}>
-            {/* Previous */}
-            <HeroUIButton
-                tone="white"
-                tooltip="Previous page"
-                className={styles.navButton}
-                isDisabled={currentPage <= 1}
-                onPress={() => goToPage(currentPage - 1)}
-            >
-                Previous
-            </HeroUIButton>
+        <div className={styles.footer}>
+            <span>
+                {rowCount} {rowCount === 1 ? "row" : "rows"}
+            </span>
 
-            {/* Page indicator + editable input */}
-            <div className={styles.pageInfo}>
-                <span>Page</span>
-                <Input
-                    aria-label="Page number"
-                    className={styles.pageInput}
-                    type="text"
-                    value={pageInput}
-                    onBlur={commitPageInput}
-                    onChange={(e) => setPageInput(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            commitPageInput();
-                            (e.target as HTMLInputElement).blur();
-                        }
+            <span className={styles.footerSpacer}/>
+
+            <button
+                type="button"
+                className={styles.pageButton}
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage() || isLoading}
+                aria-label="Previous page"
+            >
+                <Icon className="size-3" icon="fa6-solid:chevron-left"/>
+            </button>
+
+            <span className={styles.pageIndicator}>
+                Page
+                <input
+                    className={`${styles.pageInput} mx-1`}
+                    value={pageDraft}
+                    onChange={(event) => setPageDraft(event.target.value.replace(/[^0-9]/g, ""))}
+                    onBlur={commitPageDraft}
+                    onKeyDown={(event) => {
+                        if (event.key === "Enter") event.currentTarget.blur();
                     }}
+                    aria-label="Page number"
                 />
-                <span>of {totalPages}</span>
-            </div>
+                of {pageCount}
+            </span>
 
-            {/* Rows per page */}
-            <HeroUISelect
-                ariaLabel="Rows per page"
-                options={pageSizeSelectOptions}
-                value={String(pageSize)}
-                className={styles.pageSizeSelect}
-                onChange={(key) => onPageSizeChange(Number(key))}
-            />
-
-            {/* Next */}
-            <HeroUIButton
-                tone="white"
-                tooltip="Next page"
-                className={styles.navButton}
-                isDisabled={currentPage >= totalPages}
-                onPress={() => goToPage(currentPage + 1)}
+            <button
+                type="button"
+                className={styles.pageButton}
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage() || isLoading}
+                aria-label="Next page"
             >
-                Next
-            </HeroUIButton>
+                <Icon className="size-3" icon="fa6-solid:chevron-right"/>
+            </button>
+
+            <select
+                className={styles.pageSizeSelect}
+                value={pageSize}
+                onChange={(event) => table.setPageSize(Number(event.target.value))}
+                aria-label="Rows per page"
+            >
+                {pageSizeOptions.map((size) => (
+                    <option key={size} value={size}>
+                        {size} rows
+                    </option>
+                ))}
+            </select>
         </div>
     );
 };

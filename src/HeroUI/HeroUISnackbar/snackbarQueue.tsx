@@ -91,7 +91,10 @@ export function snackbar(options: HeroUISnackbarOptions) {
                 {action.label}
             </button>
         ) : undefined,
-        autoHideDuration: autoHideDuration ?? undefined,
+        // Passed through untouched: notistack reads `null` as "no auto-hide" and
+        // `undefined` as "use the provider default". Coercing with `?? undefined`
+        // turned the documented `null` into the 4s default.
+        autoHideDuration,
         persist,
     });
 }

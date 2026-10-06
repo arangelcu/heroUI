@@ -1,10 +1,12 @@
 import {createColumnHelper} from "@tanstack/react-table";
 import React, {useState} from "react";
 import {Card, type TimeValue} from "@heroui/react";
+import type {CalendarDate, DateValue} from "@internationalized/date";
 import {HeroUIThemes} from "../HeroUIStyles/HeroUIThemes";
 import {FetchParams, HeroUiTable} from "../HeroUITable/HeroUITable/HeroUiTable";
+import {HeroUIReactTable} from "../HeroUIReactTable/HeroUIReactTable";
 import {createRowHighlighter, toneHighlight} from "../HeroUIUtils/rowHighlights";
-import {useServerTable} from "./useServerTable";
+import {useServerTable, type FetchResult} from "./useServerTable";
 import {ROLE_OPTIONS, STATUS_OPTIONS,} from "../HeroUITable/TableFilters/filterOptions";
 import HeroUIIconButton from "../HeroUIIConButton/HeroUIIconButton";
 import HeroUIButton from "../HeroUIButton/HeroUIButton";
@@ -160,9 +162,11 @@ const collator = new Intl.Collator("es", {sensitivity: "base", numeric: true});
 
 /**
  * Simulates a server-side search: filters, sorts, and paginates.
- * Returns the whole page, not only the visible rows.
+ *
+ * Returns the page plus the size of the whole result set: the total is what makes
+ * the pagination possible, because a single page cannot say how many there are.
  */
-const queryUsers = async (params: FetchParams): Promise<User[]> => {
+const queryUsers = async (params: FetchParams): Promise<FetchResult<User>> => {
     const {offset, pageSize, sorting, filters} = params;
 
     let result = [...ALL_USERS];
@@ -193,7 +197,7 @@ const queryUsers = async (params: FetchParams): Promise<User[]> => {
 
     await new Promise((r) => setTimeout(r, 600));
 
-    return result.slice(offset, offset + pageSize);
+    return {rows: result.slice(offset, offset + pageSize), total: result.length};
 };
 
 /** Grid of demo cards that showcase every HeroUI wrapper in the project. */
@@ -204,7 +208,8 @@ function HeroUIDemo() {
     // discards stale responses.
     const tableDefault = useServerTable<User>(queryUsers);
     const tableSelect = useServerTable<User>(queryUsers);
-    const tableSimple = useServerTable<User>(queryUsers);
+    // Same store hook drives the plain table: the server-side contract is shared.
+    const tablePlain = useServerTable<User>(queryUsers);
 
     // --- ComboBox #1 (single) state ---------------------------------------
     const [options1, setOptions1] = useState<HeroUIComboBoxOption[]>([]);
@@ -345,9 +350,12 @@ function HeroUIDemo() {
     const [bookmarked, setBookmarked] = useState(false);
     const [numberValue, setNumberValue] = useState<number | undefined>(undefined);
     const [textAreaValue, setTextAreaValue] = useState("");
-    const [dateValue, setDateValue] = useState<Date | null>(null);
-    const [datePickerValue, setDatePickerValue] = useState<Date | null>(null);
-    const [dateRangeValue, setDateRangeValue] = useState<{ start: Date; end: Date } | null>(null);
+    // The date fields work with `@internationalized/date` values, not with `Date`:
+    // declaring them as `Date` forced an `as any` per prop and hid the mismatch.
+    const [dateValue, setDateValue] = useState<DateValue | null>(null);
+    const [datePickerValue, setDatePickerValue] = useState<CalendarDate | null>(null);
+    const [dateRangeValue, setDateRangeValue] =
+        useState<{ start: DateValue; end: DateValue } | null>(null);
 
     // --- Select demo state -------------------------------------------------
     /** Single-selection role filter (mirrors TableFilters role). */
@@ -527,9 +535,7 @@ function HeroUIDemo() {
                                         isInvalid={false}
                                         invalidMessage="Something went wrong"
                                         value={text}
-                                        onChange={(v) => {
-                                            setText(v as any);
-                                        }}
+                                        onChange={setText}
                                     />
                                 </div>
 
@@ -542,7 +548,7 @@ function HeroUIDemo() {
                                         isRequired
                                         requiredMessage="Email is required"
                                         value={email}
-                                        onChange={(v) => setEmail(v as any)}
+                                        onChange={setEmail}
                                     />
                                 </div>
 
@@ -555,7 +561,7 @@ function HeroUIDemo() {
                                         isRequired
                                         requiredMessage="Number is required"
                                         value={number}
-                                        onChange={(v) => setNumber(v as any)}
+                                        onChange={setNumber}
                                     />
                                 </div>
 
@@ -620,10 +626,10 @@ function HeroUIDemo() {
                                     <HeroUIDateField
                                         ariaLabel="Birth date"
                                         label="Birth date"
-                                        value={dateValue as any}
+                                        value={dateValue}
                                         isRequired
                                         requiredMessage="Please select a date"
-                                        onChange={(v) => setDateValue(v as any)}
+                                        onChange={setDateValue}
                                         tooltip="Select a date"
                                     />
                                     <p className="text-xs mt-1">Date: {dateValue ? String(dateValue) : "(none)"}</p>
@@ -633,10 +639,10 @@ function HeroUIDemo() {
                                     <HeroUIDatePicker
                                         ariaLabel="Appointment date"
                                         label="Appointment"
-                                        value={datePickerValue as any}
+                                        value={datePickerValue}
                                         isRequired
                                         requiredMessage="Please pick a date"
-                                        onChange={(v) => setDatePickerValue(v as any)}
+                                        onChange={setDatePickerValue}
                                         tooltip="Pick an appointment date"
                                     />
                                     <p className="text-xs mt-1">Picked: {datePickerValue ? String(datePickerValue) : "(none)"}</p>
@@ -648,8 +654,8 @@ function HeroUIDemo() {
                                         label="Vacation range"
                                         isRequired
                                         requiredMessage="Please pick a date"
-                                        value={dateRangeValue as any}
-                                        onChange={(v) => setDateRangeValue(v as any)}
+                                        value={dateRangeValue}
+                                        onChange={setDateRangeValue}
                                         tooltip="Pick a date range"
                                     />
                                     <p className="text-xs mt-1">
@@ -1026,6 +1032,7 @@ function HeroUIDemo() {
                             <HeroUiTable
                                 columns={userColumns}
                                 isLoading={tableDefault.isLoading}
+                                error={tableDefault.error}
                                 data={tableDefault.data}
                                 paginationOptions={tableDefault.paginationOptions}
                                 fetchData={tableDefault.fetchData}
@@ -1036,7 +1043,6 @@ function HeroUIDemo() {
                                 // table that uses this highlighter changes with them.
                                 getRowStyle={highlightByStatus}
                                 filtersConfig={{
-                                    start: <h2 className="text-lg font-semibold"></h2>,
                                     enableFiltersBtn: true,
                                     enableRefreshBtn: true,
                                     enableFilterName: true,
@@ -1057,6 +1063,7 @@ function HeroUIDemo() {
                             <HeroUiTable
                                 columns={userColumns}
                                 isLoading={tableSelect.isLoading}
+                                error={tableSelect.error}
                                 data={tableSelect.data}
                                 paginationOptions={tableSelect.paginationOptions}
                                 fetchData={tableSelect.fetchData}
@@ -1070,7 +1077,6 @@ function HeroUIDemo() {
                                 ariaLabel="Team members"
                                 rowHeaderColumnId="name"
                                 filtersConfig={{
-                                    start: <h2 className="text-lg font-semibold"></h2>,
                                     end: (
                                         <>
                                             <HeroUIIconButton
@@ -1081,6 +1087,9 @@ function HeroUIDemo() {
                                         </>
 
                                     ),
+                                    startIcon: "fa6-solid:users",
+                                    start: <h2 className="flex text-sm font-semibold text-surface-tertiary">My User
+                                        Table</h2>,
                                     enableFiltersBtn: true,
                                     enableRefreshBtn: true,
                                     enableFilterName: true,
@@ -1090,28 +1099,34 @@ function HeroUIDemo() {
                         </div>
                     </HeroUICard>
 
-                    {/* ---------- Card 5: Table + SELECT ---------- */}
+                    {/* ---------- Card 6: Table PLAIN (own markup) ---------- */}
                     <HeroUICard
-                        title="Table Simple"
-                        description="Simple Table."
+                        title="Table PLAIN"
+                        description="TanStack Table v9 rendering its own <table> markup (no HeroUI table primitives). Server-side pagination and sorting."
                     >
                         <div className="p-4">
-                            <HeroUiTable
+                            <HeroUIReactTable
                                 columns={userColumns}
-                                isLoading={tableSimple.isLoading}
-                                data={tableSimple.data}
-                                paginationOptions={tableSimple.paginationOptions}
-                                fetchData={tableSimple.fetchData}
+                                isLoading={tablePlain.isLoading}
+                                error={tablePlain.error}
+                                data={tablePlain.data}
+                                paginationOptions={tablePlain.paginationOptions}
+                                fetchData={tablePlain.fetchData}
                                 pageSizeOptions={[5, 10, 25, 50, 100]}
                                 enableSelection
                                 getRowId={(user) => user.id}
-                                ariaLabel="Team members"
-                                rowHeaderColumnId="name"
+                                ariaLabel="Team members (plain table)"
+                                // Without `rowHeaderColumnId` every column is painted the
+                                // same; the name of the row is not highlighted.
+                                getRowStyle={highlightByStatus}
+                                onSelectionChange={(rows) => console.log("Plain table, filas seleccionadas:", rows.length)}
                                 filtersConfig={{
-                                    startIcon: "fa6-solid:users",
-                                    start: <h2 className="flex text-sm font-semibold text-surface-tertiary">My User
-                                        Table</h2>,
+                                    enableFiltersBtn: true,
                                     enableRefreshBtn: true,
+                                    enableFilterName: true,
+                                    enableFilterRole: true,
+                                    enableFilterStatus: true,
+                                    namePlaceholder: "Buscar por nombre...",
                                 }}
                             />
                         </div>

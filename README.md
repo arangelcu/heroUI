@@ -7,9 +7,9 @@ propia de wrappers en `src/HeroUI/`.
 
 | Pieza | Versión |
 |---|---|
-| React / React DOM | 19.3 |
+| React / React DOM | ^19.2.8 |
 | HeroUI (`@heroui/react`, `@heroui/styles`) | 3.2.6 |
-| TanStack Table | 9.2.4 |
+| TanStack Table | ^9.2.6 |
 | Tailwind CSS (vía `@tailwindcss/vite`) | 4.3 |
 | TypeScript | 6.0 |
 | Vite | 8.3 |
@@ -19,7 +19,7 @@ Requiere **Node `^20.19 || ^22.13 || >=24`** (lo exigen Vite 8 y ESLint 10).
 ## Comandos
 
 ```bash
-npm start        # servidor de desarrollo en http://localhost:7002 (--host)
+npm start        # servidor de desarrollo en http://localhost:7003 (--host)
 npm run build    # tsc --noEmit && vite build
 npm run preview  # sirve la build
 npm run typecheck
@@ -46,6 +46,8 @@ src/
     HeroUIReactSelectSingle/   # select simple sobre react-select
     HeroUISnackbar/            # notificaciones sobre notistack
     HeroUITable/               # tabla server-side + filtros, loader, paginación
+      TablePagination/         # pie de paginación compartido (TanStack)
+    HeroUIReactTable/          # la misma tabla, con markup <table> propio
     Demo/                      # demo que compone todo
       useServerTable.ts        # estado de tabla por instancia
 ```
@@ -134,7 +136,19 @@ const [uno, setUno] = useState("");
 
 Server-side: paginación, orden, filtros y selección se delegan al consumidor
 mediante `fetchData(params)`. El estado de cada tabla vive en su propia instancia
-de `useServerTable`, que además descarta respuestas obsoletas por `requestId`.
+de `useServerTable`, que además descarta respuestas obsoletas por `requestId` y
+deja el fallo de la última petición en `error` (la tabla lo pinta en lugar del
+estado vacío: una petición rota no es "no hay datos").
+
+El fetcher devuelve **la página y el total**, porque una página sola no puede
+decir cuántas hay:
+
+```ts
+const queryUsers = async (params: FetchParams): Promise<FetchResult<User>> => ({
+  rows: pageOfUsers,
+  total: totalOfUsers,
+});
+```
 
 ```tsx
 const table = useServerTable<User>(queryUsers);
@@ -143,12 +157,34 @@ const table = useServerTable<User>(queryUsers);
   columns={userColumns}
   data={table.data}
   isLoading={table.isLoading}
+  error={table.error}
   paginationOptions={table.paginationOptions}
   fetchData={table.fetchData}
   enableSelection
   getRowId={(user) => user.id}
 />
 ```
+
+**Paginación.** El pie (`HeroUITable/TablePagination`) lo conduce el propio
+TanStack Table: pide `getPageCount()`, `getRowCount()`, `getCanPreviousPage()` y
+`getCanNextPage()`, y navega con `previousPage()` / `nextPage()` /
+`setPageIndex()` / `setPageSize()`. Las peticiones salen de `onPaginationChange`
+y, como `manualPagination` está activo, el servidor sigue siendo el único que
+corta las filas. `HeroUIReactTable` monta **el mismo** pie y la misma API, así que
+las dos tablas paginan —y se ven— igual.
+
+**Filtros.** Las dos tablas comparten también la barra `TableFilters` y el mismo
+`filtersConfig` (`enableFilterName`, `enableFilterRole`, `enableFilterStatus`,
+`enableFiltersBtn`, `enableRefreshBtn`, `start`, `end`, `startIcon`,
+`namePlaceholder`). En `HeroUiTable` la barra va siempre delante de la tarjeta; en
+`HeroUIReactTable` se monta con `filtersConfig` y, sin ella, el consumidor puede
+renderizar su propia UI y pasar los valores por `filters`. Cualquier cambio de
+filtro vuelve a la primera página y sale como una petición nueva.
+
+**Estados.** Comparten también el vacío y el de carga —`TableEmpty` (icono, título
+y descripción) y `TableLoader`— más el de error. La prioridad es error → carga →
+vacío, y cada uno se puede sustituir con `renderError` / `renderLoading` /
+`renderEmpty`.
 
 #### Estilo por fila según su dato
 
@@ -225,12 +261,18 @@ Los presets se definen como variables CSS bajo `[data-theme="nombre"]` y se acti
 con `useTheme` de HeroUI, que escribe **el mismo valor** en `class` y en
 `data-theme` del `<html>`.
 
-Disponibles: `light`, `sky`, `lavender`, `mint`, `netflix`, `uber`, `spotify`,
-`coinbase`, `airbnb`, `discord`, `rabbit`, `rose`, `sms`, `rcm` y `dark`.
+El selector (`HeroUIThemes.tsx`) expone los presets que el proyecto usa:
+**`light`, `sms` y `rcm`**. `HeroUIThemes.css` define además `sky`, `lavender`,
+`mint`, `netflix`, `uber`, `spotify`, `coinbase`, `airbnb`, `discord`, `rabbit` y
+`rose`, pero **sin botón que los active**: para usarlos hay que añadirlos a la
+lista `THEMES`. Sus variantes `.dark` tampoco se alcanzan hoy —`useTheme` escribe
+el mismo valor en `class` y en `data-theme`, y `[data-theme="rcm"].dark` exige
+las dos a la vez—, así que el modo oscuro de los presets queda pendiente.
 
 Los colores deben salir de los tokens de HeroUI (`--surface`, `--accent`,
 `--field-border`…). Evita colores fijos como `white` o la paleta por defecto de
-Tailwind: anulan el sistema de temas.
+Tailwind: anulan el sistema de temas. (`HeroUICard` todavía usa `bg-white`; queda
+como deuda conocida mientras no se use el tema oscuro.)
 
 ## Notificaciones (`HeroUISnackbar`)
 

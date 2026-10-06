@@ -1,17 +1,15 @@
 import React, {useState} from "react";
 import {FieldError, Label, ListBox, Select, Tooltip} from "@heroui/react";
-import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
+import type {HeroUISelectOption, HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
 /**
  * A single option rendered in the select list.
+ *
+ * Re-exported from `HeroUIUtils/types` instead of declared here: this file used to
+ * carry a second, byte-identical copy of the interface.
  */
-export interface HeroUISelectOption {
-    /** Unique identifier of the option */
-    id: string;
-    /** Visible label of the option */
-    label: string;
-}
+export type {HeroUISelectOption};
 
 /** Selection mode of `HeroUISelect`. */
 export type HeroUISelectionMode = "single" | "multiple";

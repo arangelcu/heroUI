@@ -1,0 +1,183 @@
+/* ==========================================================================
+   HeroUIReactTable
+   --------------------------------------------------------------------------
+   Own markup, own styles. Unlike `HeroUiTable` this component does not use the
+   `Table.*` primitives of HeroUI: it renders a plain <table> and paints it from
+   the theme tokens, so the DOM and the CSS are entirely ours.
+
+   The metrics match the rest of the project on purpose (header 36px, rows 49px,
+   5px radius) so the two tables can live side by side without looking foreign.
+   ========================================================================== */
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 5px;
+    border: var(--border-width, 1px) solid var(--border);
+    background-color: var(--surface);
+}
+
+/* The scroll container: the table can be wider than the card. */
+.scroller {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: start;
+}
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+
+.header {
+    background-color: var(--surface-secondary);
+    border-bottom: var(--border-width, 1px) solid var(--border);
+}
+
+.column {
+    position: relative;
+    padding: 0.625rem 1rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1rem;
+    text-align: start;
+    white-space: nowrap;
+}
+
+/* Short vertical line between columns, like the other table. */
+.column::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: 0;
+    top: 50%;
+    width: 1px;
+    height: 1rem;
+    transform: translateY(-50%);
+    background-color: var(--border);
+    pointer-events: none;
+}
+
+.column:last-child::after {
+    content: none;
+}
+
+/* --------------------------------------------------------------------------
+   Sortable header button
+   -------------------------------------------------------------------------- */
+
+.sortButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.sortButton:hover {
+    color: var(--field-foreground);
+}
+
+/* The icon only shows on the sorted column, so the header does not get noisy. */
+.sortIcon {
+    flex: 0 0 auto;
+    opacity: 0;
+    transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.column[aria-sort="ascending"] .sortIcon,
+.column[aria-sort="descending"] .sortIcon {
+    opacity: 1;
+}
+
+.column[aria-sort="descending"] .sortIcon {
+    transform: rotate(180deg);
+}
+
+.column[aria-sort="ascending"],
+.column[aria-sort="descending"] {
+    color: var(--field-foreground);
+}
+
+/* Selection column: narrow and centred. */
+.selectColumn {
+    width: 40px;
+    padding-inline-end: 0;
+    text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Body
+   -------------------------------------------------------------------------- */
+
+.row {
+    background-color: var(--surface);
+    border-bottom: var(--border-width, 1px) solid var(--border);
+    transition: background-color 150ms ease;
+}
+
+.row:last-child {
+    border-bottom: 0;
+}
+
+.row:hover {
+    background-color: var(--surface-hover, var(--surface-secondary));
+}
+
+.cell {
+    padding: 0.5rem 1rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    vertical-align: middle;
+}
+
+/* The cell that names the row reads as the primary text. */
+.rowHeaderCell {
+    color: var(--field-foreground);
+    font-weight: 500;
+}
+
+.selectCell {
+    width: 40px;
+    padding-inline-end: 0;
+    text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Empty / loading / error state
+   --------------------------------------------------------------------------
+   The cell carries no padding of its own: the default blocks (`TableLoader` and
+   `TableEmpty`) already draw a 300px surface with their own background and
+   centring, and `HeroUiTable` gives them the whole cell too. */
+
+.stateCell {
+    padding: 0;
+    color: var(--muted);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+/* Wrapper of the `renderEmpty` / `renderLoading` / `renderError` escape hatches,
+   which do not bring spacing of their own. */
+.stateContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 2.5rem 1rem;
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   --------------------------------------------------------------------------
+   The pagination bar is `HeroUITable/TablePagination` (shared with `HeroUiTable`),
+   so its styles live in that module: this table no longer owns a footer of its own.
+   -------------------------------------------------------------------------- */

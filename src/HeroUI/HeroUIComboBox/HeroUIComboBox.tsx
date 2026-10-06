@@ -1,18 +1,17 @@
 import React, {useState} from "react";
 import {ComboBox, FieldError, Input, Label, ListBox, Spinner, Tooltip} from "@heroui/react";
 import {Icon} from "@iconify/react";
-import type {HeroUITooltipConfig} from "../HeroUIUtils/types";
+import type {HeroUISelectOption, HeroUITooltipConfig} from "../HeroUIUtils/types";
 
 
 /**
  * Single option rendered inside the ComboBox `ListBox`.
+ *
+ * Alias of the shared `HeroUISelectOption`, used as the `id` of the
+ * `ListBox.Item` and as `textValue`. It used to be a second, identical interface
+ * declared here, which is drift waiting to happen.
  */
-export interface HeroUIComboBoxOption {
-    /** Unique option identifier. Used as the `id` of the `ListBox.Item`. */
-    id: string;
-    /** Visible option text. Used as `textValue` and label. */
-    label: string;
-}
+export type HeroUIComboBoxOption = HeroUISelectOption;
 
 interface HeroUIComboBoxProps {
     /** Aria label for accessibility. Defaults to `"ComboBox"`. */
@@ -71,7 +70,9 @@ interface HeroUIComboBoxProps {
  * Features:
  * - The parent is responsible for fetching options via `onInputChange`
  *   (async server-side search).
- * - The popover opens automatically while typing (`menuTrigger="input"`).
+ * - `menuTrigger="focus"`: the popover opens when the input is focused or when
+ *   the trigger is pressed, and closes with `Escape` or a click outside.
+ *   `"input"` would reopen it on every keystroke instead.
  * - `allowsEmptyCollection` keeps the popover open while the server
  *   has not returned results yet.
  * - To clear the selection, the user simply empties the input.

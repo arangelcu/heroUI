@@ -1,49 +1,87 @@
 /* ==========================================================================
-   Container
+   TablePagination
+   --------------------------------------------------------------------------
+   Pagination footer shared by `HeroUiTable` and `HeroUIReactTable`. The look
+   comes from the plain table's footer: plain markup painted with the theme
+   tokens, so both tables show the same bar.
+
+   The controls are NOT HeroUI components on purpose. `HeroUIReactTable` renders
+   a native <table>, and a HeroUI Select or Button inside its footer would pull
+   in the HeroUI field look and change the metrics of the bar; the theme tokens
+   are enough for it to match the interface in every preset.
    ========================================================================== */
 
-.bar {
-    display: flex;
+.footer {
+    /* `width: 100%` is load-bearing: inside `HeroUiTable` the bar is a flex item of
+       the HeroUI footer slot, which is a flex container. Without it the bar shrinks
+       to its content, the `footerSpacer` gets no free space and the controls stay
+       glued to the left instead of being pushed to the right edge. In
+       `HeroUIReactTable` (a block container) the bar is already full width, so this
+       changes nothing there. */
     width: 100%;
-    align-items: center;
-    gap: 1rem;
-    border-radius: 8px;
-    background-color: color-mix(in srgb, var(--surface-secondary) 40%, transparent);
-}
-
-/* ==========================================================================
-   Previous / Next buttons
-   Only min-width here — the rest comes from HeroUIButton's "surface" appearance.
-   ========================================================================== */
-
-.navButton {
-    min-width: 140px;
-}
-
-/* ==========================================================================
-   Page indicator ("Page X of Y")
-   ========================================================================== */
-
-.pageInfo {
     display: flex;
-    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    border-top: var(--border-width, 1px) solid var(--border);
+    background-color: var(--surface-secondary);
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.footerSpacer {
+    flex: 1 1 auto;
+}
+
+.pageButton {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--muted, #6b7280);
-}
-
-/* Editable page input */
-.pageInput {
-    width: 80px;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.5rem;
     border-radius: 5px;
+    border: var(--border-width, 1px) solid var(--border);
+    background-color: var(--surface);
+    color: var(--field-foreground);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
 }
 
-/* ==========================================================================
-   Rows per page selector
-   ========================================================================== */
+.pageButton:hover:not(:disabled) {
+    background-color: var(--surface-hover, var(--surface-secondary));
+}
+
+.pageButton:disabled {
+    opacity: var(--disabled-opacity, 0.5);
+    cursor: not-allowed;
+}
+
+.pageIndicator {
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.pageInput {
+    width: 3.5rem;
+    height: 2rem;
+    padding: 0 0.5rem;
+    border-radius: 5px;
+    border: var(--border-width, 1px) solid var(--border);
+    background-color: var(--surface);
+    color: var(--field-foreground);
+    font-size: 0.75rem;
+    text-align: center;
+}
 
 .pageSizeSelect {
-    width: 128px;
+    height: 2rem;
+    padding: 0 0.5rem;
+    border-radius: 5px;
+    border: var(--border-width, 1px) solid var(--border);
+    background-color: var(--surface);
+    color: var(--field-foreground);
+    font-size: 0.75rem;
 }

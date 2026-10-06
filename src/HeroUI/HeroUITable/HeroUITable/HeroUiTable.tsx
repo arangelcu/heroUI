@@ -1,11 +1,12 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {Checkbox, Selection, SortDescriptor, Table} from "@heroui/react";
-import type {ColumnDef, RowData, SortingState} from "@tanstack/react-table";
+import type {ColumnDef, PaginationState, RowData, SortingState, Updater} from "@tanstack/react-table";
 import {
     columnSizingFeature,
     createPaginatedRowModel,
     createSortedRowModel,
     flexRender,
+    functionalUpdate,
     rowPaginationFeature,
     rowSortingFeature,
     sortFn_alphanumeric,
@@ -58,7 +59,14 @@ export interface PaginationOptions {
     countRows: number;
     /** Page size */
     pageSize: number;
-    /** Total number of pages */
+    /**
+     * Total number of pages reported by the server.
+     *
+     * The footer no longer reads it: `TablePagination` asks TanStack
+     * (`getPageCount()`), which derives the count from `totalElements` and
+     * `pageSize`. It stays in the contract because it is what a paginated
+     * endpoint returns.
+     */
     pages: number;
 }
 
@@ -127,6 +135,17 @@ interface HeroUITanStackTableProps<TData extends RowData> {
      * Defaults to a `TableEmpty` component when not provided.
      */
     renderEmpty?: () => React.ReactNode;
+    /**
+     * Failure of the last request, when there is one.
+     *
+     * It takes priority over the empty state: a broken request is not "no data".
+     */
+    error?: Error | null;
+    /**
+     * Custom error state.
+     * Defaults to a `TableEmpty` component showing the error message.
+     */
+    renderError?: (error: Error) => React.ReactNode;
     /**
      * Custom loading state.
      * Defaults to a `TableLoader` component when not provided.
@@ -247,6 +266,8 @@ export function HeroUiTable<TData extends RowData>({
                                                        rowHeaderColumnId,
                                                        renderEmpty,
                                                        renderLoading,
+                                                       error = null,
+                                                       renderError,
                                                        isLoading = false,
                                                        enableSelection = false,
                                                        onSelectionChange,
@@ -263,10 +284,34 @@ export function HeroUiTable<TData extends RowData>({
     const [filters, setFilters] = useState<FilterValues>({});
 
     // --- Derived from pagination options -----------------------------------
+    // The server owns which page is loaded (`pageIndex` / `pageSize`); TanStack
+    // owns the pagination maths (`rowCount` -> `getPageCount()`) and the
+    // navigation exposed to the footer.
     const pageIndex = paginationOptions.currentPage;
     const pageSize = paginationOptions.pageSize;
-    const total = paginationOptions.totalElements;
-    const pageCount = paginationOptions.pages;
+    const rowCount = paginationOptions.totalElements;
+
+    /**
+     * Pagination handler of the table instance.
+     *
+     * TanStack resolves the next `{pageIndex, pageSize}` from the updater and
+     * hands it over here; the request goes out from this callback and the
+     * response lands back in `paginationOptions`, which is the state the table is
+     * bound to. Nothing slices rows locally: `manualPagination` is on.
+     */
+    const handlePaginationChange = useCallback((updater: Updater<PaginationState>) => {
+        const next = functionalUpdate(updater, {pageIndex, pageSize});
+        if (next.pageIndex === pageIndex && next.pageSize === pageSize) return;
+
+        fetchData({
+            first: next.pageIndex * next.pageSize,
+            offset: next.pageIndex * next.pageSize,
+            currentPage: next.pageIndex,
+            pageSize: next.pageSize,
+            sorting,
+            filters,
+        });
+    }, [fetchData, filters, pageIndex, pageSize, sorting]);
 
     // --- TanStack table instance -------------------------------------------
     const table = useTable({
@@ -275,11 +320,12 @@ export function HeroUiTable<TData extends RowData>({
         features,
         manualPagination: true,
         manualSorting: true,
-        rowCount: total,
+        rowCount,
         // Without this TanStack keys the rows by index ("0".."9") while the
         // selection uses `getRowId`: two identity systems running in parallel.
         getRowId: (row: TData) => String(getRowId(row)),
         onSortingChange: setSorting,
+        onPaginationChange: handlePaginationChange,
         state: {sorting, pagination: {pageIndex, pageSize}},
     });
 
@@ -345,6 +391,18 @@ export function HeroUiTable<TData extends RowData>({
      * 2. `TableLoader` / `TableEmpty` (defaults)
      */
     const renderEmptyState = () => {
+        // A failed request comes first: showing "No results found" for a 500 hides
+        // the only thing the user needs to know.
+        if (error) {
+            return renderError ? renderError(error) : (
+                <TableEmpty
+                    icon="fa6-solid:triangle-exclamation"
+                    title="Something went wrong"
+                    description={error.message}
+                />
+            );
+        }
+
         if (isLoading) {
             return renderLoading ? renderLoading() : <TableLoader loading={true}/>;
         }
@@ -359,28 +417,9 @@ export function HeroUiTable<TData extends RowData>({
     };
 
     // --- Handlers -----------------------------------------------------------
-    const handlePageChange = useCallback((newPageIndex: number) => {
-        fetchData({
-            first: newPageIndex * pageSize,
-            offset: newPageIndex * pageSize,
-            currentPage: newPageIndex,
-            pageSize,
-            sorting,
-            filters,
-        });
-    }, [fetchData, pageSize, sorting, filters]);
-
-    const handlePageSizeChange = useCallback((newSize: number) => {
-        fetchData({
-            first: 0,
-            offset: 0,
-            currentPage: 0,
-            pageSize: newSize,
-            sorting,
-            filters,
-        });
-    }, [fetchData, sorting, filters]);
-
+    // Paging goes through `handlePaginationChange` (TanStack's own pagination
+    // API), so the only page-related handlers left here are the ones that reset
+    // the page after a change of sorting or filters.
     const handleSortChange = useCallback((descriptor: SortDescriptor) => {
         const newSorting = toSortingState(descriptor);
         setSorting(newSorting);
@@ -566,9 +605,6 @@ export function HeroUiTable<TData extends RowData>({
             )}
 
             <Table className="rounded-[15px] overflow-hidden shadow-sm border border-border/40">
-                {/* Filters bar (only when filtersConfig is provided) */}
-
-
                 {/* Table body: resizable or scrollable */}
                 {enableColumnResizing ? (
                     <Table.ResizableContainer>
@@ -580,18 +616,18 @@ export function HeroUiTable<TData extends RowData>({
                     </Table.ScrollContainer>
                 )}
 
-                {/* Pagination footer */}
-                <Table.Footer>
-                    {isLoading || !hasRows ? null : (
-                        <TablePagination
-                            currentPage={pageIndex + 1}
-                            totalPages={pageCount}
-                            pageSize={pageSize}
-                            pageSizeOptions={pageSizeOptions}
-                            onPageChange={(page) => handlePageChange(page - 1)}
-                            onPageSizeChange={handlePageSizeChange}
-                        />
-                    )}
+                {/* Pagination footer driven by TanStack: `manualPagination`
+                    keeps the server as the source of truth and `p-0` neutralises
+                    the padding of the HeroUI slot so the bar matches the one of
+                    `HeroUIReactTable`. */}
+                <Table.Footer className="p-0">
+                    <TablePagination
+                        table={table}
+                        pageIndex={pageIndex}
+                        pageSize={pageSize}
+                        pageSizeOptions={pageSizeOptions}
+                        isLoading={isLoading}
+                    />
                 </Table.Footer>
             </Table>
         </>
