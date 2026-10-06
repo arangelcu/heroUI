@@ -281,8 +281,9 @@ las dos a la vez—, así que el modo oscuro de los presets queda pendiente.
 
 Los colores deben salir de los tokens de HeroUI (`--surface`, `--accent`,
 `--field-border`…). Evita colores fijos como `white` o la paleta por defecto de
-Tailwind: anulan el sistema de temas. (`HeroUICard` todavía usa `bg-white`; queda
-como deuda conocida mientras no se use el tema oscuro.)
+Tailwind: anulan el sistema de temas. (`HeroUICard` ya usa `bg-surface`; los tonos de
+`HeroUIUtils/tones.ts` siguen con la paleta de Tailwind a propósito, para dar
+estilos propios a los botones.)
 
 ## Notificaciones (`HeroUISnackbar`)
 

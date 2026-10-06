@@ -14,10 +14,8 @@ const THEMES = [
     "light",
     "sms",
     "rcm",
+    "dark",
 ] as const;
-
-/** `data-theme` value that activates dark mode. */
-const DARK_THEME = "dark";
 
 /**
  * `HeroUIThemes`
@@ -30,7 +28,6 @@ export function HeroUIThemes() {
     // `resolvedTheme` is what ends up applied to the DOM.
     const {theme, resolvedTheme, setTheme} = useTheme("rcm");
 
-    const isDark = theme === DARK_THEME;
     const active = resolvedTheme ?? theme;
 
     return (
@@ -41,7 +38,7 @@ export function HeroUIThemes() {
                 className="flex gap-2 flex-wrap justify-center"
             >
                 {THEMES.map((name) => {
-                    const isActive = !isDark && active === name;
+                    const isActive = active === name;
                     return (
                         <Button
                             key={name}
