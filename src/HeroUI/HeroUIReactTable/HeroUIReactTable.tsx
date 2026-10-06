@@ -3,6 +3,8 @@ import {Checkbox} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import type {ColumnDef, PaginationState, RowData, SortingState, Updater} from "@tanstack/react-table";
 import {
+    columnResizingFeature,
+    columnSizingFeature,
     createPaginatedRowModel,
     createSortedRowModel,
     flexRender,
@@ -30,10 +32,13 @@ import styles from "./HeroUIReactTable.module.css";
  * Feature set of the table.
  *
  * Created once at module level (as TanStack requires) and kept to what this component
- * actually offers: sorting and pagination. `columnSizingFeature` is intentionally
- * absent because this table has no resizing yet.
+ * actually offers: sorting, pagination and column resizing. The two sizing features go
+ * together: `columnSizingFeature` resolves and stores the widths and
+ * `columnResizingFeature` provides `getResizeHandler()` for the drag handle.
  */
 const features = tableFeatures({
+    columnResizingFeature,
+    columnSizingFeature,
     paginatedRowModel: createPaginatedRowModel(),
     rowPaginationFeature,
     rowSortingFeature,
@@ -109,6 +114,14 @@ export interface HeroUIReactTableProps<TData extends RowData> {
     filtersConfig?: TableFiltersConfig;
     /** Fired whenever the built-in filter bar changes the filters. */
     onFiltersChange?: (filters: FilterValues) => void;
+    /**
+     * Enables column resizing: every header gets a drag handle on its trailing edge and
+     * the table switches to `table-layout: fixed` so the dragged widths are respected.
+     *
+     * The last column has no handle, exactly like in `HeroUiTable`, and a single column
+     * can opt out with `enableResizing: false` in its definition. Defaults to `false`.
+     */
+    enableColumnResizing?: boolean;
     /** Minimum width of the `<table>`, so it can scroll horizontally. Defaults to `"600px"`. */
     minTableWidth?: string | number;
 }
@@ -145,9 +158,17 @@ export interface HeroUIReactTableProps<TData extends RowData> {
  * loading → empty, and each one can be replaced from outside with `renderError`,
  * `renderLoading` or `renderEmpty`.
  *
- * ### What it does not have (yet)
+ * ### Column resizing
  *
- * Column resizing.
+ * With `enableColumnResizing` each header gets a drag handle on its trailing edge
+ * (TanStack's `columnResizingFeature` + `columnSizingFeature`) and the `<table>` switches
+ * to `table-layout: fixed`, so the widths the user drags are the ones that render. The
+ * sizes live in the table's own state: nothing is sent to the server. Double-clicking a
+ * handle restores that column's initial size.
+ *
+ * The resize is **live**: the edge of the column follows the pointer, like in
+ * `HeroUiTable`. That needs `columnResizeMode: "onChange"`; TanStack's default is
+ * `"onEnd"`, which keeps the edge in place and applies the size only on release.
  *
  * ### Example
  * ```tsx
@@ -184,6 +205,7 @@ export function HeroUIReactTable<TData extends RowData>({
                                                              filters = {},
                                                              filtersConfig,
                                                              onFiltersChange,
+                                                             enableColumnResizing = false,
                                                              minTableWidth = "600px",
                                                          }: HeroUIReactTableProps<TData>) {
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -251,6 +273,14 @@ export function HeroUIReactTable<TData extends RowData>({
         manualPagination: true,
         manualSorting: true,
         rowCount,
+        // TanStack gates the handles with this option: with it off, `getCanResize()` is
+        // `false` for every column.
+        enableColumnResizing,
+        // TanStack defaults to `"onEnd"`, which only applies the new sizes when the drag
+        // is released. `"onChange"` commits on every pointer move, so the edge of the
+        // column follows the cursor while dragging, which is how `HeroUiTable` behaves
+        // (react-aria's `ColumnResizer` resizes live).
+        columnResizeMode: "onChange",
         getRowId: (row: TData) => String(getRowId(row)),
         onSortingChange: setSorting,
         onPaginationChange: handlePaginationChange,
@@ -428,7 +458,11 @@ export function HeroUIReactTable<TData extends RowData>({
 
             <div className={styles.wrapper}>
                 <div className={styles.scroller}>
-                    <table className={styles.table} aria-label={ariaLabel} style={{minWidth: minTableWidth}}>
+                    <table
+                        className={`${styles.table} ${enableColumnResizing ? styles.resizable : ""}`.trim()}
+                        aria-label={ariaLabel}
+                        style={{minWidth: minTableWidth}}
+                    >
                         <thead className={styles.header}>
                         <tr>
                             {enableSelection && (
@@ -452,6 +486,11 @@ export function HeroUIReactTable<TData extends RowData>({
                                 const canSort = header.column.getCanSort();
                                 const direction = sortDirectionOf(header.id);
                                 const label = flexRender(header.column.columnDef.header, header.getContext());
+                                const canResize = header.column.getCanResize();
+                                const isResizing = header.column.getIsResizing();
+                                // The last column has no handle, like in `HeroUiTable`: dragging it
+                                // would only fight the table edge.
+                                const isLastColumn = headerGroups[0]?.headers.slice(-1)[0]?.id === header.id;
 
                                 return (
                                     <th
@@ -459,10 +498,17 @@ export function HeroUIReactTable<TData extends RowData>({
                                         scope="col"
                                         className={styles.column}
                                         aria-sort={canSort ? direction : undefined}
-                                        // `columnDef.size` and not `header.getSize()`: that method
-                                        // comes from `columnSizingFeature`, which this table does not
-                                        // enable (no resizing), so calling it would throw.
-                                        style={header.column.columnDef.size ? {width: `${header.column.columnDef.size}px`} : undefined}
+                                        // With the resizer on, the width is TanStack's (`getSize()`),
+                                        // which is what the drag updates. With it off there is no sizing
+                                        // state, so only an explicit `size` in the column definition
+                                        // is applied.
+                                        style={
+                                            enableColumnResizing
+                                                ? {width: `${header.column.getSize()}px`}
+                                                : header.column.columnDef.size
+                                                    ? {width: `${header.column.columnDef.size}px`}
+                                                    : undefined
+                                        }
                                     >
                                         {canSort ? (
                                             <button
@@ -474,6 +520,21 @@ export function HeroUIReactTable<TData extends RowData>({
                                                 <Icon className={`${styles.sortIcon} size-3`} icon="fa6-solid:chevron-up"/>
                                             </button>
                                         ) : label}
+
+                                        {/* Drag handle. It is hidden from assistive tech on purpose:
+                                            the interaction is a pointer drag with no keyboard
+                                            equivalent, so announcing it as a control would promise
+                                            something it cannot do. Double click resets the column. */}
+                                        {enableColumnResizing && canResize && !isLastColumn && (
+                                            <span
+                                                className={`${styles.resizer} ${isResizing ? styles.resizerActive : ""}`.trim()}
+                                                onMouseDown={header.getResizeHandler()}
+                                                onTouchStart={header.getResizeHandler()}
+                                                onDoubleClick={() => header.column.resetSize()}
+                                                aria-hidden="true"
+                                                title="Drag to resize"
+                                            />
+                                        )}
                                     </th>
                                 );
                             })}

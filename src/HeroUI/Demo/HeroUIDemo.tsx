@@ -1101,7 +1101,7 @@ function HeroUIDemo() {
 
                     {/* ---------- Card 6: Table PLAIN (own markup) ---------- */}
                     <HeroUICard
-                        title="Table PLAIN"
+                        title="TanStack Table v9"
                         description="TanStack Table v9 rendering its own <table> markup (no HeroUI table primitives). Server-side pagination and sorting."
                     >
                         <div className="p-4">
@@ -1114,6 +1114,8 @@ function HeroUIDemo() {
                                 fetchData={tablePlain.fetchData}
                                 pageSizeOptions={[5, 10, 25, 50, 100]}
                                 enableSelection
+                                // Drag the trailing edge of a header to resize the column.
+                                enableColumnResizing
                                 getRowId={(user) => user.id}
                                 ariaLabel="Team members (plain table)"
                                 // Without `rowHeaderColumnId` every column is painted the

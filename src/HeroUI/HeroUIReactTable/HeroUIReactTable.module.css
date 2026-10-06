@@ -31,6 +31,54 @@
     text-align: start;
 }
 
+/* With resizing on, the widths the drag produces have to win over the content:
+   `table-layout: fixed` is what makes the browser respect them. As a side effect,
+   long content wraps inside its column instead of widening it. */
+.resizable {
+    table-layout: fixed;
+}
+
+/* --------------------------------------------------------------------------
+   Column resizer
+   --------------------------------------------------------------------------
+   Invisible hit area over the trailing edge of the header; `.column` is the
+   positioning context. The visible line is the `::after`, and it sits exactly on
+   the column separator, so hovering a handle widens the separator and paints it
+   with the accent instead of adding a second line next to it.
+   -------------------------------------------------------------------------- */
+
+.resizer {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    z-index: 1;
+    height: 100%;
+    width: 8px;
+    cursor: col-resize;
+    user-select: none;
+    /* Keeps the drag from scrolling the page on touch devices. */
+    touch-action: none;
+}
+
+.resizer::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: 0;
+    top: 50%;
+    width: 2px;
+    height: 1.5rem;
+    border-radius: 1px;
+    transform: translateY(-50%);
+    background-color: transparent;
+    transition: background-color 150ms ease;
+}
+
+/* While hovering or dragging, the separator turns into the accent line. */
+.resizer:hover::after,
+.resizerActive::after {
+    background-color: var(--accent);
+}
+
 /* --------------------------------------------------------------------------
    Header
    -------------------------------------------------------------------------- */

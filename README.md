@@ -186,6 +186,16 @@ y descripción) y `TableLoader`— más el de error. La prioridad es error → c
 vacío, y cada uno se puede sustituir con `renderError` / `renderLoading` /
 `renderEmpty`.
 
+**Resizing.** Las dos lo traen con `enableColumnResizing`: un asa en el borde
+derecho de cada cabecera —menos la última— que se puede arrastrar, y doble clic
+para volver al ancho inicial. En `HeroUIReactTable` la tabla pasa a
+`table-layout: fixed` para que el ancho arrastrado mande de verdad. Los tamaños
+viven en el estado de TanStack: **no** viajan al servidor ni disparan peticiones.
+
+El redimensionado es **en vivo**: el borde de la columna sigue al ratón, como en
+`HeroUiTable`. Eso lo da `columnResizeMode: "onChange"`; el default de TanStack
+es `"onEnd"`, que deja el borde quieto y aplica el tamaño al soltar.
+
 #### Estilo por fila según su dato
 
 La tabla expone dos props, y se pueden combinar:
